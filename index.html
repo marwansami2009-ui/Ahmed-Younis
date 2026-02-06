@@ -12,12 +12,12 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
     <script type="module">
-        // 1. استدعاء المكتبات (سيب دي زي ما هي)
+      
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child, push, update, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // 2. هنا بقى نحط بياناتك الحقيقية (أنا ظبطتهالك خلاص انسخها زي ما هي)
+        
         const firebaseConfig = {
             apiKey: "AIzaSyAWvMBrjkjU02jfOe8HKNnDHNx1ZshlDdo",
             authDomain: "el-alamy-platform.firebaseapp.com",
@@ -36,14 +36,6 @@
         window.googleProvider = new GoogleAuthProvider();
         
         // دول عشان نستخدمهم جوه React
-        window.rtdb = { ref, set, get, child, push, update, onValue, remove, serverTimestamp };
-        window.authMethods = { signInWithPopup, signOut, onAuthStateChanged };
-    </script>
-
-        const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app); 
-        window.auth = getAuth(app);
-        window.googleProvider = new GoogleAuthProvider();
         window.rtdb = { ref, set, get, child, push, update, onValue, remove, serverTimestamp };
         window.authMethods = { signInWithPopup, signOut, onAuthStateChanged };
     </script>
