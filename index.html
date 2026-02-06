@@ -12,20 +12,33 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
     <script type="module">
+        // 1. استدعاء المكتبات (سيب دي زي ما هي)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child, push, update, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+        // 2. هنا بقى نحط بياناتك الحقيقية (أنا ظبطتهالك خلاص انسخها زي ما هي)
         const firebaseConfig = {
             apiKey: "AIzaSyAWvMBrjkjU02jfOe8HKNnDHNx1ZshlDdo",
             authDomain: "el-alamy-platform.firebaseapp.com",
+            databaseURL: "https://el-alamy-platform-default-rtdb.firebaseio.com",
             projectId: "el-alamy-platform",
             storageBucket: "el-alamy-platform.firebasestorage.app",
             messagingSenderId: "790950981758",
             appId: "1:790950981758:web:21cf7c65e9d2cce210a82f",
-            measurementId: "G-970BP0VKQQ",
-            databaseURL: "https://el-alamy-platform-default-rtdb.firebaseio.com"
+            measurementId: "G-970BP0VKQQ"
         };
+
+        // 3. تشغيل الفايربيز
+        const app = initializeApp(firebaseConfig);
+        window.db = getDatabase(app); 
+        window.auth = getAuth(app);
+        window.googleProvider = new GoogleAuthProvider();
+        
+        // دول عشان نستخدمهم جوه React
+        window.rtdb = { ref, set, get, child, push, update, onValue, remove, serverTimestamp };
+        window.authMethods = { signInWithPopup, signOut, onAuthStateChanged };
+    </script>
 
         const app = initializeApp(firebaseConfig);
         window.db = getDatabase(app); 
