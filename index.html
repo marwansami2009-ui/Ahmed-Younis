@@ -9,8 +9,8 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
+    <!-- Firebase Initialization - SINGLE INSTANCE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child, push, update, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -34,6 +34,8 @@
         
         window.rtdb = { ref, set, get, child, push, update, onValue, remove, serverTimestamp };
         window.authMethods = { signInWithPopup, signOut, onAuthStateChanged };
+        
+        console.log('✅ Firebase initialized successfully');
     </script>
 
     <script>
@@ -72,6 +74,7 @@
             }
         }
     </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
@@ -144,26 +147,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        .attendance-btn {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .attendance-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .attendance-btn:hover::after {
-            opacity: 1;
-        }
-
         .role-badge {
             padding: 2px 8px;
             border-radius: 12px;
@@ -183,34 +166,10 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         
-        // 🔐 أكواد الأدمن العشوائية (يتم توليدها تلقائياً)
-        const ADMIN_CODES = {
-            'BOSS': {
-                code: 'BOSS-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                role: 'boss',
-                name: 'البوص الرئيسي'
-            },
-            'ADMIN_1': {
-                code: 'ADMIN-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                role: 'admin',
-                name: 'الأدمن الأول'
-            },
-            'ADMIN_2': {
-                code: 'ADMIN-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                role: 'admin',
-                name: 'الأدمن الثاني'
-            },
-            'ADMIN_3': {
-                code: 'ADMIN-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                role: 'admin',
-                name: 'الأدمن الثالث'
-            }
-        };
+        // 🔐 SUPER ADMIN EMAIL - HARDCODED
+        const SUPER_ADMIN_EMAIL = 'marwansami2009@gmail.com';
 
-        // حفظ الأكواد في localStorage
-        localStorage.setItem('ADMIN_CODES', JSON.stringify(ADMIN_CODES));
-
-        // 📱 بيانات التواصل
+        // 📱 Contact Info
         const CONTACT_INFO = {
             whatsapp: 'https://wa.me/201000000000',
             facebook: 'https://facebook.com/yourpage',
@@ -219,24 +178,6 @@
             vodafoneNumber: '010xxxxxxxx',
             supportWhatsapp: 'https://wa.me/201000000000',
             masterWhatsapp: 'https://wa.me/201111111111'
-        };
-
-        // 📊 أنظمة التقييم والرتب
-        const RANK_SYSTEM = {
-            attendance: [
-                { level: 1, name: 'مبتدئ', min: 0, color: '#6b7280' },
-                { level: 2, name: 'منتظم', min: 10, color: '#3b82f6' },
-                { level: 3, name: 'ملتزم', min: 30, color: '#8b5cf6' },
-                { level: 4, name: 'متفوق', min: 60, color: '#10b981' },
-                { level: 5, name: 'بطل الحضور', min: 100, color: '#fbbf24' }
-            ],
-            performance: [
-                { level: 1, name: 'يحتاج تحسين', min: 0, color: '#6b7280' },
-                { level: 2, name: 'مقبول', min: 60, color: '#3b82f6' },
-                { level: 3, name: 'جيد', min: 75, color: '#10b981' },
-                { level: 4, name: 'متميز', min: 85, color: '#8b5cf6' },
-                { level: 5, name: 'عبقري الرياضيات', min: 95, color: '#fbbf24' }
-            ]
         };
 
         // 🛡️ SafeIcon Component
@@ -254,7 +195,8 @@
                 'instagram': '📷', 'users': '👥', 'shield': '🛡️', 'eye': '👁️',
                 'eye-off': '👁️‍🗨️', 'link': '🔗', 'parent': '👨‍👦', 'student': '👨‍🎓',
                 'admin': '👨‍💼', 'logout': '🚪', 'search': '🔍', 'filter': '⚙️',
-                'download': '⬇️', 'upload': '⬆️', 'edit': '✏️', 'copy': '📋'
+                'download': '⬇️', 'upload': '⬆️', 'edit': '✏️', 'copy': '📋',
+                'crown': '👑', 'user-plus': '➕👤', 'user-minus': '➖👤'
             };
             
             const emoji = icons[name] || '🔹';
@@ -275,7 +217,7 @@
             );
         };
 
-        // 🛡️ Error Boundary Component
+        // 🛡️ Error Boundary
         class ErrorBoundary extends React.Component {
             constructor(props) {
                 super(props);
@@ -316,74 +258,58 @@
             // --- State Management ---
             const [user, setUser] = useState(null); 
             const [view, setView] = useState('landing'); 
-            const [registrationType, setRegistrationType] = useState(null); // 'student', 'parent', 'admin'
+            const [registrationType, setRegistrationType] = useState(null);
             const [dataState, setDataState] = useState({ 
-                students: [], parents: [], requests: [], lectures: [], whiteboards: [], 
-                qa: [], exams: [], announcements: [], payments: [], subscriptions: {},
-                freeContent: [], attendance: {}, performance: {}, weeklyAssessments: {},
-                parentConnections: {} // ربط الآباء بالطلاب
+                students: [], 
+                parents: [], 
+                requests: [], 
+                lectures: [], 
+                whiteboards: [], 
+                qa: [], 
+                exams: [], 
+                announcements: [], 
+                payments: [], 
+                subscriptions: {},
+                freeContent: [], 
+                attendance: {}, 
+                performance: {}, 
+                weeklyAssessments: {},
+                parentConnections: {}
             });
             
-            // Registration Data - منفصل لكل نوع
+            // Registration Data
             const [studentRegData, setStudentRegData] = useState({ 
-                firstName: '',
-                secondName: '',
-                thirdName: '',
-                phone: '', 
-                parentPhone: '', 
-                school: '',
-                governorate: '', 
-                city: '',
-                center: '',
-                grade: '1sec',
-                address: '',
-                scheduleDays: 'الاثنين والأربعاء'
+                firstName: '', secondName: '', thirdName: '', phone: '', parentPhone: '', 
+                school: '', governorate: '', city: '', center: '', grade: '1sec',
+                address: '', scheduleDays: 'الاثنين والأربعاء'
             });
             
             const [parentRegData, setParentRegData] = useState({
-                name: '',
-                phone: '',
-                email: '',
-                relationship: 'أب', // أب، أم، ولي أمر
-                studentsCount: 1,
-                notes: ''
+                name: '', phone: '', email: '', relationship: 'أب',
+                studentsCount: 1, notes: ''
             });
             
-            const [adminLoginCode, setAdminLoginCode] = useState('');
             const [studentLoginCode, setStudentLoginCode] = useState('');
             const [parentLoginCode, setParentLoginCode] = useState('');
             
             // UI States
             const [activeTab, setActiveTab] = useState('home');
-            const [selectedLecture, setSelectedLecture] = useState(null);
-            const [currentLectureStep, setCurrentLectureStep] = useState('video');
             const [sidebarOpen, setSidebarOpen] = useState(false);
             const [notification, setNotification] = useState(null);
             const [showStudentModal, setShowStudentModal] = useState(false);
             const [selectedStudent, setSelectedStudent] = useState(null);
             const [searchQuery, setSearchQuery] = useState('');
-            const [showFreeContent, setShowFreeContent] = useState(false);
-            const [activeGrade, setActiveGrade] = useState('all');
-            const [showAssessmentModal, setShowAssessmentModal] = useState(false);
             const [isGuestMode, setIsGuestMode] = useState(false);
-            
-            // Quiz State
-            const [quizAnswers, setQuizAnswers] = useState({});
-            const [quizSubmitted, setQuizSubmitted] = useState(false);
-
-            // Attendance State
-            const [attendanceChecked, setAttendanceChecked] = useState(false);
-
-            // Parent State
             const [linkedStudents, setLinkedStudents] = useState([]);
-            const [parentView, setParentView] = useState('overview'); // overview, student-details, progress
+            const [parentView, setParentView] = useState('overview');
+            const [staffSearchQuery, setStaffSearchQuery] = useState('');
 
             const showNotification = (message, type = 'success') => {
                 setNotification({ message, type });
                 setTimeout(() => setNotification(null), 4000);
             };
 
-            // --- توليد أكواد عشوائية ---
+            // --- Helper Functions ---
             const generateRandomCode = (prefix) => {
                 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
                 let code = prefix + '-';
@@ -395,74 +321,109 @@
 
             const generateStudentCode = () => generateRandomCode('STU');
             const generateParentCode = () => generateRandomCode('PAR');
-            const generateAdminCode = () => generateRandomCode('ADM');
 
-            // --- Calculate Rank ---
-            const calculateRank = (type, value) => {
-                const ranks = RANK_SYSTEM[type];
-                for (let i = ranks.length - 1; i >= 0; i--) {
-                    if (value >= ranks[i].min) {
-                        return ranks[i];
-                    }
-                }
-                return ranks[0];
+            const calculateSubscriptionDays = (subscriptionEnd) => {
+                if (!subscriptionEnd) return 0;
+                const now = new Date();
+                const end = new Date(subscriptionEnd);
+                const diffTime = end - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays > 0 ? diffDays : 0;
             };
 
-            // --- WhatsApp Message Generator ---
-            const generateWelcomeMessage = (name, code, phone, type = 'student') => {
-                if (type === 'student') {
-                    return `🎉 *مبروك قبولك في منصة العالمي للرياضيات!*\n\n👤 *الطالب:* ${name}\n🔑 *كود الدخول:* ${code}\n📱 *رقم الطالب:* ${phone}\n\n📚 *طريقة الدخول:*\n1. ادخل الموقع: https://el-alamy.com\n2. اضغط على "دخول الطالب"\n3. ادخل الكود: ${code}\n\n💰 *لتفعيل الاشتراك:*\n1. حول 300 جنيه على: ${CONTACT_INFO.vodafoneNumber}\n2. اكتب في الرسالة: ${code}\n3. أرسل إثبات الدفع على: ${CONTACT_INFO.supportWhatsapp}\n\n✅ *بعد التفعيل تحصل على:*\n- جميع المحاضرات كاملة\n- امتحانات وتدريبات\n- متابعة أسبوعية\n- شهادة معتمدة\n\n🚀 *نتمنى لك تفوقاً باهراً!*`;
-                } else if (type === 'parent') {
-                    return `👨‍👩‍👦 *مرحباً بولي الأمر في منصة العالمي للرياضيات!*\n\n👤 *ولي الأمر:* ${name}\n🔑 *كود الدخول:* ${code}\n📱 *رقم التواصل:* ${phone}\n\n📚 *طريقة الدخول:*\n1. ادخل الموقع: https://el-alamy.com\n2. اضغط على "دخول ولي الأمر"\n3. ادخل الكود: ${code}\n\n👁️ *المميزات:*\n- متابعة أداء أبنائك\n- تقارير الحضور والغياب\n- نتائج الامتحانات\n- التواصل مع الإدارة\n\n✅ *بعد الربط مع أبنائك تحصل على:*\n- تحديثات لحظية\n- تقارير أداء مفصلة\n- تنبيهات مهمة\n\nشكراً لثقتكم بنا!`;
+            // --- 🔐 SUPER ADMIN AUTO-PROMOTION ---
+            const checkAndPromoteSuperAdmin = async (authUser) => {
+                if (authUser.email === SUPER_ADMIN_EMAIL) {
+                    console.log('🔐 Super Admin detected:', SUPER_ADMIN_EMAIL);
+                    
+                    const userRef = window.rtdb.ref(window.db, `users/${authUser.uid}`);
+                    const snapshot = await window.rtdb.get(userRef);
+                    
+                    const userData = {
+                        uid: authUser.uid,
+                        email: authUser.email,
+                        name: authUser.displayName || 'The Boss',
+                        photo: authUser.photoURL,
+                        role: 'boss',
+                        adminLevel: 'البوص الرئيسي',
+                        isNew: false,
+                        promotedAt: new Date().toISOString()
+                    };
+                    
+                    await window.rtdb.set(userRef, userData);
+                    
+                    return userData;
                 }
-                return '';
+                return null;
             };
 
-            // --- Authentication ---
+            // --- Authentication Handler ---
             useEffect(() => {
-                window.authMethods.onAuthStateChanged(window.auth, async (u) => {
-                    if (u) {
-                        const s = await window.rtdb.get(window.rtdb.child(window.rtdb.ref(window.db), `users/${u.uid}`));
-                        if (s.exists()) { 
-                            const userData = s.val();
-                            setUser({ ...userData, uid: u.uid, photo: u.photoURL }); 
-                            
-                            // تحميل الطلاب المرتبطين إذا كان ولي أمر
-                            if (userData.role === 'parent') {
-                                loadLinkedStudents(userData.uid);
-                            }
-                            
-                            setView(['admin', 'boss'].includes(userData.role) ? 'admin' : userData.role === 'parent' ? 'parent' : 'student'); 
-                            
-                            // Check today's attendance
-                            if (userData.role === 'student') {
-                                const today = new Date().toISOString().split('T')[0];
-                                const attRef = window.rtdb.ref(window.db, `attendance/${u.uid}/${today}`);
-                                window.rtdb.get(attRef).then(snap => {
-                                    setAttendanceChecked(!!snap.exists());
-                                });
-                            }
-                        } else { 
-                            setUser({ uid: u.uid, name: u.displayName, email: u.email, photo: u.photoURL, isNew: true }); 
-                            setView('choose-role'); 
+                window.authMethods.onAuthStateChanged(window.auth, async (authUser) => {
+                    if (authUser) {
+                        console.log('🔑 User authenticated:', authUser.email);
+                        
+                        // Check for Super Admin first
+                        const superAdminData = await checkAndPromoteSuperAdmin(authUser);
+                        
+                        if (superAdminData) {
+                            setUser(superAdminData);
+                            setView('admin');
+                            showNotification(`مرحباً البوص الرئيسي! 👑`, 'success');
+                            return;
                         }
-                    } else { 
-                        setUser(null); 
+                        
+                        // Check existing user in database
+                        const userRef = window.rtdb.ref(window.db, `users/${authUser.uid}`);
+                        const snapshot = await window.rtdb.get(userRef);
+                        
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
+                            setUser({ ...userData, uid: authUser.uid, photo: authUser.photoURL });
+                            
+                            // Route based on role
+                            if (['admin', 'boss'].includes(userData.role)) {
+                                setView('admin');
+                            } else if (userData.role === 'parent') {
+                                setView('parent');
+                                loadLinkedStudents(userData.uid);
+                            } else if (userData.role === 'student') {
+                                if (userData.status === 'pending') {
+                                    setView('pending-approval');
+                                } else {
+                                    setView('student');
+                                }
+                            } else {
+                                setView('choose-role');
+                            }
+                        } else {
+                            // New user
+                            setUser({ 
+                                uid: authUser.uid, 
+                                name: authUser.displayName, 
+                                email: authUser.email, 
+                                photo: authUser.photoURL, 
+                                isNew: true 
+                            });
+                            setView('choose-role');
+                        }
+                    } else {
+                        setUser(null);
                         setView('landing');
                     }
                 });
             }, []);
 
-            // --- تحميل الطلاب المرتبطين بولاية الأمر ---
+            // --- Load Linked Students for Parents ---
             const loadLinkedStudents = async (parentId) => {
                 try {
                     const connectionsRef = window.rtdb.ref(window.db, `parentConnections/${parentId}`);
                     const snapshot = await window.rtdb.get(connectionsRef);
+                    
                     if (snapshot.exists()) {
                         const connections = snapshot.val();
                         const studentIds = Object.keys(connections);
                         
-                        // جلب بيانات كل طالب
                         const studentsPromises = studentIds.map(async (studentId) => {
                             const studentRef = window.rtdb.ref(window.db, `users/${studentId}`);
                             const studentSnap = await window.rtdb.get(studentRef);
@@ -475,7 +436,6 @@
                         const students = (await Promise.all(studentsPromises)).filter(s => s !== null);
                         setLinkedStudents(students);
                         
-                        // تحديث state
                         setDataState(prev => ({
                             ...prev,
                             parentConnections: {
@@ -489,7 +449,7 @@
                 }
             };
 
-            // --- ربط طالب بولي أمر ---
+            // --- Link Student to Parent ---
             const linkStudentToParent = async (parentId, studentId, relationship = 'ابن/ابنة') => {
                 try {
                     const connectionRef = window.rtdb.ref(window.db, `parentConnections/${parentId}/${studentId}`);
@@ -503,7 +463,7 @@
                     });
                     
                     showNotification('تم ربط الطالب بولي الأمر بنجاح');
-                    loadLinkedStudents(parentId); // إعادة تحميل القائمة
+                    loadLinkedStudents(parentId);
                 } catch (error) {
                     console.error('Error linking student:', error);
                     showNotification('حدث خطأ في الربط', 'error');
@@ -528,7 +488,6 @@
                         }))
                     );
                     
-                    // Sync Q&A for all users
                     window.rtdb.onValue(window.rtdb.ref(window.db, 'qa'), s => 
                         setDataState(p => ({ 
                             ...p, 
@@ -543,33 +502,11 @@
                         }))
                     );
                     
-                    if (user) {
-                        if (user.role === 'student') {
-                            // Sync student-specific data
-                            window.rtdb.onValue(window.rtdb.ref(window.db, `attendance/${user.uid}`), s => 
-                                setDataState(p => ({ 
-                                    ...p, 
-                                    attendance: { ...p.attendance, [user.uid]: s.val() || {} } 
-                                }))
-                            );
-                        }
-                        
-                        if (user.role === 'parent') {
-                            // Sync parent connections
-                            window.rtdb.onValue(window.rtdb.ref(window.db, `parentConnections/${user.uid}`), s => 
-                                setDataState(p => ({
-                                    ...p,
-                                    parentConnections: { ...p.parentConnections, [user.uid]: s.val() || {} }
-                                }))
-                            );
-                        }
-                    }
-                    
-                    if (['admin', 'boss'].includes(user?.role)) {
-                        // Sync admin-only data
+                    if (user && ['admin', 'boss'].includes(user.role)) {
                         window.rtdb.onValue(window.rtdb.ref(window.db, 'requests'), s => 
                             setDataState(p => ({ ...p, requests: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
                         );
+                        
                         window.rtdb.onValue(window.rtdb.ref(window.db, 'users'), s => {
                             const allUsers = s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [];
                             setDataState(p => ({ 
@@ -578,132 +515,31 @@
                                 parents: allUsers.filter(u => u.role === 'parent')
                             }));
                         });
+                        
                         window.rtdb.onValue(window.rtdb.ref(window.db, 'payments'), s => 
                             setDataState(p => ({ ...p, payments: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
                         );
+                        
                         window.rtdb.onValue(window.rtdb.ref(window.db, 'subscriptions'), s => 
                             setDataState(p => ({ ...p, subscriptions: s.val() || {} }))
                         );
+                        
                         window.rtdb.onValue(window.rtdb.ref(window.db, 'attendance'), s => 
                             setDataState(p => ({ ...p, attendance: s.val() || {} }))
-                        );
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'exams'), s => 
-                            setDataState(p => ({ ...p, exams: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
-                        );
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'whiteboards'), s => 
-                            setDataState(p => ({ ...p, whiteboards: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
                         );
                     }
                 }
             }, [user, isGuestMode]);
 
-            // --- Helper Functions ---
-            const renderContent = (link, type = 'video') => {
-                if (!link) return null;
-                if (link.trim().startsWith('<iframe') || link.trim().startsWith('<div')) 
-                    return <div className="embed-wrapper" dangerouslySetInnerHTML={{__html: link}} />;
-                if (link.includes('youtu')) {
-                    const id = link.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/)?.[2];
-                    return id ? <div className="embed-wrapper"><iframe src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe></div> : null;
-                }
-                if (type === 'image' || link.match(/\.(jpeg|jpg|gif|png)$/) || link.includes('ibb.co')) {
-                    return <img src={link} className="w-full rounded-xl shadow-lg border border-white/10" onError={(e)=>{e.target.src='https://placehold.co/600x400?text=خطأ';}} />;
-                }
-                if (link.includes('drive.google.com')) {
-                    return <div className="embed-wrapper"><iframe src={link.replace('/view', '/preview').replace('/edit', '/preview')} allowFullScreen></iframe></div>;
-                }
-                return <a href={link} target="_blank" className="block w-full bg-white/10 text-white text-center py-3 rounded-xl font-bold border border-white/10 hover:bg-white/20">🔗 فتح الرابط</a>;
-            };
-
-            const calculateSubscriptionDays = (subscriptionEnd) => {
-                if (!subscriptionEnd) return 0;
-                const now = new Date();
-                const end = new Date(subscriptionEnd);
-                const diffTime = end - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays > 0 ? diffDays : 0;
-            };
-
-            // --- تسجيل الدخول للطالب ---
-            const handleStudentLogin = async () => {
-                if (studentLoginCode.length < 3) {
-                    return showNotification('أدخل الكود الخاص بك', 'error');
-                }
-                
-                const student = dataState.students.find(s => s.code === studentLoginCode);
-                if (student) {
-                    if (student.status === 'pending') {
-                        setView('pending-approval');
-                    } else {
-                        // Set user and view
-                        setUser({ ...student, uid: student.id });
-                        setView('student');
-                        showNotification(`مرحباً ${student.firstName} ${student.secondName}!`);
-                    }
-                } else {
-                    showNotification('الكود غير صحيح', 'error');
-                }
-            };
-
-            // --- تسجيل الدخول لولي الأمر ---
-            const handleParentLogin = async () => {
-                if (parentLoginCode.length < 3) {
-                    return showNotification('أدخل الكود الخاص بك', 'error');
-                }
-                
-                const parent = dataState.parents.find(p => p.code === parentLoginCode);
-                if (parent) {
-                    setUser({ ...parent, uid: parent.id });
-                    setView('parent');
-                    showNotification(`مرحباً ${parent.name}!`);
-                } else {
-                    showNotification('الكود غير صحيح', 'error');
-                }
-            };
-
-            // --- تسجيل الدخول للإدارة ---
-            const handleAdminLogin = async () => {
-                if (!user) return showNotification('سجل بجوجل الأول', 'error');
-                
-                // تحقق من الأكواد المحفوظة
-                const savedCodes = JSON.parse(localStorage.getItem('ADMIN_CODES') || '{}');
-                let validCode = null;
-                
-                // البحث في الأكواد
-                Object.values(savedCodes).forEach(admin => {
-                    if (admin.code === adminLoginCode) {
-                        validCode = admin;
-                    }
-                });
-                
-                if (validCode) {
-                    await window.rtdb.set(window.rtdb.ref(window.db, 'users/' + user.uid), { 
-                        ...user, 
-                        role: validCode.role, 
-                        adminLevel: validCode.name,
-                        isNew: false 
-                    });
-                    
-                    // حفظ في localStorage للوصول السريع
-                    localStorage.setItem('admin_logged_in', 'true');
-                    localStorage.setItem('admin_role', validCode.role);
-                    
-                    showNotification(`مرحباً ${validCode.name}!`);
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showNotification('الكود غير صحيح', 'error');
-                }
-            };
-
-            // --- إرسال طلب تسجيل ---
+            // --- Registration Handlers ---
             const submitRegistration = async (type) => {
-                let data, collection, userData;
+                let data, collection;
                 
                 if (type === 'student') {
                     const required = ['firstName', 'secondName', 'phone', 'parentPhone', 'school', 'grade'];
                     const missing = required.filter(field => !studentRegData[field]);
                     
-                    if(missing.length > 0) {
+                    if (missing.length > 0) {
                         return showNotification('من فضلك اكتب كل البيانات المطلوبة (*)', 'error');
                     }
                     
@@ -724,12 +560,11 @@
                     };
                     
                     collection = 'requests';
-                    
                 } else if (type === 'parent') {
                     const required = ['name', 'phone'];
                     const missing = required.filter(field => !parentRegData[field]);
                     
-                    if(missing.length > 0) {
+                    if (missing.length > 0) {
                         return showNotification('من فضلك اكتب كل البيانات المطلوبة (*)', 'error');
                     }
                     
@@ -748,29 +583,55 @@
                     };
                     
                     collection = 'parentRequests';
-                    
                 } else {
                     return;
                 }
                 
-                // إرسال الطلب
                 await window.rtdb.set(window.rtdb.push(window.rtdb.ref(window.db, collection)), data);
-                
                 showNotification(`تم إرسال طلب ${type === 'student' ? 'تسجيل الطالب' : 'تسجيل ولي الأمر'}!`);
+                
                 setTimeout(() => {
                     setView('pending-approval');
                 }, 2000);
             };
 
-            const uploadItem = async (collection, data) => {
-                await window.rtdb.push(window.rtdb.ref(window.db, collection), { 
-                    ...data, 
-                    date: new Date().toLocaleDateString('ar-EG'), 
-                    ts: Date.now() 
-                });
-                showNotification('تم النشر بنجاح ✅');
+            // --- Student Login ---
+            const handleStudentLogin = async () => {
+                if (studentLoginCode.length < 3) {
+                    return showNotification('أدخل الكود الخاص بك', 'error');
+                }
+                
+                const student = dataState.students.find(s => s.code === studentLoginCode);
+                if (student) {
+                    if (student.status === 'pending') {
+                        setView('pending-approval');
+                    } else {
+                        setUser({ ...student, uid: student.id });
+                        setView('student');
+                        showNotification(`مرحباً ${student.firstName} ${student.secondName}!`);
+                    }
+                } else {
+                    showNotification('الكود غير صحيح', 'error');
+                }
             };
 
+            // --- Parent Login ---
+            const handleParentLogin = async () => {
+                if (parentLoginCode.length < 3) {
+                    return showNotification('أدخل الكود الخاص بك', 'error');
+                }
+                
+                const parent = dataState.parents.find(p => p.code === parentLoginCode);
+                if (parent) {
+                    setUser({ ...parent, uid: parent.id });
+                    setView('parent');
+                    showNotification(`مرحباً ${parent.name}!`);
+                } else {
+                    showNotification('الكود غير صحيح', 'error');
+                }
+            };
+
+            // --- Update Student ---
             const updateStudent = async (id, data) => {
                 try {
                     await window.rtdb.update(window.rtdb.ref(window.db, `users/${id}`), data);
@@ -788,77 +649,60 @@
                 }
             };
 
-            const addSubscription = async (studentId, months) => {
-                const now = new Date();
-                const end = new Date(now.setMonth(now.getMonth() + months));
-                await window.rtdb.update(window.rtdb.ref(window.db, `subscriptions/${studentId}`), {
-                    startDate: new Date().toISOString(),
-                    endDate: end.toISOString(),
-                    months: months
-                });
-                await updateStudent(studentId, { isPaid: true });
-                showNotification(`تم إضافة اشتراك ${months} شهر`);
-            };
-
-            const markAttendance = async () => {
-                if (!user || user.role !== 'student') return;
-                
-                const today = new Date();
-                const dayName = today.toLocaleDateString('ar-EG', { weekday: 'long' });
-                if (!user.scheduleDays || !user.scheduleDays.includes(dayName)) {
-                    return showNotification('اليوم ليس من أيام حصصك المقررة', 'warning');
+            // --- 👑 STAFF MANAGEMENT FUNCTIONS ---
+            const promoteToAdmin = async (studentId) => {
+                try {
+                    const student = dataState.students.find(s => s.id === studentId);
+                    if (!student) return;
+                    
+                    if (!confirm(`هل تريد ترقية ${student.name} إلى مساعد إداري؟`)) return;
+                    
+                    await window.rtdb.update(window.rtdb.ref(window.db, `users/${studentId}`), {
+                        role: 'admin',
+                        promotedAt: new Date().toISOString(),
+                        promotedBy: user.uid
+                    });
+                    
+                    showNotification(`تم ترقية ${student.name} إلى مساعد إداري 👨‍💼`, 'success');
+                } catch (error) {
+                    console.error('Error promoting to admin:', error);
+                    showNotification('حدث خطأ في الترقية', 'error');
                 }
-                
-                const todayStr = today.toISOString().split('T')[0];
-                await window.rtdb.set(window.rtdb.ref(window.db, `attendance/${user.uid}/${todayStr}`), {
-                    timestamp: Date.now(),
-                    date: todayStr,
-                    day: dayName
-                });
-                
-                setAttendanceChecked(true);
-                showNotification('تم تسجيل حضورك اليوم! 🎉', 'success');
             };
 
-            const generatePaymentCode = () => {
-                return `ALAMY${Date.now().toString().slice(-8)}`;
+            const demoteToStudent = async (adminId) => {
+                try {
+                    const admin = dataState.students.find(s => s.id === adminId);
+                    if (!admin) return;
+                    
+                    // Prevent demoting the boss
+                    if (admin.role === 'boss') {
+                        return showNotification('لا يمكن طرد البوص!', 'error');
+                    }
+                    
+                    if (!confirm(`هل تريد طرد ${admin.name} من الإدارة وإعادته طالب عادي؟`)) return;
+                    
+                    await window.rtdb.update(window.rtdb.ref(window.db, `users/${adminId}`), {
+                        role: 'student',
+                        demotedAt: new Date().toISOString(),
+                        demotedBy: user.uid
+                    });
+                    
+                    showNotification(`تم طرد ${admin.name} من الإدارة`, 'success');
+                } catch (error) {
+                    console.error('Error demoting admin:', error);
+                    showNotification('حدث خطأ في الطرد', 'error');
+                }
             };
 
+            // --- Guest Mode ---
             const handleGuestMode = () => {
                 setIsGuestMode(true);
                 setView('guest');
                 showNotification('مرحباً بك كزائر! يمكنك تصفح المحتوى المجاني', 'info');
             };
 
-            const sendWhatsAppToStudent = (student) => {
-                const message = generateWelcomeMessage(
-                    `${student.firstName} ${student.secondName}`,
-                    student.code,
-                    student.phone,
-                    'student'
-                );
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappUrl = `https://wa.me/${student.parentPhone || student.phone}?text=${encodedMessage}`;
-                window.open(whatsappUrl, '_blank');
-            };
-
-            // --- عرض كود الأدمن للأدمن الحالي ---
-            const showAdminCodes = () => {
-                const savedCodes = JSON.parse(localStorage.getItem('ADMIN_CODES') || '{}');
-                let message = '🔐 **أكواد الإدارة الحالية:**\n\n';
-                
-                Object.values(savedCodes).forEach((admin, idx) => {
-                    message += `${idx + 1}. ${admin.name}\n`;
-                    message += `   الكود: **${admin.code}**\n`;
-                    message += `   الصلاحية: ${admin.role}\n\n`;
-                });
-                
-                alert(message);
-            };
-
-            // --- VIEWS ---
-
-            // 🎨 Landing Page - محدث
+            // 🎨 Landing Page
             if (view === 'landing') return (
                 <div className="min-h-screen bg-brand-dark text-white relative overflow-hidden math-grid flex flex-col">
                     <div className="absolute top-0 left-0 w-full h-full hero-glow z-0"></div>
@@ -915,23 +759,6 @@
                                         className="btn-main px-8 py-4 rounded-xl text-xl flex items-center justify-center gap-2">
                                     ابدأ الآن <SafeIcon name="calculator"/>
                                 </button>
-                                
-                                {/* زر الدخول للإدارة (مخفي للعامة) */}
-                                <button onClick={()=>{
-                                    const code = prompt('أدخل كود الإدارة:');
-                                    if (code) {
-                                        setAdminLoginCode(code);
-                                        window.authMethods.signInWithPopup(window.auth, window.googleProvider)
-                                            .then(() => {
-                                                setTimeout(() => {
-                                                    handleAdminLogin();
-                                                }, 1000);
-                                            });
-                                    }
-                                }} 
-                                        className="bg-red-600/20 hover:bg-red-600/40 border border-red-500/30 px-6 py-4 rounded-xl text-xl flex items-center justify-center gap-2">
-                                    <SafeIcon name="shield"/> دخول الإدارة
-                                </button>
                             </div>
                             
                             <div className="pt-6">
@@ -957,69 +784,10 @@
                                  onError={(e)=>{e.target.style.display='none'}}/>
                         </div>
                     </div>
-
-                    {/* Registration Options */}
-                    <section className="py-10 bg-gradient-to-b from-black/20 to-brand-dark">
-                        <div className="container mx-auto px-4">
-                            <h2 className="text-3xl font-black text-center mb-8">اختر طريقة التسجيل المناسبة</h2>
-                            <div className="grid md:grid-cols-3 gap-6">
-                                {/* Student Registration */}
-                                <div className="glass-panel p-6 text-center hover:border-blue-500/50 transition cursor-pointer" onClick={()=>{
-                                    setRegistrationType('student');
-                                    setView('registration');
-                                }}>
-                                    <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <SafeIcon name="student" size={32} className="text-blue-400"/>
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-2">تسجيل طالب</h3>
-                                    <p className="text-slate-400 text-sm">للطلاب الذين يرغبون في الالتحاق بالمنصة والحصول على المحتوى التعليمي الكامل</p>
-                                    <div className="mt-4 text-xs text-blue-300">
-                                        <p>✓ الوصول للمحاضرات الكاملة</p>
-                                        <p>✓ الامتحانات التفاعلية</p>
-                                        <p>✓ نظام المتابعة</p>
-                                    </div>
-                                </div>
-
-                                {/* Parent Registration */}
-                                <div className="glass-panel p-6 text-center hover:border-green-500/50 transition cursor-pointer" onClick={()=>{
-                                    setRegistrationType('parent');
-                                    setView('registration');
-                                }}>
-                                    <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <SafeIcon name="parent" size={32} className="text-green-400"/>
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-2">تسجيل ولي أمر</h3>
-                                    <p className="text-slate-400 text-sm">لأولياء الأمور الذين يرغبون في متابعة أبنائهم والتواصل مع الإدارة</p>
-                                    <div className="mt-4 text-xs text-green-300">
-                                        <p>✓ متابعة أداء الأبناء</p>
-                                        <p>✓ تقارير الحضور والغياب</p>
-                                        <p>✓ التواصل مع المدرسين</p>
-                                    </div>
-                                </div>
-
-                                {/* Guest Access */}
-                                <div className="glass-panel p-6 text-center hover:border-purple-500/50 transition cursor-pointer" onClick={handleGuestMode}>
-                                    <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <SafeIcon name="user" size={32} className="text-purple-400"/>
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-2">تصفح كزائر</h3>
-                                    <p className="text-slate-400 text-sm">تصفح المحتوى المجاني والتعرف على المنصة قبل الاشتراك</p>
-                                    <div className="mt-4 text-xs text-purple-300">
-                                        <p>✓ محتوى مجاني محدود</p>
-                                        <p>✓ التعرف على المنصة</p>
-                                        <p>✓ لا يتطلب تسجيل</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Rest of the landing page remains the same */}
-                    {/* ... */}
                 </div>
             );
 
-            // 📝 صفحة اختيار نوع التسجيل
+            // 📝 Choose Role Page
             if (view === 'choose-role') return (
                 <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
                     <div className="glass-panel p-8 w-full max-w-2xl animate-slide-up">
@@ -1029,8 +797,7 @@
                             <p className="text-slate-400">اختر نوع الحساب الذي ترغب في إنشائه</p>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {/* Student Account */}
+                        <div className="grid md:grid-cols-2 gap-6">
                             <div className="bg-blue-500/10 border border-blue-500/30 p-6 rounded-xl text-center hover:border-blue-500/50 transition cursor-pointer" onClick={()=>{
                                 setRegistrationType('student');
                                 setView('registration');
@@ -1040,15 +807,8 @@
                                 </div>
                                 <h3 className="text-xl font-bold mb-2">حساب طالب</h3>
                                 <p className="text-slate-400 text-sm mb-4">للاستفادة من المحتوى التعليمي والتفاعل مع المنصة</p>
-                                <div className="text-xs text-blue-300 space-y-1">
-                                    <p>• الوصول للمحاضرات الكاملة</p>
-                                    <p>• حل الامتحانات والتدريبات</p>
-                                    <p>• التواصل مع المدرسين</p>
-                                    <p>• الحصول على شهادة</p>
-                                </div>
                             </div>
 
-                            {/* Parent Account */}
                             <div className="bg-green-500/10 border border-green-500/30 p-6 rounded-xl text-center hover:border-green-500/50 transition cursor-pointer" onClick={()=>{
                                 setRegistrationType('parent');
                                 setView('registration');
@@ -1058,32 +818,6 @@
                                 </div>
                                 <h3 className="text-xl font-bold mb-2">حساب ولي أمر</h3>
                                 <p className="text-slate-400 text-sm mb-4">لمتابعة الأبناء والتواصل مع الإدارة</p>
-                                <div className="text-xs text-green-300 space-y-1">
-                                    <p>• متابعة أداء الأبناء</p>
-                                    <p>• تقارير الحضور والغياب</p>
-                                    <p>• نتائج الامتحانات</p>
-                                    <p>• التواصل مع الإدارة</p>
-                                </div>
-                            </div>
-
-                            {/* Admin Account */}
-                            <div className="bg-yellow-500/10 border border-yellow-500/30 p-6 rounded-xl text-center hover:border-yellow-500/50 transition cursor-pointer" onClick={()=>{
-                                setView('admin-login');
-                            }}>
-                                <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <SafeIcon name="admin" size={40} className="text-yellow-400"/>
-                                </div>
-                                <h3 className="text-xl font-bold mb-2">حساب إداري</h3>
-                                <p className="text-slate-400 text-sm mb-4">لأعضاء الإدارة والمدرسين</p>
-                                <div className="text-xs text-yellow-300 space-y-1">
-                                    <p>• إدارة المحتوى التعليمي</p>
-                                    <p>• متابعة الطلاب</p>
-                                    <p>• إدارة المدفوعات</p>
-                                    <p>• لوحة تحكم كاملة</p>
-                                </div>
-                                <div className="mt-4 text-xs text-red-400">
-                                    * يتطلب كود خاص
-                                </div>
                             </div>
                         </div>
 
@@ -1097,7 +831,7 @@
                 </div>
             );
 
-            // 📝 صفحة التسجيل (موحدة لكل الأنواع)
+            // 📝 Registration Page
             if (view === 'registration') return (
                 <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
                     <div className="glass-panel p-8 w-full max-w-2xl animate-slide-up">
@@ -1151,32 +885,6 @@
                                 />
 
                                 <div className="grid md:grid-cols-2 gap-4">
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="المحافظة 🗺️ *" 
-                                        onChange={e=>setStudentRegData({...studentRegData, governorate: e.target.value})}
-                                    />
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="المدينة / المركز 📍 *" 
-                                        onChange={e=>setStudentRegData({...studentRegData, city: e.target.value})}
-                                    />
-                                </div>
-
-                                <input 
-                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                    placeholder="المركز الدراسي 🎯" 
-                                    onChange={e=>setStudentRegData({...studentRegData, center: e.target.value})}
-                                />
-
-                                <textarea 
-                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                    placeholder="العنوان التفصيلي 🏠" 
-                                    rows="2"
-                                    onChange={e=>setStudentRegData({...studentRegData, address: e.target.value})}
-                                />
-
-                                <div className="grid md:grid-cols-2 gap-4">
                                     <select 
                                         className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
                                         onChange={e=>setStudentRegData({...studentRegData, grade: e.target.value})}
@@ -1195,7 +903,6 @@
                                         <option value="الاثنين والأربعاء">الاثنين والأربعاء</option>
                                         <option value="الثلاثاء والخميس">الثلاثاء والخميس</option>
                                         <option value="السبت والأحد">السبت والأحد</option>
-                                        <option value="جميع الأيام">جميع الأيام</option>
                                     </select>
                                 </div>
                             </div>
@@ -1213,65 +920,17 @@
                                         placeholder="رقم الهاتف 📱 *" 
                                         onChange={e=>setParentRegData({...parentRegData, phone: e.target.value})}
                                     />
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="البريد الإلكتروني (اختياري)" 
-                                        type="email"
-                                        onChange={e=>setParentRegData({...parentRegData, email: e.target.value})}
-                                    />
-                                </div>
-
-                                <select 
-                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                    onChange={e=>setParentRegData({...parentRegData, relationship: e.target.value})}
-                                >
-                                    <option value="أب">أب</option>
-                                    <option value="أم">أم</option>
-                                    <option value="ولي أمر">ولي أمر</option>
-                                    <option value="أخ">أخ</option>
-                                    <option value="أخت">أخت</option>
-                                </select>
-
-                                <div className="grid md:grid-cols-2 gap-4">
                                     <select 
                                         className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        onChange={e=>setParentRegData({...parentRegData, studentsCount: e.target.value})}
+                                        onChange={e=>setParentRegData({...parentRegData, relationship: e.target.value})}
                                     >
-                                        <option value="1">طالب واحد</option>
-                                        <option value="2">طالبين</option>
-                                        <option value="3">3 طلاب</option>
-                                        <option value="4">4 طلاب</option>
-                                        <option value="5">5 طلاب أو أكثر</option>
+                                        <option value="أب">أب</option>
+                                        <option value="أم">أم</option>
+                                        <option value="ولي أمر">ولي أمر</option>
                                     </select>
-                                </div>
-
-                                <textarea 
-                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                    placeholder="ملاحظات إضافية (اختياري)" 
-                                    rows="3"
-                                    onChange={e=>setParentRegData({...parentRegData, notes: e.target.value})}
-                                />
-
-                                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl">
-                                    <p className="text-sm text-blue-300">
-                                        <SafeIcon name="info" className="inline mr-2"/> ملاحظة:
-                                    </p>
-                                    <p className="text-xs text-slate-400 mt-1">
-                                        بعد التسجيل، سيتم إرسال كود خاص لك. يمكنك استخدام هذا الكود للدخول ومتابعة أبنائك.
-                                        ستحتاج إلى تقديم كود الطالب (الذي سيحصل عليه ابنك) لربطه بحسابك.
-                                    </p>
                                 </div>
                             </div>
                         )}
-
-                        <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl mt-6">
-                            <p className="text-sm text-blue-300 mb-2">
-                                <SafeIcon name="info" className="inline mr-2"/> سياسة الخصوصية:
-                            </p>
-                            <p className="text-xs text-slate-400">
-                                بياناتك محمية ولن يتم مشاركتها مع أي جهة خارجية. يتم استخدامها فقط لأغراض التواصل والتسجيل في المنصة.
-                            </p>
-                        </div>
 
                         <div className="flex gap-4 mt-6">
                             <button 
@@ -1291,45 +950,35 @@
                 </div>
             );
 
-            // 🔐 صفحة دخول الإدارة
-            if (view === 'admin-login') return (
+            // 🔐 Student Login Page
+            if (view === 'student-login') return (
                 <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
                     <div className="glass-panel p-8 w-full max-w-md animate-slide-up">
                         <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <SafeIcon name="shield" size={40} className="text-red-400"/>
+                            <div className="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <SafeIcon name="student" size={40} className="text-blue-400"/>
                             </div>
-                            <h2 className="text-3xl font-bold text-white mb-2">دخول الإدارة</h2>
-                            <p className="text-slate-400">لأعضاء الإدارة والمدرسين فقط</p>
+                            <h2 className="text-3xl font-bold text-white mb-2">دخول الطالب</h2>
+                            <p className="text-slate-400">أدخل كود الطالب الخاص بك</p>
                         </div>
 
                         <div className="space-y-6">
-                            <div className="bg-red-600/10 border border-red-500/30 p-4 rounded-xl">
-                                <p className="text-sm text-red-300 mb-2">
-                                    <SafeIcon name="alert-circle" className="inline mr-2"/> تنبيه:
-                                </p>
-                                <p className="text-xs text-slate-400">
-                                    هذه الصفحة مخصصة لأعضاء الإدارة فقط. يجب أن يكون لديك كود خاص للدخول.
-                                </p>
-                            </div>
-
                             <input 
                                 className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center text-xl tracking-widest font-mono" 
-                                placeholder="أدخل كود الإدارة" 
-                                value={adminLoginCode}
-                                onChange={e=>setAdminLoginCode(e.target.value.toUpperCase())}
+                                placeholder="أدخل كود الطالب" 
+                                value={studentLoginCode}
+                                onChange={e=>setStudentLoginCode(e.target.value.toUpperCase())}
                                 maxLength="20"
                             />
                             
                             <button 
-                                onClick={handleAdminLogin} 
+                                onClick={handleStudentLogin} 
                                 className="btn-main w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2"
                             >
-                                <SafeIcon name="shield"/> دخول الإدارة
+                                <SafeIcon name="log-in"/> دخول
                             </button>
                             
                             <div className="text-center">
-                                <p className="text-slate-500 text-sm mb-2">ليس لديك كود إدارة؟</p>
                                 <button onClick={()=>setView('landing')} 
                                         className="text-brand-accent hover:underline">
                                     العودة للصفحة الرئيسية
@@ -1340,477 +989,71 @@
                 </div>
             );
 
-            // 👨‍👦 صفحة ولي الأمر
-            if (view === 'parent') {
-                const selectedStudentId = parentView.startsWith('student-') ? parentView.replace('student-', '') : null;
-                const selectedStudentData = linkedStudents.find(s => s.id === selectedStudentId);
-                
-                return (
-                    <div className="min-h-screen bg-brand-dark text-white flex flex-col md:flex-row">
-                        {/* Sidebar */}
-                        <aside className={`fixed inset-y-0 right-0 z-50 w-72 bg-brand-card border-l border-white/5 flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} md:translate-x-0 md:static shrink-0`}>
-                            <div className="p-6 text-center border-b border-white/5">
-                                <div className="relative inline-block">
-                                    <img src={user.photo} className="w-20 h-20 rounded-full border-4 border-brand-dark mx-auto mb-3"/>
-                                    <div className={`absolute bottom-2 right-0 w-5 h-5 rounded-full border-2 border-brand-card bg-green-500`}></div>
-                                </div>
-                                <h3 className="font-bold text-lg">{user.name}</h3>
-                                <p className="text-xs text-slate-400 font-mono mt-1">{user.code}</p>
-                                <div className="mt-2">
-                                    <span className="badge-parent">ولي أمر</span>
-                                </div>
-                                <div className="mt-2 text-sm text-slate-400">
-                                    <SafeIcon name="users" className="inline mr-1"/>
-                                    {linkedStudents.length} طالب مرتبط
-                                </div>
+            // 🔐 Parent Login Page
+            if (view === 'parent-login') return (
+                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
+                    <div className="glass-panel p-8 w-full max-w-md animate-slide-up">
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <SafeIcon name="parent" size={40} className="text-green-400"/>
                             </div>
+                            <h2 className="text-3xl font-bold text-white mb-2">دخول ولي الأمر</h2>
+                            <p className="text-slate-400">أدخل كود ولي الأمر الخاص بك</p>
+                        </div>
 
-                            <nav className="p-4 space-y-2 flex-1">
-                                <button onClick={()=>setParentView('overview')} 
-                                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition font-bold ${parentView==='overview' ? 'bg-green-500 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
-                                    <SafeIcon name="home" size={20}/> نظرة عامة
-                                </button>
-                                
-                                <div className="text-xs text-slate-500 mt-4 mb-2 px-3">الطلاب المرتبطين:</div>
-                                
-                                {linkedStudents.length === 0 ? (
-                                    <div className="text-center p-4 text-slate-500 text-sm">
-                                        <SafeIcon name="users" size={24} className="mx-auto mb-2 opacity-50"/>
-                                        لا يوجد طلاب مرتبطين
-                                    </div>
-                                ) : (
-                                    linkedStudents.map(student => (
-                                        <button key={student.id} onClick={()=>setParentView(`student-${student.id}`)}
-                                                className={`w-full flex items-center gap-3 p-3 rounded-xl transition font-bold ${parentView===`student-${student.id}` ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
-                                            <img src={student.photo} className="w-8 h-8 rounded-full"/>
-                                            <div className="text-right">
-                                                <div className="font-bold text-sm">{student.firstName} {student.secondName}</div>
-                                                <div className="text-xs text-slate-500">{student.grade === '1sec' ? 'أول' : student.grade === '2sec' ? 'ثاني' : 'ثالث'} ثانوي</div>
-                                            </div>
-                                        </button>
-                                    ))
-                                )}
-                                
-                                <div className="border-t border-white/5 pt-4 mt-4">
-                                    <button onClick={()=>setParentView('link-student')} 
-                                            className="w-full flex items-center gap-3 p-3 rounded-xl transition font-bold text-green-400 hover:bg-green-500/10">
-                                        <SafeIcon name="link" size={20}/> ربط طالب جديد
-                                    </button>
-                                    <button onClick={()=>setParentView('settings')} 
-                                            className="w-full flex items-center gap-3 p-3 rounded-xl transition font-bold text-slate-400 hover:bg-white/5">
-                                        <SafeIcon name="settings" size={20}/> الإعدادات
-                                    </button>
-                                </div>
-                            </nav>
-
-                            <div className="p-4 border-t border-white/5 space-y-2">
-                                <a href={CONTACT_INFO.supportWhatsapp} target="_blank" 
-                                   className="flex items-center justify-center gap-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 w-full p-3 rounded-xl font-bold hover:bg-blue-600/40 transition">
-                                    <SafeIcon name="headphones" size={18}/> التواصل مع الإدارة
-                                </a>
-                                <button onClick={()=>window.authMethods.signOut(window.auth)} 
-                                        className="flex items-center justify-center gap-2 text-red-400 w-full p-3 hover:bg-red-500/10 rounded-xl font-bold transition">
-                                    <SafeIcon name="logout" size={18}/> خروج
-                                </button>
-                            </div>
-                        </aside>
-
-                        {/* Main Content */}
-                        <div className="flex-1 flex flex-col h-screen overflow-y-auto bg-brand-dark relative">
-                            <div className="absolute inset-0 math-grid opacity-10 pointer-events-none"></div>
+                        <div className="space-y-6">
+                            <input 
+                                className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center text-xl tracking-widest font-mono" 
+                                placeholder="أدخل كود ولي الأمر" 
+                                value={parentLoginCode}
+                                onChange={e=>setParentLoginCode(e.target.value.toUpperCase())}
+                                maxLength="20"
+                            />
                             
-                            <header className="p-4 flex justify-between items-center md:hidden sticky top-0 z-40 bg-brand-dark/80 backdrop-blur-md border-b border-white/5">
-                                <h1 className="font-black text-xl text-green-400">ولي الأمر</h1>
-                                <button onClick={()=>setSidebarOpen(true)}><SafeIcon name="menu" className="text-white"/></button>
-                            </header>
-
-                            <main className="p-4 md:p-8 max-w-6xl mx-auto w-full relative z-10">
-                                {/* نظرة عامة */}
-                                {parentView === 'overview' && (
-                                    <div className="space-y-6 animate-slide-up">
-                                        <div className="bg-gradient-to-r from-green-500 to-emerald-900 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
-                                            <div className="relative z-10">
-                                                <h2 className="text-3xl font-black mb-2">أهلاً {user.name} 👨‍👦</h2>
-                                                <p className="text-emerald-100 mb-6">نظام متابعة أولياء الأمور</p>
-                                                <div className="flex flex-wrap gap-4">
-                                                    <div className="bg-black/30 px-4 py-2 rounded-lg flex items-center gap-2 border border-white/10">
-                                                        <SafeIcon name="users" size={16} className="text-green-400"/> {linkedStudents.length} طالب مرتبط
-                                                    </div>
-                                                    <div className="bg-black/30 px-4 py-2 rounded-lg flex items-center gap-2 border border-white/10">
-                                                        <SafeIcon name="calendar-check" size={16} className="text-blue-400"/> {linkedStudents.reduce((acc, s) => acc + Object.keys(dataState.attendance[s.id] || {}).length, 0)} يوم حضور
-                                                    </div>
-                                                    <div className="bg-black/30 px-4 py-2 rounded-lg flex items-center gap-2 border border-white/10">
-                                                        <SafeIcon name="trending-up" size={16} className="text-yellow-400"/> {linkedStudents.reduce((acc, s) => acc + (s.examsCompleted || 0), 0)} امتحان مكتمل
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* قائمة الطلاب */}
-                                        <div className="glass-panel p-6">
-                                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                                <SafeIcon name="users" className="text-green-400"/> الطلاب المرتبطين
-                                            </h3>
-                                            
-                                            {linkedStudents.length === 0 ? (
-                                                <div className="text-center py-8">
-                                                    <SafeIcon name="users" size={48} className="mx-auto text-gray-400 mb-3"/>
-                                                    <p className="text-slate-500 font-bold mb-4">لا يوجد طلاب مرتبطين</p>
-                                                    <button onClick={()=>setParentView('link-student')} 
-                                                            className="btn-main px-6 py-2">
-                                                        ربط طالب جديد
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="grid md:grid-cols-2 gap-4">
-                                                    {linkedStudents.map(student => {
-                                                        const attendanceCount = Object.keys(dataState.attendance[student.id] || {}).length;
-                                                        const subscriptionDays = calculateSubscriptionDays(dataState.subscriptions[student.id]?.endDate);
-                                                        const lastExam = dataState.exams.filter(e => e.studentId === student.id).slice(-1)[0];
-                                                        
-                                                        return (
-                                                            <div key={student.id} className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition cursor-pointer" onClick={()=>setParentView(`student-${student.id}`)}>
-                                                                <div className="flex items-center gap-3 mb-3">
-                                                                    <img src={student.photo} className="w-12 h-12 rounded-full"/>
-                                                                    <div>
-                                                                        <h4 className="font-bold">{student.firstName} {student.secondName}</h4>
-                                                                        <p className="text-xs text-slate-500">{student.code}</p>
-                                                                    </div>
-                                                                </div>
-                                                                
-                                                                <div className="space-y-2 text-sm">
-                                                                    <div className="flex justify-between">
-                                                                        <span className="text-slate-400">الصف:</span>
-                                                                        <span className="font-bold">{student.grade === '1sec' ? 'أول ثانوي' : student.grade === '2sec' ? 'ثاني ثانوي' : 'ثالث ثانوي'}</span>
-                                                                    </div>
-                                                                    <div className="flex justify-between">
-                                                                        <span className="text-slate-400">أيام الحضور:</span>
-                                                                        <span className="font-bold text-green-400">{attendanceCount}</span>
-                                                                    </div>
-                                                                    <div className="flex justify-between">
-                                                                        <span className="text-slate-400">الاشتراك:</span>
-                                                                        <span className={`font-bold ${subscriptionDays > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                                                            {subscriptionDays > 0 ? `باقي ${subscriptionDays} يوم` : 'منتهي'}
-                                                                        </span>
-                                                                    </div>
-                                                                    {student.notes && (
-                                                                        <div className="mt-2 p-2 bg-yellow-500/10 rounded text-xs text-yellow-300">
-                                                                            ملاحظة: {student.notes.substring(0, 60)}...
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* التنبيهات المهمة */}
-                                        <div className="glass-panel p-6">
-                                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                                <SafeIcon name="bell" className="text-yellow-400"/> تنبيهات مهمة
-                                            </h3>
-                                            <div className="space-y-3">
-                                                {linkedStudents.map(student => {
-                                                    const subscriptionDays = calculateSubscriptionDays(dataState.subscriptions[student.id]?.endDate);
-                                                    const lastAttendance = Object.keys(dataState.attendance[student.id] || {}).length;
-                                                    const today = new Date();
-                                                    const lastWeek = new Date(today.setDate(today.getDate() - 7));
-                                                    
-                                                    // التحقق من المشاكل
-                                                    const issues = [];
-                                                    
-                                                    if (subscriptionDays <= 3 && subscriptionDays > 0) {
-                                                        issues.push(`اشتراك ${student.firstName} ينتهي خلال ${subscriptionDays} أيام`);
-                                                    }
-                                                    
-                                                    if (subscriptionDays <= 0) {
-                                                        issues.push(`اشتراك ${student.firstName} منتهي`);
-                                                    }
-                                                    
-                                                    if (lastAttendance < 2) {
-                                                        issues.push(`${student.firstName} لديه حضور قليل`);
-                                                    }
-                                                    
-                                                    return issues.length > 0 ? (
-                                                        <div key={student.id} className="bg-red-500/10 border border-red-500/30 p-3 rounded-lg">
-                                                            <h4 className="font-bold text-red-400 mb-2">{student.firstName} {student.secondName}</h4>
-                                                            <ul className="space-y-1 text-sm text-red-300">
-                                                                {issues.map((issue, idx) => (
-                                                                    <li key={idx} className="flex items-center gap-2">
-                                                                        <SafeIcon name="alert-circle" size={12}/>
-                                                                        {issue}
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                        </div>
-                                                    ) : null;
-                                                }).filter(Boolean)}
-                                                
-                                                {linkedStudents.length === 0 && (
-                                                    <p className="text-center text-slate-500 py-4">لا توجد تنبيهات حالياً</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* تفاصيل طالب محدد */}
-                                {selectedStudentData && parentView === `student-${selectedStudentData.id}` && (
-                                    <div className="space-y-6 animate-slide-up">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <button onClick={()=>setParentView('overview')} 
-                                                    className="flex items-center gap-2 text-slate-400 hover:text-white font-bold transition">
-                                                <SafeIcon name="arrow-right"/> رجوع
-                                            </button>
-                                            <h2 className="text-2xl font-bold">متابعة: {selectedStudentData.firstName} {selectedStudentData.secondName}</h2>
-                                        </div>
-
-                                        {/* معلومات الطالب */}
-                                        <div className="grid md:grid-cols-3 gap-6">
-                                            <div className="glass-panel p-6">
-                                                <h3 className="font-bold mb-4 text-green-400">المعلومات الأساسية</h3>
-                                                <div className="space-y-3">
-                                                    <div className="flex justify-between">
-                                                        <span className="text-slate-400">الكود:</span>
-                                                        <span className="font-bold">{selectedStudentData.code}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-slate-400">الصف:</span>
-                                                        <span className="font-bold">{selectedStudentData.grade === '1sec' ? 'أول ثانوي' : selectedStudentData.grade === '2sec' ? 'ثاني ثانوي' : 'ثالث ثانوي'}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-slate-400">المدرسة:</span>
-                                                        <span className="font-bold">{selectedStudentData.school}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-slate-400">رقم الطالب:</span>
-                                                        <span className="font-bold">{selectedStudentData.phone}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* الحضور */}
-                                            <div className="glass-panel p-6">
-                                                <h3 className="font-bold mb-4 text-blue-400">الحضور والغياب</h3>
-                                                <div className="space-y-3">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-slate-400">أيام الحضور:</span>
-                                                        <span className="text-2xl font-bold text-green-400">
-                                                            {Object.keys(dataState.attendance[selectedStudentData.id] || {}).length}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-slate-400">الغياب:</span>
-                                                        <span className="font-bold text-red-400">{selectedStudentData.absences || 0}</span>
-                                                    </div>
-                                                    <div className="mt-4">
-                                                        <div className="text-xs text-slate-400 mb-1">آخر 7 أيام:</div>
-                                                        <div className="flex gap-1">
-                                                            {Array.from({length: 7}).map((_, i) => {
-                                                                const date = new Date();
-                                                                date.setDate(date.getDate() - i);
-                                                                const dateStr = date.toISOString().split('T')[0];
-                                                                const hasAttendance = dataState.attendance[selectedStudentData.id]?.[dateStr];
-                                                                
-                                                                return (
-                                                                    <div key={i} className={`flex-1 h-6 rounded ${hasAttendance ? 'bg-green-500' : 'bg-red-500/30'}`}></div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* الاشتراك */}
-                                            <div className="glass-panel p-6">
-                                                <h3 className="font-bold mb-4 text-yellow-400">حالة الاشتراك</h3>
-                                                <div className="space-y-3">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-slate-400">الحالة:</span>
-                                                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${selectedStudentData.isPaid ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
-                                                            {selectedStudentData.isPaid ? 'مفعل' : 'غير مفعل'}
-                                                        </span>
-                                                    </div>
-                                                    {dataState.subscriptions[selectedStudentData.id] && (
-                                                        <>
-                                                            <div className="flex justify-between">
-                                                                <span className="text-slate-400">بدأ في:</span>
-                                                                <span className="font-bold">
-                                                                    {new Date(dataState.subscriptions[selectedStudentData.id].startDate).toLocaleDateString('ar-EG')}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex justify-between">
-                                                                <span className="text-slate-400">ينتهي في:</span>
-                                                                <span className="font-bold">
-                                                                    {new Date(dataState.subscriptions[selectedStudentData.id].endDate).toLocaleDateString('ar-EG')}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex justify-between">
-                                                                <span className="text-slate-400">الأيام المتبقية:</span>
-                                                                <span className={`font-bold ${calculateSubscriptionDays(dataState.subscriptions[selectedStudentData.id].endDate) > 7 ? 'text-green-400' : 'text-red-400'}`}>
-                                                                    {calculateSubscriptionDays(dataState.subscriptions[selectedStudentData.id].endDate)} يوم
-                                                                </span>
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* الأداء الدراسي */}
-                                        <div className="glass-panel p-6">
-                                            <h3 className="font-bold mb-4 text-purple-400">الأداء الدراسي</h3>
-                                            <div className="space-y-4">
-                                                <div className="grid md:grid-cols-3 gap-4">
-                                                    <div className="bg-white/5 p-4 rounded-xl text-center">
-                                                        <div className="text-2xl font-bold text-green-400 mb-1">
-                                                            {selectedStudentData.examsCompleted || 0}
-                                                        </div>
-                                                        <div className="text-xs text-slate-400">امتحان مكتمل</div>
-                                                    </div>
-                                                    <div className="bg-white/5 p-4 rounded-xl text-center">
-                                                        <div className="text-2xl font-bold text-blue-400 mb-1">
-                                                            {selectedStudentData.avgScore ? `${selectedStudentData.avgScore}%` : '--'}
-                                                        </div>
-                                                        <div className="text-xs text-slate-400">متوسط الدرجات</div>
-                                                    </div>
-                                                    <div className="bg-white/5 p-4 rounded-xl text-center">
-                                                        <div className="text-2xl font-bold text-yellow-400 mb-1">
-                                                            {selectedStudentData.questionsAsked || 0}
-                                                        </div>
-                                                        <div className="text-xs text-slate-400">سؤال مطروح</div>
-                                                    </div>
-                                                </div>
-                                                
-                                                {selectedStudentData.notes && (
-                                                    <div className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-xl mt-4">
-                                                        <h4 className="font-bold text-yellow-400 mb-2">ملاحظات من المستر:</h4>
-                                                        <p className="text-slate-300">{selectedStudentData.notes}</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* زر التواصل مع الإدارة */}
-                                        <div className="glass-panel p-6 text-center">
-                                            <h3 className="font-bold mb-4">التواصل مع الإدارة</h3>
-                                            <p className="text-slate-400 mb-4">للاستفسار عن أداء الطالب أو أي استفسارات أخرى</p>
-                                            <a href={`${CONTACT_INFO.supportWhatsapp}?text=أستفسار عن الطالب: ${selectedStudentData.firstName} ${selectedStudentData.secondName} - كود: ${selectedStudentData.code}`} 
-                                               target="_blank"
-                                               className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition">
-                                                <SafeIcon name="message-circle"/> تواصل مع الإدارة على WhatsApp
-                                            </a>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* ربط طالب جديد */}
-                                {parentView === 'link-student' && (
-                                    <div className="max-w-2xl mx-auto animate-slide-up">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <button onClick={()=>setParentView('overview')} 
-                                                    className="flex items-center gap-2 text-slate-400 hover:text-white font-bold transition">
-                                                <SafeIcon name="arrow-right"/> رجوع
-                                            </button>
-                                            <h2 className="text-2xl font-bold">ربط طالب جديد</h2>
-                                        </div>
-
-                                        <div className="glass-panel p-6">
-                                            <h3 className="font-bold mb-4 text-green-400">تعليمات الربط</h3>
-                                            <div className="space-y-3 text-sm text-slate-300 mb-6">
-                                                <p>لربط طالب بحسابك، يجب أن يكون:</p>
-                                                <ul className="space-y-2 mr-4">
-                                                    <li className="flex items-center gap-2">
-                                                        <SafeIcon name="check-circle" className="text-green-500"/>
-                                                        مسجل في المنصة كطالب
-                                                    </li>
-                                                    <li className="flex items-center gap-2">
-                                                        <SafeIcon name="check-circle" className="text-green-500"/>
-                                                        لديه كود طالب صالح
-                                                    </li>
-                                                    <li className="flex items-center gap-2">
-                                                        <SafeIcon name="check-circle" className="text-green-500"/>
-                                                        مفعل من قبل الإدارة
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <label className="block text-sm text-slate-400 mb-2">كود الطالب</label>
-                                                    <input 
-                                                        type="text"
-                                                        id="studentCodeToLink"
-                                                        className="w-full p-3 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center text-lg font-mono"
-                                                        placeholder="أدخل كود الطالب"
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm text-slate-400 mb-2">علاقة القرابة</label>
-                                                    <select 
-                                                        id="relationshipType"
-                                                        className="w-full p-3 bg-white/5 border border-white/10 rounded-xl outline-none text-white"
-                                                    >
-                                                        <option value="ابن/ابنة">ابن/ابنة</option>
-                                                        <option value="أخ/أخت">أخ/أخت</option>
-                                                        <option value="قريب">قريب</option>
-                                                        <option value="وصي">وصي</option>
-                                                        <option value="أخرى">أخرى</option>
-                                                    </select>
-                                                </div>
-
-                                                <button onClick={()=>{
-                                                    const studentCode = document.getElementById('studentCodeToLink').value;
-                                                    const relationship = document.getElementById('relationshipType').value;
-                                                    
-                                                    if (!studentCode) {
-                                                        return showNotification('أدخل كود الطالب', 'error');
-                                                    }
-                                                    
-                                                    const student = dataState.students.find(s => s.code === studentCode);
-                                                    if (!student) {
-                                                        return showNotification('كود الطالب غير صحيح', 'error');
-                                                    }
-                                                    
-                                                    if (student.status !== 'active') {
-                                                        return showNotification('حساب الطالب غير مفعل', 'error');
-                                                    }
-                                                    
-                                                    // ربط الطالب
-                                                    linkStudentToParent(user.uid, student.id, relationship);
-                                                    document.getElementById('studentCodeToLink').value = '';
-                                                    
-                                                }} className="btn-main w-full py-3 rounded-xl font-bold">
-                                                    ربط الطالب
-                                                </button>
-                                            </div>
-
-                                            <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl mt-6">
-                                                <p className="text-sm text-blue-300 mb-2">
-                                                    <SafeIcon name="info" className="inline mr-2"/> ملاحظة:
-                                                </p>
-                                                <p className="text-xs text-slate-400">
-                                                    بعد الربط، سيتمكن الطالب من رؤية أنك مرتبط به. يمكنك طلب إلغاء الربط من الإدارة إذا لزم الأمر.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </main>
+                            <button 
+                                onClick={handleParentLogin} 
+                                className="btn-main w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2"
+                            >
+                                <SafeIcon name="log-in"/> دخول
+                            </button>
+                            
+                            <div className="text-center">
+                                <button onClick={()=>setView('landing')} 
+                                        className="text-brand-accent hover:underline">
+                                    العودة للصفحة الرئيسية
+                                </button>
+                            </div>
                         </div>
                     </div>
-                );
-            }
+                </div>
+            );
 
-            // 👑 Admin View - محدث مع نظام الأكواد العشوائية
+            // ⏳ Pending Approval Page
+            if (view === 'pending-approval') return (
+                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
+                    <div className="glass-panel p-8 text-center max-w-md">
+                        <div className="text-6xl mb-4">⏳</div>
+                        <h2 className="text-2xl font-bold mb-4">طلبك قيد المراجعة</h2>
+                        <p className="text-slate-400 mb-6">سيتم مراجعة طلبك من قبل الإدارة وإخطارك بالقبول</p>
+                        <button onClick={()=>window.authMethods.signOut(window.auth)} 
+                                className="bg-red-600 px-6 py-3 rounded-xl font-bold hover:bg-red-700">
+                            تسجيل خروج
+                        </button>
+                    </div>
+                </div>
+            );
+
+            // 👑 Admin View with Staff Management
             if (view === 'admin') {
                 const filteredStudents = dataState.students.filter(s => 
                     s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     s.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     s.phone?.includes(searchQuery)
+                );
+
+                const staffFilteredUsers = dataState.students.filter(s => 
+                    s.name?.toLowerCase().includes(staffSearchQuery.toLowerCase()) ||
+                    s.code?.toLowerCase().includes(staffSearchQuery.toLowerCase())
                 );
 
                 return (
@@ -1821,56 +1064,15 @@
                                     <h2 className="text-3xl font-black text-brand-accent">لوحة التحكم الشاملة</h2>
                                     <div className="flex items-center gap-3 mt-2">
                                         <span className={`role-badge ${user.role === 'boss' ? 'badge-boss' : 'badge-admin'}`}>
-                                            {user.role === 'boss' ? 'البوص' : 'أدمن'}
+                                            {user.role === 'boss' ? '👑 البوص' : '👨‍💼 أدمن'}
                                         </span>
-                                        <span className="text-slate-400 text-sm">{user.adminLevel || user.name}</span>
+                                        <span className="text-slate-400 text-sm">{user.name}</span>
                                     </div>
                                 </div>
-                                <div className="flex gap-3 flex-wrap">
-                                    <button onClick={showAdminCodes} 
-                                            className="px-4 py-2 bg-purple-600 rounded-lg font-bold hover:bg-purple-700 flex items-center gap-2">
-                                        <SafeIcon name="key" size={18}/>
-                                        عرض أكواد الإدارة
-                                    </button>
-                                    {user.role === 'boss' && (
-                                        <button onClick={()=>{
-                                            // توليد أكواد جديدة
-                                            const newCodes = {
-                                                'BOSS': {
-                                                    code: generateRandomCode('BOSS'),
-                                                    role: 'boss',
-                                                    name: 'البوص الرئيسي'
-                                                },
-                                                'ADMIN_1': {
-                                                    code: generateRandomCode('ADMIN'),
-                                                    role: 'admin',
-                                                    name: 'الأدمن الأول'
-                                                },
-                                                'ADMIN_2': {
-                                                    code: generateRandomCode('ADMIN'),
-                                                    role: 'admin',
-                                                    name: 'الأدمن الثاني'
-                                                },
-                                                'ADMIN_3': {
-                                                    code: generateRandomCode('ADMIN'),
-                                                    role: 'admin',
-                                                    name: 'الأدمن الثالث'
-                                                }
-                                            };
-                                            
-                                            localStorage.setItem('ADMIN_CODES', JSON.stringify(newCodes));
-                                            showNotification('تم توليد أكواد إدارة جديدة', 'success');
-                                        }} 
-                                                className="px-4 py-2 bg-red-600 rounded-lg font-bold hover:bg-red-700 flex items-center gap-2">
-                                            <SafeIcon name="refresh" size={18}/>
-                                            توليد أكواد جديدة
-                                        </button>
-                                    )}
-                                    <button onClick={()=>window.authMethods.signOut(window.auth)} 
-                                            className="px-4 py-2 bg-red-600 rounded-lg font-bold hover:bg-red-700">
-                                        خروج
-                                    </button>
-                                </div>
+                                <button onClick={()=>window.authMethods.signOut(window.auth)} 
+                                        className="px-4 py-2 bg-red-600 rounded-lg font-bold hover:bg-red-700">
+                                    خروج
+                                </button>
                             </div>
 
                             {/* Stats */}
@@ -1895,16 +1097,13 @@
 
                             {/* Tabs */}
                             <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                                {['students', 'parents', 'lectures', 'payments', 'attendance', 'connections', 'settings'].map(t => (
+                                {['students', 'parents', user.role === 'boss' ? 'staff' : null, 'settings'].filter(Boolean).map(t => (
                                     <button key={t} onClick={()=>setActiveTab(t)} 
                                             className={`px-6 py-2 rounded-lg font-bold whitespace-nowrap transition ${activeTab === t ? 'bg-brand-accent text-brand-dark' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
-                                        {t === 'students' ? 'الطلاب' : 
-                                         t === 'parents' ? 'أولياء الأمور' : 
-                                         t === 'lectures' ? 'المحاضرات' : 
-                                         t === 'payments' ? 'المدفوعات' :
-                                         t === 'attendance' ? 'الحضور' :
-                                         t === 'connections' ? 'الروابط' :
-                                         t === 'settings' ? 'الإعدادات' : ''}
+                                        {t === 'students' ? '👥 الطلاب' : 
+                                         t === 'parents' ? '👨‍👦 أولياء الأمور' :
+                                         t === 'staff' ? '👑 إدارة المساعدين' :
+                                         t === 'settings' ? '⚙️ الإعدادات' : ''}
                                     </button>
                                 ))}
                             </div>
@@ -1915,48 +1114,34 @@
                                 {/* Students Tab */}
                                 {activeTab === 'students' && (
                                     <div>
-                                        {/* Pending Requests */}
                                         {dataState.requests.length > 0 && (
                                             <div className="mb-8 bg-orange-500/10 border border-orange-500/30 p-4 rounded-xl">
-                                                <h3 className="font-bold text-orange-400 mb-3 flex items-center gap-2">
-                                                    <SafeIcon name="user-plus"/> طلبات تسجيل طلاب جديدة ({dataState.requests.length})
-                                                </h3>
+                                                <h3 className="font-bold text-orange-400 mb-3">طلبات تسجيل جديدة ({dataState.requests.length})</h3>
                                                 <div className="space-y-2">
                                                     {dataState.requests.map(r => (
-                                                        <div key={r.id} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-black/20 p-3 rounded-lg gap-3">
-                                                            <div className="flex gap-3 items-center">
-                                                                <img src={r.photo} className="w-10 h-10 rounded-full"/>
-                                                                <div>
-                                                                    <p className="font-bold">{r.name}</p>
-                                                                    <p className="text-xs text-slate-400">📱 {r.phone} | 👨‍👩‍👦 {r.parentPhone}</p>
-                                                                    <p className="text-xs text-slate-400">🏫 {r.school} | 📍 {r.governorate}, {r.city}</p>
-                                                                    <p className="text-xs text-slate-400">🎓 {r.grade === '1sec' ? 'أول ثانوي' : r.grade === '2sec' ? 'ثاني ثانوي' : 'ثالث ثانوي'}</p>
-                                                                </div>
+                                                        <div key={r.id} className="flex justify-between items-center bg-black/20 p-3 rounded-lg">
+                                                            <div>
+                                                                <p className="font-bold">{r.name}</p>
+                                                                <p className="text-xs text-slate-400">{r.phone} | {r.school}</p>
                                                             </div>
                                                             <div className="flex gap-2">
                                                                 <button onClick={async()=>{
                                                                     const studentCode = generateStudentCode();
                                                                     const studentData = {
                                                                         ...r,
-                                                                        firstName: r.firstName,
-                                                                        secondName: r.secondName,
-                                                                        thirdName: r.thirdName,
                                                                         role: 'student',
                                                                         code: studentCode,
                                                                         isPaid: false,
-                                                                        absences: 0,
                                                                         status: 'active'
                                                                     };
                                                                     
                                                                     await window.rtdb.set(window.rtdb.ref(window.db,'users/'+r.uid), studentData);
                                                                     await window.rtdb.set(window.rtdb.ref(window.db,'requests/'+r.id), null);
                                                                     
-                                                                    sendWhatsAppToStudent(studentData);
-                                                                    
-                                                                    showNotification(`تم قبول الطالب وإرسال الكود: ${studentCode}`);
-                                                                }} className="bg-green-600 px-3 py-1 rounded text-sm hover:bg-green-700">قبول</button>
+                                                                    showNotification(`تم قبول الطالب: ${studentCode}`);
+                                                                }} className="bg-green-600 px-3 py-1 rounded text-sm">قبول</button>
                                                                 <button onClick={()=>window.rtdb.set(window.rtdb.ref(window.db,'requests/'+r.id), null)} 
-                                                                        className="bg-red-600 px-3 py-1 rounded text-sm hover:bg-red-700">رفض</button>
+                                                                        className="bg-red-600 px-3 py-1 rounded text-sm">رفض</button>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -1964,82 +1149,29 @@
                                             </div>
                                         )}
 
-                                        {/* Search */}
                                         <div className="flex gap-2 mb-4">
                                             <input className="flex-1 bg-black/30 border border-white/10 p-3 rounded-xl outline-none" 
-                                                   placeholder="بحث باسم الطالب، الكود أو الرقم..." 
+                                                   placeholder="بحث..." 
                                                    value={searchQuery} 
                                                    onChange={e=>setSearchQuery(e.target.value)}/>
-                                            <button onClick={()=>setSearchQuery('')} className="px-4 bg-white/10 rounded-xl">مسح</button>
                                         </div>
 
-                                        {/* Students List */}
                                         <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                                            {filteredStudents.map(s => {
-                                                const daysLeft = calculateSubscriptionDays(dataState.subscriptions[s.id]?.endDate);
-                                                const attendanceCount = Object.keys(dataState.attendance[s.id] || {}).length;
-                                                const attendanceRank = calculateRank('attendance', attendanceCount);
-                                                
-                                                return (
-                                                    <div key={s.id} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/5 p-4 rounded-xl hover:bg-white/10 transition gap-3">
-                                                        <div className="flex items-center gap-4 flex-1">
-                                                            <div className="relative">
-                                                                <img src={s.photo} className="w-12 h-12 rounded-full"/>
-                                                                <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${s.isPaid?'bg-green-500':'bg-red-500'}`}></div>
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-bold">{s.name}</p>
-                                                                <div className="flex gap-2 text-xs text-slate-400">
-                                                                    <span className="font-mono bg-black/30 px-1 rounded">{s.code}</span>
-                                                                    <span>|</span>
-                                                                    <span>📱 {s.phone}</span>
-                                                                    <span>|</span>
-                                                                    <span>🎓 {s.grade === '1sec' ? 'أول' : s.grade === '2sec' ? 'ثاني' : 'ثالث'} ثانوي</span>
-                                                                    {s.isPaid && daysLeft > 0 && (
-                                                                        <>
-                                                                            <span>|</span>
-                                                                            <span className="text-green-400">باقي {daysLeft} يوم</span>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex gap-2 mt-1">
-                                                                    <div className="text-xs" style={{color: attendanceRank.color}}>
-                                                                        <SafeIcon name="calendar-check" size={10} className="inline"/> {attendanceCount} يوم
-                                                                    </div>
-                                                                    {s.absences > 0 && (
-                                                                        <div className="text-xs text-red-400">
-                                                                            <SafeIcon name="x-circle" size={10} className="inline"/> {s.absences} غياب
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                <div className="text-xs text-slate-500 mt-1">
-                                                                    أيام الحصص: {s.scheduleDays} | المركز: {s.center}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-2 flex-wrap">
-                                                            <button onClick={()=>{setSelectedStudent(s); setShowStudentModal(true);}} 
-                                                                    className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition text-sm">
-                                                                إدارة
-                                                            </button>
-                                                            <button onClick={()=>{
-                                                                // عرض الطلاب المرتبطين
-                                                                const parents = dataState.parents.filter(p => 
-                                                                    dataState.parentConnections[p.id]?.[s.id]
-                                                                );
-                                                                if (parents.length > 0) {
-                                                                    alert(`الطلاب المرتبطين:\n${parents.map(p => `- ${p.name} (${p.code})`).join('\n')}`);
-                                                                } else {
-                                                                    alert('لا يوجد أولياء أمور مرتبطين');
-                                                                }
-                                                            }} 
-                                                                    className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded hover:bg-purple-500 hover:text-white transition text-sm">
-                                                                الروابط
-                                                            </button>
+                                            {filteredStudents.map(s => (
+                                                <div key={s.id} className="flex justify-between items-center bg-white/5 p-4 rounded-xl hover:bg-white/10 transition">
+                                                    <div className="flex items-center gap-4">
+                                                        <img src={s.photo} className="w-12 h-12 rounded-full"/>
+                                                        <div>
+                                                            <p className="font-bold">{s.name}</p>
+                                                            <p className="text-xs text-slate-400">{s.code} | {s.phone}</p>
                                                         </div>
                                                     </div>
-                                                );
-                                            })}
+                                                    <button onClick={()=>{setSelectedStudent(s); setShowStudentModal(true);}} 
+                                                            className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded">
+                                                        إدارة
+                                                    </button>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
@@ -2051,44 +1183,12 @@
                                         <div className="space-y-3">
                                             {dataState.parents.map(parent => (
                                                 <div key={parent.id} className="bg-white/5 p-4 rounded-xl">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <img src={parent.photo} className="w-12 h-12 rounded-full"/>
-                                                            <div>
-                                                                <p className="font-bold">{parent.name}</p>
-                                                                <p className="text-xs text-slate-400">📱 {parent.phone} | {parent.relationship}</p>
-                                                                <p className="text-xs text-slate-400 font-mono">{parent.code}</p>
-                                                            </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <img src={parent.photo} className="w-12 h-12 rounded-full"/>
+                                                        <div>
+                                                            <p className="font-bold">{parent.name}</p>
+                                                            <p className="text-xs text-slate-400">{parent.phone} | {parent.code}</p>
                                                         </div>
-                                                        <span className="badge-parent">ولي أمر</span>
-                                                    </div>
-                                                    
-                                                    {/* الطلاب المرتبطين */}
-                                                    <div className="mt-3">
-                                                        <p className="text-sm text-slate-400 mb-2">الطلاب المرتبطين:</p>
-                                                        {dataState.parentConnections[parent.id] ? (
-                                                            <div className="space-y-2">
-                                                                {Object.keys(dataState.parentConnections[parent.id]).map(studentId => {
-                                                                    const student = dataState.students.find(s => s.id === studentId);
-                                                                    return student ? (
-                                                                        <div key={studentId} className="flex justify-between items-center bg-black/20 p-2 rounded">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <img src={student.photo} className="w-8 h-8 rounded-full"/>
-                                                                                <div>
-                                                                                    <p className="text-sm font-bold">{student.firstName} {student.secondName}</p>
-                                                                                    <p className="text-xs text-slate-500">{student.code}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                            <span className="text-xs text-slate-400">
-                                                                                {dataState.parentConnections[parent.id][studentId].relationship}
-                                                                            </span>
-                                                                        </div>
-                                                                    ) : null;
-                                                                })}
-                                                            </div>
-                                                        ) : (
-                                                            <p className="text-sm text-slate-500">لا يوجد طلاب مرتبطين</p>
-                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -2096,100 +1196,78 @@
                                     </div>
                                 )}
 
-                                {/* Connections Tab */}
-                                {activeTab === 'connections' && (
+                                {/* 👑 STAFF MANAGEMENT TAB - BOSS ONLY */}
+                                {activeTab === 'staff' && user.role === 'boss' && (
                                     <div>
-                                        <h3 className="font-bold mb-4">إدارة روابط أولياء الأمور</h3>
-                                        
-                                        <div className="grid md:grid-cols-2 gap-6">
-                                            {/* ربط طالب بولي أمر */}
-                                            <div className="glass-panel p-6">
-                                                <h4 className="font-bold mb-4 text-green-400">ربط طالب بولي أمر</h4>
-                                                <div className="space-y-4">
-                                                    <div>
-                                                        <label className="block text-sm text-slate-400 mb-2">اختر الطالب</label>
-                                                        <select id="connectStudent" className="w-full p-3 bg-white/5 border border-white/10 rounded-xl outline-none text-white">
-                                                            <option value="">اختر الطالب</option>
-                                                            {dataState.students.map(s => (
-                                                                <option key={s.id} value={s.id}>{s.name} - {s.code}</option>
-                                                            ))}
-                                                        </select>
+                                        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl mb-6">
+                                            <h3 className="font-bold text-red-400 mb-2 flex items-center gap-2">
+                                                <SafeIcon name="crown"/> إدارة المساعدين الإداريين
+                                            </h3>
+                                            <p className="text-sm text-slate-400">
+                                                يمكنك ترقية أي طالب إلى مساعد إداري أو طرد المساعدين الحاليين
+                                            </p>
+                                        </div>
+
+                                        {/* Search */}
+                                        <div className="mb-6">
+                                            <input 
+                                                className="w-full bg-black/30 border border-white/10 p-3 rounded-xl outline-none" 
+                                                placeholder="ابحث عن طالب بالاسم أو الكود..." 
+                                                value={staffSearchQuery}
+                                                onChange={e=>setStaffSearchQuery(e.target.value)}
+                                            />
+                                        </div>
+
+                                        {/* Current Admins */}
+                                        <div className="mb-8">
+                                            <h4 className="font-bold text-yellow-400 mb-3">المساعدين الحاليين:</h4>
+                                            <div className="space-y-2">
+                                                {dataState.students.filter(s => s.role === 'admin').map(admin => (
+                                                    <div key={admin.id} className="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-xl">
+                                                        <div className="flex items-center gap-3">
+                                                            <img src={admin.photo} className="w-12 h-12 rounded-full"/>
+                                                            <div>
+                                                                <p className="font-bold">{admin.name}</p>
+                                                                <p className="text-xs text-slate-400">{admin.code} | {admin.email}</p>
+                                                                <span className="badge-admin mt-1 inline-block">مساعد إداري</span>
+                                                            </div>
+                                                        </div>
+                                                        <button 
+                                                            onClick={()=>demoteToStudent(admin.id)}
+                                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-bold flex items-center gap-2"
+                                                        >
+                                                            <SafeIcon name="user-minus" size={16}/> طرد من الإدارة
+                                                        </button>
                                                     </div>
-                                                    
-                                                    <div>
-                                                        <label className="block text-sm text-slate-400 mb-2">اختر ولي الأمر</label>
-                                                        <select id="connectParent" className="w-full p-3 bg-white/5 border border-white/10 rounded-xl outline-none text-white">
-                                                            <option value="">اختر ولي الأمر</option>
-                                                            {dataState.parents.map(p => (
-                                                                <option key={p.id} value={p.id}>{p.name} - {p.code}</option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                    
-                                                    <div>
-                                                        <label className="block text-sm text-slate-400 mb-2">علاقة القرابة</label>
-                                                        <select id="connectRelationship" className="w-full p-3 bg-white/5 border border-white/10 rounded-xl outline-none text-white">
-                                                            <option value="ابن/ابنة">ابن/ابنة</option>
-                                                            <option value="أخ/أخت">أخ/أخت</option>
-                                                            <option value="قريب">قريب</option>
-                                                            <option value="وصي">وصي</option>
-                                                        </select>
-                                                    </div>
-                                                    
-                                                    <button onClick={()=>{
-                                                        const studentId = document.getElementById('connectStudent').value;
-                                                        const parentId = document.getElementById('connectParent').value;
-                                                        const relationship = document.getElementById('connectRelationship').value;
-                                                        
-                                                        if (!studentId || !parentId) {
-                                                            return showNotification('اختر الطالب وولي الأمر', 'error');
-                                                        }
-                                                        
-                                                        linkStudentToParent(parentId, studentId, relationship);
-                                                    }} className="btn-main w-full py-3">
-                                                        ربط
-                                                    </button>
-                                                </div>
+                                                ))}
+                                                {dataState.students.filter(s => s.role === 'admin').length === 0 && (
+                                                    <p className="text-center text-slate-500 py-4">لا يوجد مساعدين حالياً</p>
+                                                )}
                                             </div>
-                                            
-                                            {/* قائمة الروابط */}
-                                            <div className="glass-panel p-6">
-                                                <h4 className="font-bold mb-4 text-blue-400">جميع الروابط النشطة</h4>
-                                                <div className="space-y-3 max-h-96 overflow-y-auto">
-                                                    {dataState.parents.flatMap(parent => 
-                                                        dataState.parentConnections[parent.id] ? 
-                                                        Object.keys(dataState.parentConnections[parent.id]).map(studentId => {
-                                                            const student = dataState.students.find(s => s.id === studentId);
-                                                            if (!student) return null;
-                                                            
-                                                            return (
-                                                                <div key={`${parent.id}-${studentId}`} className="flex justify-between items-center bg-black/20 p-3 rounded-lg">
-                                                                    <div>
-                                                                        <p className="font-bold text-sm">{student.firstName} {student.secondName}</p>
-                                                                        <p className="text-xs text-slate-400">← {parent.name}</p>
-                                                                    </div>
-                                                                    <div className="flex gap-2">
-                                                                        <span className="text-xs text-slate-500">
-                                                                            {dataState.parentConnections[parent.id][studentId].relationship}
-                                                                        </span>
-                                                                        <button onClick={()=>{
-                                                                            if (confirm(`هل تريد إلغاء ربط ${student.firstName} مع ${parent.name}؟`)) {
-                                                                                window.rtdb.remove(window.rtdb.ref(window.db, `parentConnections/${parent.id}/${studentId}`));
-                                                                                showNotification('تم إلغاء الربط');
-                                                                            }
-                                                                        }} className="text-red-400 hover:text-red-300">
-                                                                            <SafeIcon name="trash-2" size={16}/>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        }) : []
-                                                    ).filter(Boolean)}
-                                                    
-                                                    {dataState.parents.filter(p => dataState.parentConnections[p.id]).length === 0 && (
-                                                        <p className="text-center text-slate-500 py-8">لا توجد روابط نشطة</p>
-                                                    )}
-                                                </div>
+                                        </div>
+
+                                        {/* All Students - Promote Options */}
+                                        <div>
+                                            <h4 className="font-bold text-blue-400 mb-3">جميع الطلاب المسجلين:</h4>
+                                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                                                {staffFilteredUsers.filter(s => s.role === 'student').map(student => (
+                                                    <div key={student.id} className="flex justify-between items-center bg-white/5 p-4 rounded-xl hover:bg-white/10 transition">
+                                                        <div className="flex items-center gap-3">
+                                                            <img src={student.photo} className="w-12 h-12 rounded-full"/>
+                                                            <div>
+                                                                <p className="font-bold">{student.name}</p>
+                                                                <p className="text-xs text-slate-400">{student.code} | {student.email}</p>
+                                                                <span className="badge-student mt-1 inline-block">طالب</span>
+                                                            </div>
+                                                        </div>
+                                                        <button 
+                                                            onClick={()=>promoteToAdmin(student.id)}
+                                                            className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-bold flex items-center gap-2"
+                                                        >
+                                                            <SafeIcon name="user-plus" size={16}/> ترقية إلى أدمن
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
@@ -2199,64 +1277,7 @@
                                 {activeTab === 'settings' && (
                                     <div>
                                         <h3 className="font-bold mb-4">إعدادات النظام</h3>
-                                        
-                                        {user.role === 'boss' && (
-                                            <div className="space-y-6">
-                                                <div className="bg-red-500/10 border border-red-500/30 p-6 rounded-xl">
-                                                    <h4 className="font-bold text-red-400 mb-4">إعدادات الأكواد الإدارية</h4>
-                                                    
-                                                    <div className="space-y-4">
-                                                        <button onClick={showAdminCodes} 
-                                                                className="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-bold">
-                                                            عرض جميع الأكواد الحالية
-                                                        </button>
-                                                        
-                                                        <button onClick={()=>{
-                                                            const newCodes = {
-                                                                'BOSS': {
-                                                                    code: generateRandomCode('BOSS'),
-                                                                    role: 'boss',
-                                                                    name: 'البوص الرئيسي'
-                                                                },
-                                                                'ADMIN_1': {
-                                                                    code: generateRandomCode('ADMIN'),
-                                                                    role: 'admin',
-                                                                    name: 'الأدمن الأول'
-                                                                },
-                                                                'ADMIN_2': {
-                                                                    code: generateRandomCode('ADMIN'),
-                                                                    role: 'admin',
-                                                                    name: 'الأدمن الثاني'
-                                                                },
-                                                                'ADMIN_3': {
-                                                                    code: generateRandomCode('ADMIN'),
-                                                                    role: 'admin',
-                                                                    name: 'الأدمن الثالث'
-                                                                }
-                                                            };
-                                                            
-                                                            localStorage.setItem('ADMIN_CODES', JSON.stringify(newCodes));
-                                                            showNotification('تم توليد أكواد جديدة. الأكواد القديمة لم تعد صالحة.', 'success');
-                                                        }} 
-                                                                className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold">
-                                                            توليد أكواد إدارة جديدة
-                                                        </button>
-                                                        
-                                                        <div className="bg-black/30 p-4 rounded-lg">
-                                                            <p className="text-sm text-slate-400 mb-2">ملاحظات الأمان:</p>
-                                                            <ul className="text-xs text-slate-500 space-y-1">
-                                                                <li>• الأكواد تتغير تلقائياً عند توليد أكواد جديدة</li>
-                                                                <li>• الأكواد القديمة تصبح غير صالحة فوراً</li>
-                                                                <li>• لا تشارك الأكواد مع غير المصرح لهم</li>
-                                                                <li>• قم بتوليد أكواد جديدة بانتظام للأمان</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        <div className="glass-panel p-6 mt-6">
+                                        <div className="glass-panel p-6">
                                             <h4 className="font-bold mb-4">إحصائيات النظام</h4>
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                                 <div className="bg-white/5 p-3 rounded text-center">
@@ -2272,8 +1293,8 @@
                                                     <div className="text-xs text-slate-400">محاضرة</div>
                                                 </div>
                                                 <div className="bg-white/5 p-3 rounded text-center">
-                                                    <div className="text-lg font-bold">{dataState.qa.length}</div>
-                                                    <div className="text-xs text-slate-400">سؤال</div>
+                                                    <div className="text-lg font-bold">{dataState.students.filter(s => s.role === 'admin').length}</div>
+                                                    <div className="text-xs text-slate-400">مساعد إداري</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2289,7 +1310,6 @@
                                     <h3 className="text-xl font-bold mb-4 text-brand-accent">إدارة: {selectedStudent.name}</h3>
                                     
                                     <div className="space-y-4">
-                                        {/* Student Info */}
                                         <div className="grid grid-cols-2 gap-4 text-sm">
                                             <div>
                                                 <p className="text-slate-400 text-xs mb-1">الكود:</p>
@@ -2299,19 +1319,10 @@
                                                 <p className="text-slate-400 text-xs mb-1">الصف:</p>
                                                 <p className="font-bold">{selectedStudent.grade === '1sec' ? 'أول ثانوي' : selectedStudent.grade === '2sec' ? 'ثاني ثانوي' : 'ثالث ثانوي'}</p>
                                             </div>
-                                            <div>
-                                                <p className="text-slate-400 text-xs mb-1">رقم الطالب:</p>
-                                                <p className="font-bold">{selectedStudent.phone}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-400 text-xs mb-1">رقم ولي الأمر:</p>
-                                                <p className="font-bold">{selectedStudent.parentPhone}</p>
-                                            </div>
                                         </div>
 
-                                        {/* Notes */}
                                         <div>
-                                            <label className="text-xs text-slate-400 mb-1 block">ملاحظات على الطالب:</label>
+                                            <label className="text-xs text-slate-400 mb-1 block">ملاحظات:</label>
                                             <textarea 
                                                 className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-white h-20" 
                                                 value={selectedStudent.notes || ''} 
@@ -2319,88 +1330,12 @@
                                             />
                                         </div>
 
-                                        {/* Status Controls */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="text-xs text-slate-400 mb-1 block">حالة الدفع:</label>
-                                                <button onClick={()=>{
-                                                    const newState = !selectedStudent.isPaid;
-                                                    updateStudent(selectedStudent.id, {isPaid: newState});
-                                                    setSelectedStudent({...selectedStudent, isPaid: newState});
-                                                }} className={`w-full px-4 py-2 rounded-lg font-bold ${selectedStudent.isPaid ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
-                                                    {selectedStudent.isPaid ? '✓ مفعل' : '✗ غير مفعل'}
-                                                </button>
-                                            </div>
-                                            <div>
-                                                <label className="text-xs text-slate-400 mb-1 block">الغياب:</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-white text-center"
-                                                    value={selectedStudent.absences || 0}
-                                                    onChange={e=>{
-                                                        const value = parseInt(e.target.value) || 0;
-                                                        setSelectedStudent({...selectedStudent, absences: value});
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Add Subscription */}
-                                        <div>
-                                            <label className="text-xs text-slate-400 mb-1 block">إضافة/تجديد اشتراك:</label>
-                                            <div className="flex gap-2">
-                                                <select id="subMonths" className="flex-1 bg-black/30 border border-white/10 rounded-lg p-2">
-                                                    <option value="1">شهر واحد</option>
-                                                    <option value="2">شهرين</option>
-                                                    <option value="3">3 شهور</option>
-                                                    <option value="6">6 شهور</option>
-                                                    <option value="12">سنة كاملة</option>
-                                                </select>
-                                                <button onClick={()=>{
-                                                    const months = parseInt(document.getElementById('subMonths').value);
-                                                    addSubscription(selectedStudent.id, months);
-                                                    setSelectedStudent({
-                                                        ...selectedStudent,
-                                                        isPaid: true
-                                                    });
-                                                }} className="bg-brand-accent text-brand-dark px-4 py-2 rounded-lg font-bold">إضافة</button>
-                                            </div>
-                                            {dataState.subscriptions[selectedStudent.id] && (
-                                                <p className="text-xs text-green-400 mt-2">
-                                                    الاشتراك الحالي: باقي {calculateSubscriptionDays(dataState.subscriptions[selectedStudent.id].endDate)} يوم
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* ربط مع ولي أمر */}
-                                        <div>
-                                            <label className="text-xs text-slate-400 mb-1 block">ربط مع ولي أمر:</label>
-                                            <div className="flex gap-2">
-                                                <select id="linkParentSelect" className="flex-1 bg-black/30 border border-white/10 rounded-lg p-2">
-                                                    <option value="">اختر ولي الأمر</option>
-                                                    {dataState.parents.map(p => (
-                                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                                    ))}
-                                                </select>
-                                                <button onClick={()=>{
-                                                    const parentId = document.getElementById('linkParentSelect').value;
-                                                    if (!parentId) return showNotification('اختر ولي الأمر', 'error');
-                                                    
-                                                    const parent = dataState.parents.find(p => p.id === parentId);
-                                                    if (confirm(`هل تريد ربط ${selectedStudent.name} مع ${parent.name}؟`)) {
-                                                        linkStudentToParent(parentId, selectedStudent.id, 'ابن/ابنة');
-                                                    }
-                                                }} className="bg-green-600 text-white px-4 py-2 rounded-lg font-bold">ربط</button>
-                                            </div>
-                                        </div>
-
                                         <div className="flex gap-2 pt-4">
                                             <button onClick={()=>{
                                                 updateStudent(selectedStudent.id, {
-                                                    notes: selectedStudent.notes,
-                                                    absences: selectedStudent.absences || 0
+                                                    notes: selectedStudent.notes
                                                 });
-                                                showNotification('تم حفظ التغييرات');
+                                                setShowStudentModal(false);
                                             }} className="flex-1 bg-brand-primary py-2 rounded-lg font-bold">حفظ</button>
                                             <button onClick={()=>setShowStudentModal(false)} className="px-4 py-2 bg-white/10 rounded-lg font-bold">إغلاق</button>
                                         </div>
@@ -2412,18 +1347,14 @@
                 );
             }
 
-            // ... باقي الـ views (student-login, parent-login, guest, pending-approval, etc.) تبقى كما هي مع تعديلات طفيفة
-            // لتجنب الطول الزائد، سأتركها كما هي مع التأكيد على أنها تعمل بنفس الكود السابق مع إضافة التحسينات المطلوبة
-
+            // Simple fallback for other views
             return (
-                <>
-                    {notification && (
-                        <div className={`fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl font-bold z-[100] text-white flex items-center gap-2 ${notification.type==='error'?'bg-red-600':'bg-green-600'}`}>
-                            <SafeIcon name={notification.type==='error'?'alert-circle':'check-circle'}/>
-                            {notification.message}
-                        </div>
-                    )}
-                </>
+                <div className="min-h-screen bg-brand-dark flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="loader mx-auto mb-4"></div>
+                        <p className="text-slate-400">جاري التحميل...</p>
+                    </div>
+                </div>
             );
         };
 
@@ -2435,219 +1366,6 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<RootApp />);
-    </script>
-    
-    <!-- نظام الإدارة المبسط -->
-    <script>
-        class SimpleAdminSystem {
-            constructor() {
-                this.init();
-            }
-            
-            init() {
-                // زر الدخول للإدارة
-                this.addAdminButton();
-                
-                // اختصار لوحة المفاتيح
-                this.addKeyboardShortcut();
-                
-                // تحقق من الدخول السابق
-                this.checkPreviousLogin();
-            }
-            
-            addAdminButton() {
-                setTimeout(() => {
-                    const btn = document.createElement('div');
-                    btn.innerHTML = '🛡️';
-                    btn.title = 'دخول الإدارة';
-                    btn.style.cssText = `
-                        position: fixed;
-                        bottom: 60px;
-                        right: 10px;
-                        width: 40px;
-                        height: 40px;
-                        background: rgba(239, 68, 68, 0.2);
-                        border: 1px solid rgba(239, 68, 68, 0.4);
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        z-index: 9998;
-                        font-size: 18px;
-                        opacity: 0.5;
-                        transition: all 0.3s;
-                    `;
-                    
-                    btn.onmouseenter = () => {
-                        btn.style.opacity = '1';
-                        btn.style.background = 'rgba(239, 68, 68, 0.4)';
-                        btn.style.transform = 'scale(1.1)';
-                    };
-                    
-                    btn.onmouseleave = () => {
-                        btn.style.opacity = '0.5';
-                        btn.style.background = 'rgba(239, 68, 68, 0.2)';
-                        btn.style.transform = 'scale(1)';
-                    };
-                    
-                    btn.onclick = () => this.showAdminAccess();
-                    
-                    document.body.appendChild(btn);
-                }, 3000);
-            }
-            
-            showAdminAccess() {
-                const action = prompt('اختر الإجراء:\n1. دخول الإدارة (تسجيل جوجل مطلوب)\n2. عرض أكواد الإدارة\n3. توليد أكواد جديدة\n\nأدخل الرقم:', '1');
-                
-                switch(action) {
-                    case '1':
-                        this.loginAsAdmin();
-                        break;
-                    case '2':
-                        this.showCurrentCodes();
-                        break;
-                    case '3':
-                        this.generateNewCodes();
-                        break;
-                    default:
-                        break;
-                }
-            }
-            
-            loginAsAdmin() {
-                const code = prompt('أدخل كود الإدارة:', '');
-                if (!code) return;
-                
-                // تحقق من الأكواد
-                const savedCodes = JSON.parse(localStorage.getItem('ADMIN_CODES') || '{}');
-                let validCode = null;
-                
-                Object.values(savedCodes).forEach(admin => {
-                    if (admin.code === code) {
-                        validCode = admin;
-                    }
-                });
-                
-                if (validCode) {
-                    // تسجيل جوجل أولاً
-                    if (!window.auth?.currentUser) {
-                        alert('يجب تسجيل الدخول بحساب جوجل أولاً');
-                        window.authMethods.signInWithPopup(window.auth, window.googleProvider)
-                            .then(() => {
-                                setTimeout(() => {
-                                    this.completeAdminLogin(validCode);
-                                }, 1000);
-                            });
-                    } else {
-                        this.completeAdminLogin(validCode);
-                    }
-                } else {
-                    alert('❌ الكود غير صحيح');
-                }
-            }
-            
-            completeAdminLogin(adminData) {
-                const user = window.auth.currentUser;
-                
-                // حفظ في Firebase
-                window.rtdb.set(window.rtdb.ref(window.db, 'users/' + user.uid), {
-                    uid: user.uid,
-                    email: user.email,
-                    name: user.displayName || adminData.name,
-                    photo: user.photoURL,
-                    role: adminData.role,
-                    adminLevel: adminData.name,
-                    isNew: false,
-                    joinedAt: new Date().toISOString()
-                });
-                
-                // حفظ محلي
-                localStorage.setItem('admin_logged_in', 'true');
-                localStorage.setItem('admin_role', adminData.role);
-                localStorage.setItem('admin_name', adminData.name);
-                
-                alert(`✅ تم الدخول كـ ${adminData.name}\n\nجاري تحميل لوحة التحكم...`);
-                
-                // إعادة تحميل
-                setTimeout(() => window.location.reload(), 1000);
-            }
-            
-            showCurrentCodes() {
-                const savedCodes = JSON.parse(localStorage.getItem('ADMIN_CODES') || '{}');
-                let message = '🔐 **أكواد الإدارة الحالية:**\n\n';
-                
-                Object.values(savedCodes).forEach((admin, idx) => {
-                    message += `${idx + 1}. ${admin.name}\n`;
-                    message += `   الكود: **${admin.code}**\n`;
-                    message += `   الصلاحية: ${admin.role}\n\n`;
-                });
-                
-                alert(message);
-            }
-            
-            generateNewCodes() {
-                if (!confirm('⚠️ هل أنت متأكد؟\n\nهذا سيولد أكواد جديدة ويجعل الأكواد القديمة غير صالحة.')) {
-                    return;
-                }
-                
-                const newCodes = {
-                    'BOSS': {
-                        code: 'BOSS-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                        role: 'boss',
-                        name: 'البوص الرئيسي'
-                    },
-                    'ADMIN_1': {
-                        code: 'ADMIN-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                        role: 'admin',
-                        name: 'الأدمن الأول'
-                    },
-                    'ADMIN_2': {
-                        code: 'ADMIN-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                        role: 'admin',
-                        name: 'الأدمن الثاني'
-                    },
-                    'ADMIN_3': {
-                        code: 'ADMIN-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-                        role: 'admin',
-                        name: 'الأدمن الثالث'
-                    }
-                };
-                
-                localStorage.setItem('ADMIN_CODES', JSON.stringify(newCodes));
-                
-                let message = '✅ **تم توليد أكواد جديدة:**\n\n';
-                Object.values(newCodes).forEach((admin, idx) => {
-                    message += `${idx + 1}. ${admin.name}\n`;
-                    message += `   الكود: **${admin.code}**\n\n`;
-                });
-                
-                alert(message + '\n⚠️ الأكواد القديمة لم تعد صالحة للاستخدام.');
-            }
-            
-            addKeyboardShortcut() {
-                document.addEventListener('keydown', (e) => {
-                    // Ctrl+Alt+A
-                    if (e.ctrlKey && e.altKey && e.key === 'a') {
-                        e.preventDefault();
-                        this.showAdminAccess();
-                    }
-                });
-            }
-            
-            checkPreviousLogin() {
-                if (localStorage.getItem('admin_logged_in') === 'true') {
-                    console.log('✅ مسجل دخول إداري مسبقاً');
-                }
-            }
-        }
-        
-        // تشغيل النظام
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                window.AdminSystem = new SimpleAdminSystem();
-            }, 2000);
-        });
     </script>
 </body>
 </html>
