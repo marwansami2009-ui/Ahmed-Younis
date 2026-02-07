@@ -6,1042 +6,1019 @@
     <title>منصة العالمي للرياضيات | أ/ أحمد سعد يونس</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Firebase Initialization -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, child, push, update, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, child, push, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAWvMBrjkjU02jfOe8HKNnDHNx1ZshlDdo",
             authDomain: "el-alamy-platform.firebaseapp.com",
-            databaseURL: "https://el-alamy-platform-default-rtdb.firebaseio.com",
             projectId: "el-alamy-platform",
             storageBucket: "el-alamy-platform.firebasestorage.app",
             messagingSenderId: "790950981758",
             appId: "1:790950981758:web:21cf7c65e9d2cce210a82f",
-            measurementId: "G-970BP0VKQQ"
+            measurementId: "G-970BP0VKQQ",
+            databaseURL: "https://el-alamy-platform-default-rtdb.firebaseio.com"
         };
 
         const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app); 
+        window.db = getDatabase(app);
         window.auth = getAuth(app);
         window.googleProvider = new GoogleAuthProvider();
-        
-        window.rtdb = { ref, set, get, child, push, update, onValue, remove, serverTimestamp };
-        window.authMethods = { signInWithPopup, signOut, onAuthStateChanged };
-        
-        console.log('✅ Firebase initialized successfully');
+        window.facebookProvider = new FacebookAuthProvider();
+        window.rtdb = { ref, set, get, child, push, update, onValue, remove };
+        window.authMethods = { signInWithPopup, signOut, onAuthStateChanged, signInAnonymously };
     </script>
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { 
-                        brand: {
-                            dark: '#0a1628',
-                            'dark-lighter': '#1a2942',
-                            card: '#1e293b',
-                            primary: '#3b82f6',
-                            accent: '#fbbf24',
-                            gold: '#FFD700',
-                            silver: '#C0C0C0',
-                            bronze: '#CD7F32',
-                            success: '#10b981',
-                            warning: '#f59e0b',
-                            danger: '#ef4444',
-                            glass: 'rgba(255, 255, 255, 0.1)',
-                            light: '#e0f2fe',
-                            'light-darker': '#bae6fd'
-                        }
-                    },
-                    fontFamily: { 'cairo': ['Cairo', 'sans-serif'] },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'slide-up': 'slideUp 0.8s ease-out',
-                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
-                        'bounce-slow': 'bounceSlow 3s infinite',
-                        'fade-in': 'fadeIn 0.5s ease-in',
-                        'slide-in-right': 'slideInRight 0.3s ease-out',
-                        'flip': 'flip 0.6s ease-out',
-                        'glow': 'glow 2s ease-in-out infinite'
-                    },
-                    keyframes: {
-                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } },
-                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
-                        pulseGlow: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.7' } },
-                        bounceSlow: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
-                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideInRight: { '0%': { transform: 'translateX(20px)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
-                        flip: { '0%': { transform: 'rotateY(0)' }, '50%': { transform: 'rotateY(90deg)' }, '100%': { transform: 'rotateY(0)' } },
-                        glow: { '0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' }, '50%': { boxShadow: '0 0 40px rgba(59, 130, 246, 0.8)' } }
-                    },
-                    backdropBlur: {
-                        xs: '2px',
-                        sm: '4px',
-                        DEFAULT: '8px',
-                        md: '12px',
-                        lg: '16px',
-                        xl: '24px'
-                    }
-                }
-            }
-        }
-    </script>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        
-        * { box-sizing: border-box; }
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            overflow-x: hidden; 
-            margin: 0;
-            transition: all 0.3s ease;
-        }
-        
-        /* Dark Mode Styles */
-        body.dark-mode {
-            background: linear-gradient(135deg, #0a1628 0%, #1a2942 100%);
-            color: white;
-        }
-        
-        /* Light Mode Styles */
-        body.light-mode {
-            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-            color: #1e293b;
-        }
-        
-        .glass-panel { 
-            backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            border-radius: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .dark-mode .glass-panel {
-            background: rgba(30, 41, 59, 0.75);
-        }
-
-        .light-mode .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.1);
-        }
-
-        .glass-icon {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .light-mode .glass-icon {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .btn-main {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            font-weight: 800;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-        .btn-main:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5); 
-        }
-
-        .light-mode .btn-main {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        }
-        
-        .embed-wrapper { 
-            position: relative; 
-            padding-bottom: 56.25%; 
-            height: 0; 
-            overflow: hidden; 
-            border-radius: 12px; 
-            background: #000; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-        }
-        .embed-wrapper iframe { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            border: 0; 
-        }
-        
-        .math-grid {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
-        }
-
-        .light-mode .math-grid {
-            background-image: linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-        }
-        
-        .hero-glow {
-            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
-        }
-
-        .teacher-image-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 0 auto;
-        }
-
-        .teacher-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 5px solid #3b82f6;
-            box-shadow: 0 0 60px rgba(59, 130, 246, 0.6);
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        .light-mode .teacher-image {
-            border-color: #2563eb;
-            box-shadow: 0 0 60px rgba(37, 99, 235, 0.4);
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Cairo', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
+        .btn-gold { background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f172a; font-weight: 800; transition: all 0.3s; }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(251, 191, 36, 0.5); }
+        .embed { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; }
+        .embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .grid-bg { background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; }
+        .glow { background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%); }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
-        .light-mode ::-webkit-scrollbar-track { background: #e0f2fe; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .light-mode ::-webkit-scrollbar-thumb { background: #3b82f6; }
-        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-
-        .sidebar {
-            position: fixed;
-            right: -300px;
-            top: 0;
-            width: 300px;
-            height: 100vh;
-            transition: right 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sidebar.open {
-            right: 0;
-        }
-
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 999;
-        }
-
-        .sidebar-overlay.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top: 4px solid #3b82f6;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .feature-card {
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .light-mode .hero-title {
-            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-            .teacher-image-container {
-                width: 200px;
-                height: 200px;
-            }
-        }
+        .loader { border: 4px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top: 4px solid #fbbf24; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideUp { 0% { transform: translateY(30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .slide-up { animation: slideUp 0.8s ease-out; }
+        .float { animation: float 6s ease-in-out infinite; }
     </style>
 </head>
-<body class="dark-mode">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect } = React;
         
-        // 🔐 SUPER ADMIN EMAIL
-        const SUPER_ADMIN_EMAIL = 'marwansami2009@gmail.com';
+        const ADMIN_CODES = {
+            'BOSS-2025': 'boss',
+            'ADMIN-001': 'admin', 'ADMIN-002': 'admin', 'ADMIN-003': 'admin', 'ADMIN-004': 'admin',
+            'ADMIN-005': 'admin', 'ADMIN-006': 'admin', 'ADMIN-007': 'admin', 'ADMIN-008': 'admin',
+            'ADMIN-009': 'admin', 'ADMIN-010': 'admin'
+        };
 
-        // 📱 Contact Info
-        const CONTACT_INFO = {
+        const CONTACT = {
             whatsapp: 'https://wa.me/201000000000',
             facebook: 'https://facebook.com/yourpage',
             youtube: 'https://youtube.com/yourchannel',
             telegram: 'https://t.me/yourchannel',
-            vodafoneNumber: '010xxxxxxxx',
-            supportWhatsapp: 'https://wa.me/201000000000',
-            masterWhatsapp: 'https://wa.me/201111111111'
+            vodafone: '010xxxxxxxx',
+            fawry: '12345',
+            support: 'https://wa.me/201000000000'
         };
 
-        // 🛡️ SafeIcon Component
-        const SafeIcon = ({ name, size = 20, className = '' }) => {
-            const icons = {
-                'home': '🏠', 'video': '🎬', 'play-circle': '▶️', 'credit-card': '💳',
-                'help-circle': '❓', 'gift': '🎁', 'trending-up': '📈', 'calendar-check': '📅',
-                'bell': '🔔', 'message-circle': '💬', 'calculator': '🧮', 'user': '👤',
-                'key': '🔑', 'clock': '⏰', 'send': '📤', 'log-in': '↪️', 'menu': '☰',
-                'x': '✖️', 'check': '✓', 'check-circle': '✅', 'alert-circle': '⚠️',
-                'trash-2': '🗑️', 'arrow-right': '→', 'arrow-left': '←', 'lock': '🔒',
-                'unlock': '🔓', 'star': '⭐', 'lightbulb': '💡', 'mail': '✉️',
-                'phone': '📞', 'book-open': '📖', 'file-text': '📄', 'image': '🖼️',
-                'headphones': '🎧', 'settings': '⚙️', 'facebook': 'f', 'youtube': '▶',
-                'instagram': '📷', 'users': '👥', 'shield': '🛡️', 'eye': '👁️',
-                'eye-off': '👁️‍🗨️', 'link': '🔗', 'parent': '👨‍👦', 'student': '👨‍🎓',
-                'admin': '👨‍💼', 'logout': '🚪', 'search': '🔍', 'filter': '⚙️',
-                'download': '⬇️', 'upload': '⬆️', 'edit': '✏️', 'copy': '📋',
-                'crown': '👑', 'sun': '☀️', 'moon': '🌙', 'list': '📋',
-                'book': '📚', 'chart': '📊', 'award': '🏆'
+        const Icon = ({ name, size = 20, className = '' }) => {
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [view, setView] = useState('loading');
+            const [data, setData] = useState({
+                students: [], requests: [], lectures: [], whiteboards: [], qa: [],
+                exams: [], announcements: [], payments: [], packages: [], subscriptions: {}
+            });
+            const [form, setForm] = useState({
+                firstName: '', secondName: '', thirdName: '', phone: '', parentPhone: '',
+                school: '', governorate: '', city: '', grade: '1sec', address: ''
+            });
+            const [tab, setTab] = useState('home');
+            const [selected, setSelected] = useState({ lecture: null, student: null, package: null });
+            const [modal, setModal] = useState({ student: false, payment: false });
+            const [search, setSearch] = useState('');
+            const [codes, setCodes] = useState({ student: '', phone: '', admin: '' });
+            const [step, setStep] = useState('video');
+            const [answers, setAnswers] = useState({});
+            const [payment, setPayment] = useState('vodafone');
+            const [notify, setNotify] = useState(null);
+            const [examModel, setExamModel] = useState('A');
+
+            const show = (msg, type = 'success') => {
+                setNotify({ msg, type });
+                setTimeout(() => setNotify(null), 4000);
             };
-            
-            const emoji = icons[name] || '🔹';
-            
-            return (
-                <span 
-                    style={{ 
-                        fontSize: `${size * 0.7}px`,
-                        display: 'inline-block',
-                        width: `${size}px`,
-                        height: `${size}px`,
-                        lineHeight: 1
-                    }}
-                    className={className}
-                >
-                    {emoji}
-                </span>
-            );
-        };
 
-        // 🛡️ Error Boundary
-        class ErrorBoundary extends React.Component {
-            constructor(props) {
-                super(props);
-                this.state = { hasError: false, error: null };
-            }
-            
-            static getDerivedStateFromError(error) {
-                return { hasError: true, error };
-            }
-            
-            componentDidCatch(error, errorInfo) {
-                console.error('App Error:', error, errorInfo);
-            }
-            
-            render() {
-                if (this.state.hasError) {
-                    return (
-                        <div className="min-h-screen flex items-center justify-center p-4">
-                            <div className="glass-panel p-8 text-center max-w-md">
-                                <div className="text-6xl mb-4">⚠️</div>
-                                <h2 className="text-2xl font-bold text-red-400 mb-2">حدث خطأ في التطبيق</h2>
-                                <p className="mb-4 opacity-70">سيتم إعادة تحميل الصفحة تلقائياً...</p>
-                                <button 
-                                    onClick={() => window.location.reload()}
-                                    className="btn-main px-6 py-3 rounded-xl"
-                                >
-                                    إعادة تحميل
-                                </button>
-                            </div>
-                        </div>
+            const code = (p = 'STU') => `${p}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+
+            useEffect(() => {
+                window.authMethods.onAuthStateChanged(window.auth, async (u) => {
+                    if (u) {
+                        if (u.isAnonymous) {
+                            setUser({ uid: u.uid, isGuest: true, name: 'زائر' });
+                            setView('guest');
+                            return;
+                        }
+                        const s = await window.rtdb.get(window.rtdb.child(window.rtdb.ref(window.db), `users/${u.uid}`));
+                        if (s.exists()) {
+                            const userData = s.val();
+                            setUser({ ...userData, uid: u.uid, photo: u.photoURL });
+                            setView(['admin', 'boss'].includes(userData.role) ? 'admin' : userData.status === 'pending' ? 'pending' : 'student');
+                        } else {
+                            setUser({ uid: u.uid, name: u.displayName, email: u.email, photo: u.photoURL, isNew: true });
+                            setView('register');
+                        }
+                    } else {
+                        setUser(null);
+                        setView('landing');
+                    }
+                });
+            }, []);
+
+            useEffect(() => {
+                if (user && !user.isGuest) {
+                    ['lectures', 'whiteboards', 'qa', 'announcements', 'exams', 'packages'].forEach(t =>
+                        window.rtdb.onValue(window.rtdb.ref(window.db, t), s =>
+                            setData(p => ({ ...p, [t]: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0)) : [] }))
+                        )
                     );
+                    if (['admin', 'boss'].includes(user.role)) {
+                        window.rtdb.onValue(window.rtdb.ref(window.db, 'requests'), s =>
+                            setData(p => ({ ...p, requests: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
+                        );
+                        window.rtdb.onValue(window.rtdb.ref(window.db, 'users'), s =>
+                            setData(p => ({ ...p, students: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).filter(u => u.role === 'student') : [] }))
+                        );
+                        window.rtdb.onValue(window.rtdb.ref(window.db, 'payments'), s =>
+                            setData(p => ({ ...p, payments: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
+                        );
+                    }
                 }
-                return this.props.children;
-            }
-        }
+            }, [user]);
 
-        // 🏠 الصفحة الرئيسية المطورة
-        const HomePage = ({ setView, darkMode, toggleDarkMode }) => {
-            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const render = (link) => {
+                if (!link) return null;
+                if (link.startsWith('<iframe')) return <div className="embed" dangerouslySetInnerHTML={{ __html: link }} />;
+                if (link.includes('youtu')) {
+                    const id = link.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+                    return id ? <div className="embed"><iframe src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe></div> : null;
+                }
+                if (link.match(/\.(jpeg|jpg|gif|png)$/) || link.includes('ibb.co'))
+                    return <img src={link} className="w-full rounded-xl shadow-lg" onError={(e) => { e.target.src = 'https://placehold.co/600x400?text=خطأ'; }} />;
+                if (link.includes('drive.google.com'))
+                    return <div className="embed"><iframe src={link.replace('/view', '/preview')} allowFullScreen></iframe></div>;
+                return <a href={link} target="_blank" className="block w-full bg-white/10 text-white text-center py-3 rounded-xl font-bold">🔗 فتح</a>;
+            };
 
-            return (
-                <div className="min-h-screen math-grid">
-                    {/* Header */}
-                    <header className="glass-panel sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-4 py-4">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 glass-icon rounded-full flex items-center justify-center">
-                                        <SafeIcon name="calculator" size={24} />
-                                    </div>
-                                    <div>
-                                        <h1 className="text-xl font-black">منصة العالمي</h1>
-                                        <p className="text-xs opacity-70">أ/ أحمد سعد يونس</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        onClick={toggleDarkMode}
-                                        className="w-10 h-10 glass-icon rounded-full flex items-center justify-center"
-                                    >
-                                        <SafeIcon name={darkMode ? 'sun' : 'moon'} />
-                                    </button>
-                                    <button
-                                        onClick={() => setSidebarOpen(true)}
-                                        className="w-10 h-10 glass-icon rounded-full flex items-center justify-center md:hidden"
-                                    >
-                                        <SafeIcon name="menu" />
-                                    </button>
-                                    <button
-                                        onClick={() => setView('login')}
-                                        className="btn-main px-6 py-2 rounded-lg hidden md:block"
-                                    >
-                                        تسجيل الدخول
-                                    </button>
-                                </div>
-                            </div>
+            const login = async () => {
+                const st = data.students.find(s => s.code === codes.student || s.phone === codes.phone);
+                if (st) {
+                    setUser(st);
+                    setView(st.status === 'pending' ? 'pending' : 'student');
+                    show(`مرحباً ${st.firstName}!`);
+                } else show('الكود أو الرقم غير صحيح', 'error');
+            };
+
+            const upload = async (col, d) => {
+                await window.rtdb.push(window.rtdb.ref(window.db, col), { ...d, date: new Date().toLocaleDateString('ar-EG'), ts: Date.now() });
+                show('تم النشر ✅');
+            };
+
+            const update = async (id, d) => {
+                await window.rtdb.update(window.rtdb.ref(window.db, `users/${id}`), d);
+                show('تم التحديث 👌');
+            };
+
+            const activate = async (sid, pid) => {
+                const pkg = data.packages.find(p => p.id === pid);
+                if (!pkg) return;
+                const now = new Date();
+                const end = new Date(now.setMonth(now.getMonth() + parseInt(pkg.months)));
+                await window.rtdb.update(window.rtdb.ref(window.db, `users/${sid}`), {
+                    isPaid: true,
+                    currentPackage: pkg.name,
+                    subscriptionEnd: end.toISOString()
+                });
+                await window.rtdb.push(window.rtdb.ref(window.db, `subscriptions/${sid}`), {
+                    packageId: pid,
+                    packageName: pkg.name,
+                    months: pkg.months,
+                    price: pkg.price,
+                    startDate: new Date().toISOString(),
+                    endDate: end.toISOString(),
+                    ts: Date.now()
+                });
+                show(`تم تفعيل ${pkg.name}`);
+            };
+
+            const adminLogin = async () => {
+                if (!user) return show('سجل أولاً', 'error');
+                if (ADMIN_CODES[codes.admin]) {
+                    await window.rtdb.set(window.rtdb.ref(window.db, 'users/' + user.uid), {
+                        ...user,
+                        role: ADMIN_CODES[codes.admin],
+                        isNew: false
+                    });
+                    window.location.reload();
+                } else show('كود خاطئ', 'error');
+            };
+
+            // LANDING
+            if (view === 'landing') return (
+                <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-white relative overflow-hidden grid-bg">
+                    <div className="absolute inset-0 glow"></div>
+                    <header className="relative z-50 p-6 flex justify-between items-center container mx-auto">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-amber-400 rounded-lg flex items-center justify-center text-slate-900 font-black text-xl">∑</div>
+                            <h1 className="text-2xl font-black">العالمي</h1>
+                        </div>
+                        <div className="flex gap-3 flex-wrap">
+                            <button onClick={() => setView('login')} className="bg-blue-600/20 border border-blue-500/30 px-6 py-2 rounded-full font-bold hover:bg-blue-600/40 transition">دخول الطالب</button>
+                            <button onClick={() => window.authMethods.signInAnonymously(window.auth)} className="bg-white/10 border border-white/20 px-6 py-2 rounded-full font-bold hover:bg-white/20 transition">تصفح كزائر</button>
+                            <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)} className="bg-white/10 border border-white/20 px-6 py-2 rounded-full font-bold hover:bg-white/20 transition">تسجيل جديد</button>
                         </div>
                     </header>
 
-                    {/* Hero Section */}
-                    <section className="py-20 px-4 hero-glow">
-                        <div className="max-w-7xl mx-auto">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                                <div className="text-center md:text-right animate-slide-up">
-                                    <h1 className="hero-title mb-6">
-                                        منصة العالمي للرياضيات
-                                    </h1>
-                                    <p className="text-2xl font-bold mb-4">
-                                        أ/ أحمد سعد يونس
-                                    </p>
-                                    <p className="text-xl opacity-80 mb-8">
-                                        منصة تعليمية متكاملة للمرحلة الثانوية
-                                    </p>
-                                    <div className="flex gap-4 justify-center md:justify-start">
-                                        <button 
-                                            onClick={() => setView('login')}
-                                            className="btn-main px-8 py-4 rounded-xl text-lg"
-                                        >
-                                            ابدأ التعلم الآن
-                                        </button>
-                                        <button 
-                                            onClick={() => setView('guest')}
-                                            className="glass-panel px-8 py-4 rounded-xl text-lg hover:bg-white/10"
-                                        >
-                                            تصفح كزائر
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div className="animate-float">
-                                    <div className="teacher-image-container">
-                                        <img 
-                                            src="alalamy.png" 
-                                            alt="أ/ أحمد سعد يونس" 
-                                            className="teacher-image"
-                                            onError={(e) => {
-                                                e.target.src = 'https://via.placeholder.com/300?text=أ/+أحمد+سعد+يونس';
-                                            }}
-                                        />
-                                    </div>
+                    <div className="flex-1 container mx-auto px-4 flex flex-col-reverse md:flex-row items-center justify-center gap-10 relative z-20 py-10">
+                        <div className="text-center md:text-right space-y-6 md:w-1/2 slide-up">
+                            <div className="inline-block bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-sm font-bold border border-blue-500/30">
+                                🚀 أقوى منصة رياضيات في مصر
+                            </div>
+                            <h1 className="text-5xl md:text-7xl font-black leading-tight">
+                                الرياضيات<br /><span className="text-amber-400">لعبتك معانا!</span>
+                            </h1>
+                            <p className="text-slate-300 text-lg md:text-xl font-medium max-w-lg mx-auto md:mx-0">
+                                مع أ/ أحمد سعد يونس.. التفاضل والتكامل والجبر بقوا أسهل مما تتخيل.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
+                                <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)}
+                                    className="btn-gold px-8 py-4 rounded-xl text-xl flex items-center justify-center gap-2">
+                                    اشترك الآن <Icon name="calculator" />
+                                </button>
+                                <div className="relative">
+                                    <input placeholder="كود الأدمن" className="bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-center w-full outline-none"
+                                        onChange={e => setCodes({ ...codes, admin: e.target.value })} />
+                                    <button onClick={adminLogin} className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 hover:text-amber-400">دخول</button>
                                 </div>
                             </div>
                         </div>
-                    </section>
+                        <div className="md:w-1/2 relative flex justify-center">
+                            <div className="absolute inset-0 bg-blue-600/30 blur-[100px] rounded-full"></div>
+                            <img src="./alalamy.png" className="relative z-10 w-full max-w-md object-contain drop-shadow-2xl float" alt="المدرس" onError={(e) => { e.target.style.display = 'none' }} />
+                        </div>
+                    </div>
 
-                    {/* Features Section */}
-                    <section className="py-20 px-4">
-                        <div className="max-w-7xl mx-auto">
-                            <h2 className="text-4xl font-black text-center mb-16">
-                                مميزات المنصة
-                            </h2>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <section className="py-20 relative z-20 bg-black/20">
+                        <div className="container mx-auto px-4">
+                            <h2 className="text-4xl font-black text-center mb-16">ليه <span className="text-amber-400">العالمي</span>؟</h2>
+                            <div className="grid md:grid-cols-3 gap-8">
                                 {[
-                                    {
-                                        icon: 'video',
-                                        title: 'محاضرات مباشرة',
-                                        desc: 'محاضرات حية وتسجيلات مرتبة',
-                                        color: 'from-blue-500 to-blue-600'
-                                    },
-                                    {
-                                        icon: 'file-text',
-                                        title: 'امتحانات إلكترونية',
-                                        desc: 'نظام امتحانات متطور ومتنوع',
-                                        color: 'from-green-500 to-green-600'
-                                    },
-                                    {
-                                        icon: 'chart',
-                                        title: 'متابعة الأداء',
-                                        desc: 'تقارير مفصلة لمستوى الطالب',
-                                        color: 'from-purple-500 to-purple-600'
-                                    },
-                                    {
-                                        icon: 'users',
-                                        title: 'تواصل فعال',
-                                        desc: 'تواصل مباشر مع المدرس وأولياء الأمور',
-                                        color: 'from-yellow-500 to-yellow-600'
-                                    }
-                                ].map((feature, index) => (
-                                    <div 
-                                        key={index}
-                                        className="glass-panel p-6 feature-card"
-                                    >
-                                        <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
-                                            <SafeIcon name={feature.icon} size={32} />
+                                    { icon: 'brain', title: 'شرح مبسط', desc: 'بنبسطلك المعلومة ونخليها سهلة' },
+                                    { icon: 'target', title: 'حل شامل', desc: 'حل من كل المصادر والامتحانات' },
+                                    { icon: 'message-circle', title: 'متابعة 24/7', desc: 'الدعم معاك في أي وقت' }
+                                ].map((f, i) => (
+                                    <div key={i} className="glass p-8 text-center hover:-translate-y-2 transition">
+                                        <div className="w-16 h-16 bg-amber-400/20 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400">
+                                            <Icon name={f.icon} size={32} />
                                         </div>
-                                        <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                                        <p className="opacity-70">{feature.desc}</p>
+                                        <h3 className="text-xl font-bold mb-2">{f.title}</h3>
+                                        <p className="text-slate-400">{f.desc}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </section>
 
-                    {/* Stats Section */}
-                    <section className="py-20 px-4">
-                        <div className="max-w-7xl mx-auto">
-                            <div className="glass-panel p-12 rounded-3xl">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                                    {[
-                                        { number: '500+', label: 'طالب' },
-                                        { number: '150+', label: 'محاضرة' },
-                                        { number: '98%', label: 'نسبة النجاح' },
-                                        { number: '24/7', label: 'دعم متواصل' }
-                                    ].map((stat, index) => (
-                                        <div key={index} className="text-center">
-                                            <div className="text-4xl md:text-5xl font-black mb-2 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-                                                {stat.number}
+                    <section className="py-10 bg-slate-800/50">
+                        <div className="container mx-auto px-4">
+                            <h3 className="text-center text-lg font-bold mb-6">تابعنا:</h3>
+                            <div className="flex justify-center gap-6 flex-wrap">
+                                <a href={CONTACT.facebook} target="_blank" className="flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 px-6 py-3 rounded-xl hover:bg-blue-600/40 transition">
+                                    <Icon name="facebook" /> Facebook
+                                </a>
+                                <a href={CONTACT.youtube} target="_blank" className="flex items-center gap-2 bg-red-600/20 border border-red-500/30 px-6 py-3 rounded-xl hover:bg-red-600/40 transition">
+                                    <Icon name="youtube" /> YouTube
+                                </a>
+                                <a href={CONTACT.whatsapp} target="_blank" className="flex items-center gap-2 bg-green-600/20 border border-green-500/30 px-6 py-3 rounded-xl hover:bg-green-600/40 transition">
+                                    <Icon name="message-circle" /> WhatsApp
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div className="py-6 text-center text-slate-500 text-sm">Developed with ❤️ by Marwan</div>
+                </div>
+            );
+
+            // LOGIN
+            if (view === 'login') return (
+                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+                    <div className="glass p-8 w-full max-w-md slide-up">
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 bg-amber-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Icon name="key" size={40} className="text-amber-400" />
+                            </div>
+                            <h2 className="text-3xl font-bold mb-2">دخول الطالب</h2>
+                            <p className="text-slate-400">أدخل الكود أو رقم الهاتف</p>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="text-sm text-slate-400 mb-2 block">الكود:</label>
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center text-2xl tracking-widest font-mono"
+                                    placeholder="STU-XXXXXX"
+                                    value={codes.student}
+                                    onChange={e => setCodes({ ...codes, student: e.target.value.toUpperCase() })} />
+                            </div>
+
+                            <div className="text-center text-slate-500 text-sm">أو</div>
+
+                            <div>
+                                <label className="text-sm text-slate-400 mb-2 block">رقم الهاتف:</label>
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center"
+                                    placeholder="01xxxxxxxxx"
+                                    value={codes.phone}
+                                    onChange={e => setCodes({ ...codes, phone: e.target.value })} />
+                            </div>
+
+                            <button onClick={login} className="btn-gold w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2">
+                                <Icon name="log-in" /> دخول
+                            </button>
+
+                            <div className="text-center space-y-2">
+                                <p className="text-slate-500 text-sm">ليس لديك حساب؟</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)}
+                                        className="bg-red-600/20 border border-red-500/30 py-2 rounded-lg text-sm hover:bg-red-600/40 transition">
+                                        <Icon name="mail" size={16} className="inline" /> Google
+                                    </button>
+                                    <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.facebookProvider)}
+                                        className="bg-blue-600/20 border border-blue-500/30 py-2 rounded-lg text-sm hover:bg-blue-600/40 transition">
+                                        <Icon name="facebook" size={16} className="inline" /> Facebook
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button onClick={() => setView('landing')} className="w-full text-slate-400 hover:text-white text-sm">← رجوع</button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // GUEST
+            if (view === 'guest') return (
+                <div className="min-h-screen bg-slate-900 p-4">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="glass p-8 text-center mb-6">
+                            <Icon name="eye" size={48} className="mx-auto text-amber-400 mb-4" />
+                            <h2 className="text-2xl font-bold mb-2">وضع الزائر</h2>
+                            <p className="text-slate-400 mb-6">يمكنك مشاهدة المحتوى المجاني. للوصول الكامل سجل حساب.</p>
+                            <div className="flex gap-4 justify-center">
+                                <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)} className="btn-gold px-6 py-3 rounded-xl">تسجيل</button>
+                                <button onClick={() => window.authMethods.signOut(window.auth)} className="px-6 py-3 bg-white/10 rounded-xl hover:bg-white/20">خروج</button>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {data.lectures.filter(l => l.isFree).map(lec => (
+                                <div key={lec.id} className="glass p-6">
+                                    <h3 className="font-bold text-lg mb-2">{lec.title}</h3>
+                                    <p className="text-sm text-slate-400 mb-4">{lec.description}</p>
+                                    <button onClick={() => { setSelected({ ...selected, lecture: lec }); setStep('video'); }} className="btn-gold w-full py-2 rounded-lg">مشاهدة</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // PENDING
+            if (view === 'pending') return (
+                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+                    <div className="glass p-8 w-full max-w-lg text-center slide-up">
+                        <div className="w-24 h-24 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Icon name="clock" size={48} className="text-orange-400" />
+                        </div>
+                        <h2 className="text-3xl font-bold mb-4">جاري المراجعة!</h2>
+                        <p className="text-slate-300 mb-6">تم استقبال طلبك. سيتم التواصل معك قريباً.</p>
+                        <button onClick={() => window.authMethods.signOut(window.auth)} className="px-6 py-2 bg-white/10 rounded-lg hover:bg-white/20">رجوع</button>
+                    </div>
+                </div>
+            );
+
+            // REGISTER
+            if (view === 'register') return (
+                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+                    <div className="glass p-8 w-full max-w-2xl slide-up">
+                        <div className="text-center mb-8">
+                            <img src={user.photo} className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-amber-400" />
+                            <h2 className="text-3xl font-bold mb-2">أهلاً!</h2>
+                            <p className="text-slate-400">كمل بياناتك</p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="الاسم الأول *" onChange={e => setForm({ ...form, firstName: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="الاسم الثاني *" onChange={e => setForm({ ...form, secondName: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="الاسم الثالث" onChange={e => setForm({ ...form, thirdName: e.target.value })} />
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="رقم تليفونك *" onChange={e => setForm({ ...form, phone: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="رقم ولي الأمر *" onChange={e => setForm({ ...form, parentPhone: e.target.value })} />
+                            </div>
+
+                            <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المدرسة *" onChange={e => setForm({ ...form, school: e.target.value })} />
+
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المحافظة *" onChange={e => setForm({ ...form, governorate: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المدينة *" onChange={e => setForm({ ...form, city: e.target.value })} />
+                            </div>
+
+                            <select className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" onChange={e => setForm({ ...form, grade: e.target.value })}>
+                                <option value="">اختر الصف *</option>
+                                <option value="1sec">أول ثانوي</option>
+                                <option value="2sec">ثاني ثانوي</option>
+                                <option value="3sec">ثالث ثانوي</option>
+                            </select>
+
+                            <button onClick={async () => {
+                                const req = ['firstName', 'secondName', 'phone', 'parentPhone', 'school', 'governorate', 'city', 'grade'];
+                                if (req.some(f => !form[f])) return show('اكتب كل البيانات', 'error');
+                                const c = code();
+                                await window.rtdb.push(window.rtdb.ref(window.db, 'requests'), {
+                                    ...form,
+                                    name: `${form.firstName} ${form.secondName} ${form.thirdName}`.trim(),
+                                    uid: user.uid,
+                                    email: user.email,
+                                    photo: user.photo,
+                                    code: c,
+                                    status: 'pending',
+                                    date: new Date().toLocaleDateString(),
+                                    ts: Date.now()
+                                });
+                                show('تم إرسال طلبك!');
+                                setTimeout(() => setView('pending'), 2000);
+                            }} className="btn-gold w-full py-4 rounded-xl text-lg font-bold">
+                                <Icon name="send" /> إرسال
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // STUDENT
+            if (view === 'student') {
+                const pkgs = Object.values(data.subscriptions[user.uid] || {});
+                return (
+                    <div className="min-h-screen bg-slate-900 p-4">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="glass p-6 mb-6">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-2xl font-bold">أهلاً {user.firstName}</h2>
+                                        <p className="text-sm text-slate-400">كود: {user.code}</p>
+                                    </div>
+                                    <button onClick={() => window.authMethods.signOut(window.auth)} className="px-4 py-2 bg-red-600/20 rounded-lg hover:bg-red-600/40">خروج</button>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                                {['home', 'lectures', 'packages', 'qa'].map(t => (
+                                    <button key={t} onClick={() => setTab(t)} className={`px-6 py-2 rounded-lg font-bold whitespace-nowrap ${tab === t ? 'bg-amber-400 text-slate-900' : 'bg-white/5 hover:bg-white/10'}`}>
+                                        {t === 'home' ? 'الرئيسية' : t === 'lectures' ? 'المحاضرات' : t === 'packages' ? 'الباقات' : 'الأسئلة'}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {tab === 'home' && (
+                                <div className="space-y-6">
+                                    <div className="glass p-6">
+                                        <h3 className="font-bold mb-4">اشتراكاتي:</h3>
+                                        {pkgs.length === 0 ? <p className="text-slate-500">لا توجد اشتراكات</p> :
+                                            pkgs.map((s, i) => (
+                                                <div key={i} className="bg-white/5 p-4 rounded-lg mb-3">
+                                                    <h4 className="font-bold">{s.packageName}</h4>
+                                                    <p className="text-sm text-slate-400">ينتهي: {new Date(s.endDate).toLocaleDateString('ar-EG')}</p>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
+
+                                    <div className="glass p-6">
+                                        <h3 className="font-bold mb-4">الإعلانات:</h3>
+                                        {data.announcements.slice(0, 3).map(a => (
+                                            <div key={a.id} className="bg-white/5 p-4 rounded-lg mb-3">
+                                                <h4 className="font-bold">{a.title}</h4>
+                                                <p className="text-sm text-slate-400">{a.content}</p>
                                             </div>
-                                            <p className="opacity-70">{stat.label}</p>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {tab === 'lectures' && !user.isPaid && (
+                                <div className="glass p-10 text-center">
+                                    <Icon name="lock" size={48} className="text-amber-400 mx-auto mb-4" />
+                                    <h3 className="text-2xl font-bold mb-3">المحتوى مغلق</h3>
+                                    <p className="text-slate-400 mb-6">اشترك في إحدى الباقات</p>
+                                    <button onClick={() => setTab('packages')} className="btn-gold px-8 py-3 rounded-xl">عرض الباقات</button>
+                                </div>
+                            )}
+
+                            {tab === 'lectures' && user.isPaid && (
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    {data.lectures.filter(l => !l.grade || l.grade === user.grade || l.grade === 'all').map(lec => (
+                                        <div key={lec.id} onClick={() => { setSelected({ ...selected, lecture: lec }); setStep('video'); }} className="glass overflow-hidden cursor-pointer hover:border-amber-400/50 transition">
+                                            <div className="h-40 bg-slate-800 flex items-center justify-center">
+                                                <Icon name="play-circle" size={56} className="text-white/80" />
+                                            </div>
+                                            <div className="p-5">
+                                                <h3 className="font-bold mb-2">{lec.title}</h3>
+                                                <p className="text-xs text-slate-400 line-clamp-2">{lec.description}</p>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
-                        </div>
-                    </section>
+                            )}
 
-                    {/* CTA Section */}
-                    <section className="py-20 px-4">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <div className="glass-panel p-12 rounded-3xl">
-                                <h2 className="text-4xl font-black mb-6">
-                                    هل أنت مستعد للتفوق؟
-                                </h2>
-                                <p className="text-xl opacity-80 mb-8">
-                                    انضم إلى آلاف الطلاب المتفوقين في منصة العالمي
-                                </p>
-                                <button 
-                                    onClick={() => setView('login')}
-                                    className="btn-main px-12 py-4 rounded-xl text-xl"
-                                >
-                                    سجل الآن مجاناً
-                                </button>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Footer */}
-                    <footer className="glass-panel py-8 px-4 mt-20">
-                        <div className="max-w-7xl mx-auto">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                                <div>
-                                    <h3 className="font-bold mb-4">عن المنصة</h3>
-                                    <p className="opacity-70">
-                                        منصة تعليمية متخصصة في الرياضيات للمرحلة الثانوية بإشراف أ/ أحمد سعد يونس
-                                    </p>
+                            {tab === 'packages' && (
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    {data.packages.map(pkg => (
+                                        <div key={pkg.id} className="glass p-6 hover:border-amber-400/50 transition">
+                                            <div className="text-center mb-4">
+                                                <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
+                                                <p className="text-3xl font-black text-amber-400">{pkg.price} ج</p>
+                                                <p className="text-sm text-slate-400">{pkg.months} شهر</p>
+                                            </div>
+                                            <ul className="space-y-2 mb-6 text-sm">
+                                                {pkg.features?.split('\n').map((f, i) => (
+                                                    <li key={i} className="flex items-center gap-2">
+                                                        <Icon name="check" size={16} className="text-green-400" />
+                                                        {f}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <button onClick={() => { setSelected({ ...selected, package: pkg }); setModal({ ...modal, payment: true }); }} className="btn-gold w-full py-3 rounded-xl">اشترك</button>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div>
-                                    <h3 className="font-bold mb-4">روابط سريعة</h3>
-                                    <div className="space-y-2">
-                                        <button onClick={() => setView('login')} className="block opacity-70 hover:opacity-100">تسجيل الدخول</button>
-                                        <button onClick={() => setView('guest')} className="block opacity-70 hover:opacity-100">المحتوى المجاني</button>
+                            )}
+
+                            {tab === 'qa' && (
+                                <div className="glass p-6">
+                                    <div className="flex gap-2 mb-6">
+                                        <input id="qIn" className="flex-1 bg-white/5 border border-white/10 p-3 rounded-xl outline-none" placeholder="سؤالك..." />
+                                        <button onClick={async () => {
+                                            const q = document.getElementById('qIn').value;
+                                            if (q) {
+                                                await window.rtdb.push(window.rtdb.ref(window.db, 'qa'), {
+                                                    studentName: `${user.firstName} ${user.secondName}`,
+                                                    studentId: user.uid,
+                                                    question: q,
+                                                    studentCode: user.code,
+                                                    category: 'منهج',
+                                                    date: new Date().toLocaleDateString('ar-EG'),
+                                                    ts: Date.now()
+                                                });
+                                                document.getElementById('qIn').value = '';
+                                                show('تم الإرسال');
+                                            }
+                                        }} className="btn-gold px-6 rounded-xl">إرسال</button>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {data.qa.filter(q => q.studentId === user.uid).map(q => (
+                                            <div key={q.id} className="bg-white/5 p-4 rounded-lg">
+                                                <p className="font-bold mb-2">{q.question}</p>
+                                                {q.reply && (
+                                                    <div className="bg-green-500/10 p-3 rounded-lg mt-2">
+                                                        <p className="text-sm text-green-300">{q.reply}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-bold mb-4">تواصل معنا</h3>
-                                    <div className="flex gap-4">
-                                        <a href={CONTACT_INFO.facebook} target="_blank" className="w-10 h-10 glass-icon rounded-full flex items-center justify-center hover:bg-blue-500/20">
-                                            <SafeIcon name="facebook" />
-                                        </a>
-                                        <a href={CONTACT_INFO.youtube} target="_blank" className="w-10 h-10 glass-icon rounded-full flex items-center justify-center hover:bg-red-500/20">
-                                            <SafeIcon name="youtube" />
-                                        </a>
-                                        <a href={CONTACT_INFO.whatsapp} target="_blank" className="w-10 h-10 glass-icon rounded-full flex items-center justify-center hover:bg-green-500/20">
-                                            <SafeIcon name="phone" />
-                                        </a>
+                            )}
+
+                            {/* Payment Modal */}
+                            {modal.payment && selected.package && (
+                                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setModal({ ...modal, payment: false })}>
+                                    <div className="glass p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+                                        <h3 className="text-xl font-bold mb-4">اختر طريقة الدفع</h3>
+                                        <div className="space-y-4">
+                                            <div className={`p-4 border-2 rounded-xl cursor-pointer ${payment === 'vodafone' ? 'border-amber-400' : 'border-white/10'}`} onClick={() => setPayment('vodafone')}>
+                                                <div className="flex items-center gap-3">
+                                                    <Icon name="smartphone" className="text-red-500" />
+                                                    <div>
+                                                        <p className="font-bold">فودافون كاش</p>
+                                                        <p className="text-xs text-slate-400">حول على: {CONTACT.vodafone}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className={`p-4 border-2 rounded-xl cursor-pointer ${payment === 'fawry' ? 'border-amber-400' : 'border-white/10'}`} onClick={() => setPayment('fawry')}>
+                                                <div className="flex items-center gap-3">
+                                                    <Icon name="credit-card" className="text-orange-500" />
+                                                    <div>
+                                                        <p className="font-bold">فوري</p>
+                                                        <p className="text-xs text-slate-400">ادفع من أي ماكينة</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {payment === 'fawry' && (
+                                                <div className="bg-white/5 p-4 rounded-xl">
+                                                    <p className="text-sm mb-2">كود فوري:</p>
+                                                    <div className="bg-black/30 p-3 rounded-lg text-center">
+                                                        <p className="font-mono text-2xl font-bold text-amber-400">{CONTACT.fawry}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <a href={`${CONTACT.support}?text=تم الدفع - ${selected.package.name} - ${user.code} - ${selected.package.price} ج - ${payment === 'fawry' ? 'فوري' : 'فودافون'}%0A%0Aأرفق صورة الدفع`}
+                                                target="_blank" className="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
+                                                <Icon name="message-circle" /> إرسال إثبات
+                                            </a>
+
+                                            <button onClick={() => setModal({ ...modal, payment: false })} className="w-full py-2 bg-white/10 rounded-xl">إلغاء</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="text-center pt-8 border-t border-white/10">
-                                <p className="opacity-70">© 2024 منصة العالمي للرياضيات. جميع الحقوق محفوظة.</p>
-                            </div>
+                            )}
                         </div>
-                    </footer>
+                    </div>
+                );
+            }
 
-                    {/* Sidebar Overlay */}
-                    <div 
-                        className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`}
-                        onClick={() => setSidebarOpen(false)}
-                    />
-
-                    {/* Sidebar */}
-                    <div className={`sidebar glass-panel ${sidebarOpen ? 'open' : ''}`}>
-                        <div className="p-6">
+            // ADMIN
+            if (view === 'admin') {
+                return (
+                    <div className="min-h-screen bg-slate-900 p-6">
+                        <div className="max-w-7xl mx-auto glass p-8">
                             <div className="flex justify-between items-center mb-8">
-                                <h2 className="text-xl font-bold">القائمة</h2>
-                                <button 
-                                    onClick={() => setSidebarOpen(false)}
-                                    className="w-10 h-10 glass-icon rounded-full flex items-center justify-center"
-                                >
-                                    <SafeIcon name="x" />
-                                </button>
+                                <h2 className="text-3xl font-black text-amber-400">لوحة التحكم</h2>
+                                <button onClick={() => window.authMethods.signOut(window.auth)} className="px-4 py-2 bg-red-600 rounded-lg">خروج</button>
                             </div>
-                            
-                            <div className="space-y-3">
-                                <button 
-                                    onClick={() => {
-                                        setView('login');
-                                        setSidebarOpen(false);
-                                    }}
-                                    className="w-full btn-main py-3 rounded-lg"
-                                >
-                                    تسجيل الدخول
-                                </button>
-                                <button 
-                                    onClick={() => {
-                                        setView('guest');
-                                        setSidebarOpen(false);
-                                    }}
-                                    className="w-full glass-panel py-3 rounded-lg hover:bg-white/10"
-                                >
-                                    تصفح كزائر
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
 
-        // 🔐 صفحة تسجيل الدخول
-        const LoginPage = ({ setView, setUser, darkMode }) => {
-            const [loginType, setLoginType] = useState(null);
-            const [code, setCode] = useState('');
-            const [password, setPassword] = useState('');
-            const [showPassword, setShowPassword] = useState(false);
-
-            const handleGoogleLogin = async () => {
-                try {
-                    const result = await window.authMethods.signInWithPopup(window.auth, window.googleProvider);
-                    const user = result.user;
-                    
-                    const userRef = window.rtdb.ref(window.db, `users/${user.uid}`);
-                    const snapshot = await window.rtdb.get(userRef);
-                    
-                    if (snapshot.exists()) {
-                        const userData = snapshot.val();
-                        setUser({ ...userData, uid: user.uid, photo: user.photoURL });
-                        
-                        if (['admin', 'boss'].includes(userData.role)) {
-                            setView('admin');
-                        } else if (userData.role === 'parent') {
-                            setView('parent');
-                        } else if (userData.role === 'student') {
-                            setView('student');
-                        } else {
-                            setView('choose-role');
-                        }
-                    } else {
-                        setUser({ 
-                            uid: user.uid, 
-                            name: user.displayName, 
-                            email: user.email, 
-                            photo: user.photoURL, 
-                            isNew: true 
-                        });
-                        setView('choose-role');
-                    }
-                } catch (error) {
-                    console.error('Login error:', error);
-                    alert('حدث خطأ في تسجيل الدخول');
-                }
-            };
-
-            const handleCodeLogin = async () => {
-                if (!loginType || !code) {
-                    alert('يرجى إدخال جميع البيانات');
-                    return;
-                }
-                
-                if (loginType === 'admin') {
-                    if (password === 'admin123') {
-                        setUser({ role: 'admin', name: 'المدير' });
-                        setView('admin');
-                    } else {
-                        alert('كلمة المرور غير صحيحة');
-                    }
-                    return;
-                }
-                
-                const usersRef = window.rtdb.ref(window.db, 'users');
-                const snapshot = await window.rtdb.get(usersRef);
-                
-                if (snapshot.exists()) {
-                    const users = snapshot.val();
-                    const userEntry = Object.entries(users).find(([uid, u]) => 
-                        u.role === loginType && u.code === code
-                    );
-                    
-                    if (userEntry) {
-                        const [uid, userData] = userEntry;
-                        setUser({ ...userData, uid });
-                        setView(loginType);
-                    } else {
-                        alert('الكود غير صحيح');
-                    }
-                }
-            };
-
-            return (
-                <div className="min-h-screen flex items-center justify-center p-4 math-grid">
-                    <div className="glass-panel p-8 w-full max-w-md animate-slide-up">
-                        <button 
-                            onClick={() => setView('home')}
-                            className="mb-6 flex items-center gap-2 opacity-70 hover:opacity-100"
-                        >
-                            <SafeIcon name="arrow-left" />
-                            العودة للرئيسية
-                        </button>
-                        
-                        <div className="text-center mb-8">
-                            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center glass-icon rounded-full">
-                                <SafeIcon name="calculator" size={50} />
-                            </div>
-                            <h2 className="text-3xl font-black mb-2">تسجيل الدخول</h2>
-                            <p className="opacity-70">اختر نوع المستخدم وأدخل بيانات الدخول</p>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-3 mb-6">
-                            {[
-                                { type: 'student', icon: 'student', label: 'طالب', color: 'blue' },
-                                { type: 'parent', icon: 'parent', label: 'ولي أمر', color: 'green' },
-                                { type: 'admin', icon: 'admin', label: 'إدارة', color: 'yellow' }
-                            ].map(item => (
-                                <button 
-                                    key={item.type}
-                                    onClick={() => setLoginType(item.type)}
-                                    className={`p-4 rounded-xl flex flex-col items-center justify-center transition ${
-                                        loginType === item.type 
-                                        ? `bg-${item.color}-500/30 border-2 border-${item.color}-500` 
-                                        : 'glass-panel hover:bg-white/10'
-                                    }`}
-                                >
-                                    <SafeIcon name={item.icon} size={30} className="mb-2" />
-                                    <span className="text-sm font-bold">{item.label}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {loginType && (
-                            <div className="space-y-4 animate-fade-in">
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">
-                                        {loginType === 'admin' ? 'اسم المستخدم' : 'الكود'}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="w-full p-3 glass-panel rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder={loginType === 'admin' ? 'أدخل اسم المستخدم' : 'أدخل الكود'}
-                                        value={code}
-                                        onChange={(e) => setCode(e.target.value)}
-                                    />
+                            <div className="grid grid-cols-4 gap-6 mb-8">
+                                <div className="bg-white/5 p-4 rounded-xl">
+                                    <div className="text-slate-400 text-xs">الطلاب</div>
+                                    <div className="text-2xl font-black">{data.students.length}</div>
                                 </div>
-
-                                {loginType === 'admin' && (
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">كلمة المرور</label>
-                                        <div className="relative">
-                                            <input
-                                                type={showPassword ? "text" : "password"}
-                                                className="w-full p-3 glass-panel rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="أدخل كلمة المرور"
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                            />
-                                            <button
-                                                type="button"
-                                                className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                            >
-                                                <SafeIcon name={showPassword ? 'eye-off' : 'eye'} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <button
-                                    onClick={handleCodeLogin}
-                                    className="btn-main w-full py-3 rounded-lg font-bold"
-                                >
-                                    دخول
-                                </button>
-                            </div>
-                        )}
-
-                        <div className="mt-6 pt-6 border-t border-white/10">
-                            <button
-                                onClick={handleGoogleLogin}
-                                className="w-full glass-panel p-3 rounded-lg flex items-center justify-center gap-2 hover:bg-white/10 transition"
-                            >
-                                <SafeIcon name="log-in" />
-                                تسجيل الدخول بحساب جوجل
-                            </button>
-                        </div>
-
-                        <div className="mt-4 text-center">
-                            <button
-                                onClick={() => setView('guest')}
-                                className="text-blue-400 hover:underline"
-                            >
-                                تصفح كزائر
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // 📚 واجهة الزائر المطورة
-        const GuestView = ({ setView, darkMode }) => {
-            const [activeGrade, setActiveGrade] = useState('all');
-
-            const freeContent = [
-                { title: 'مقدمة في التفاضل', type: 'video', desc: 'شرح مبسط للمفاهيم الأساسية', grade: '3sec', available: true },
-                { title: 'تمارين جبر', type: 'pdf', desc: 'مجموعة تمارين مع الحلول', grade: '2sec', available: true },
-                { title: 'اختبار تجريبي', type: 'quiz', desc: 'اختبار مجاني للتدريب', grade: '1sec', available: true },
-                { title: 'مراجعة الهندسة', type: 'video', desc: 'مراجعة شاملة', grade: '2sec', available: false },
-                { title: 'ملخص القوانين', type: 'pdf', desc: 'قوانين أساسية', grade: '1sec', available: true },
-                { title: 'نصائح المذاكرة', type: 'article', desc: 'كيف تذاكر بفعالية', grade: 'all', available: true }
-            ];
-
-            const filteredContent = activeGrade === 'all' 
-                ? freeContent 
-                : freeContent.filter(item => item.grade === activeGrade || item.grade === 'all');
-
-            return (
-                <div className="min-h-screen p-4 math-grid">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="glass-panel p-6 mb-6">
-                            <div className="flex flex-wrap justify-between items-center gap-4">
-                                <div>
-                                    <h2 className="text-2xl font-bold">المحتوى المجاني</h2>
-                                    <p className="opacity-70">تصفح المحتوى التعليمي المتاح</p>
+                                <div className="bg-white/5 p-4 rounded-xl">
+                                    <div className="text-slate-400 text-xs">الطلبات</div>
+                                    <div className="text-2xl font-black text-orange-400">{data.requests.length}</div>
                                 </div>
-                                <button 
-                                    onClick={() => setView('home')}
-                                    className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg"
-                                >
-                                    <SafeIcon name="x" /> خروج
-                                </button>
+                                <div className="bg-white/5 p-4 rounded-xl">
+                                    <div className="text-slate-400 text-xs">المدفوعات</div>
+                                    <div className="text-2xl font-black text-green-400">{data.payments.filter(p => p.status === 'pending').length}</div>
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-xl">
+                                    <div className="text-slate-400 text-xs">المحاضرات</div>
+                                    <div className="text-2xl font-black text-amber-400">{data.lectures.length}</div>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Grade Filter */}
-                        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                            {[
-                                { id: 'all', label: 'جميع الصفوف' },
-                                { id: '1sec', label: 'أول ثانوي' },
-                                { id: '2sec', label: 'ثاني ثانوي' },
-                                { id: '3sec', label: 'ثالث ثانوي' }
-                            ].map(grade => (
-                                <button 
-                                    key={grade.id}
-                                    onClick={() => setActiveGrade(grade.id)}
-                                    className={`px-6 py-2 rounded-lg whitespace-nowrap transition ${
-                                        activeGrade === grade.id 
-                                        ? 'btn-main' 
-                                        : 'glass-panel hover:bg-white/10'
-                                    }`}
-                                >
-                                    {grade.label}
-                                </button>
-                            ))}
-                        </div>
+                            <div className="flex gap-2 mb-6 overflow-x-auto">
+                                {['students', 'lectures', 'packages', 'exams', 'payments', 'qa', 'announcements'].map(t => (
+                                    <button key={t} onClick={() => setTab(t)} className={`px-6 py-2 rounded-lg font-bold whitespace-nowrap ${tab === t ? 'bg-amber-400 text-slate-900' : 'bg-white/5'}`}>
+                                        {t === 'students' ? 'الطلاب' : t === 'lectures' ? 'المحاضرات' : t === 'packages' ? 'الباقات' : t === 'exams' ? 'الامتحانات' : t === 'payments' ? 'المدفوعات' : t === 'qa' ? 'الأسئلة' : 'الإعلانات'}
+                                    </button>
+                                ))}
+                            </div>
 
-                        {/* Content Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredContent.map((item, index) => (
-                                <div key={index} className="glass-panel p-6">
-                                    <div className="flex items-start gap-3 mb-4">
-                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                                            item.type === 'video' ? 'bg-blue-500/20' :
-                                            item.type === 'pdf' ? 'bg-red-500/20' :
-                                            item.type === 'quiz' ? 'bg-green-500/20' :
-                                            'bg-purple-500/20'
-                                        }`}>
-                                            <SafeIcon 
-                                                name={item.type === 'video' ? 'video' : 
-                                                      item.type === 'pdf' ? 'file-text' : 
-                                                      item.type === 'quiz' ? 'help-circle' : 'book'}
-                                                size={24}
-                                            />
+                            {/* Students */}
+                            {tab === 'students' && (
+                                <div>
+                                    {data.requests.length > 0 && (
+                                        <div className="mb-6 bg-orange-500/10 p-4 rounded-xl">
+                                            <h3 className="font-bold mb-3">طلبات جديدة ({data.requests.length})</h3>
+                                            {data.requests.map(r => (
+                                                <div key={r.id} className="bg-black/20 p-3 rounded-lg mb-2 flex justify-between items-center">
+                                                    <div>
+                                                        <p className="font-bold">{r.name}</p>
+                                                        <p className="text-xs text-slate-400">{r.phone} | {r.grade}</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={async () => {
+                                                            await window.rtdb.set(window.rtdb.ref(window.db, 'users/' + r.uid), { ...r, role: 'student', status: 'active', isPaid: false });
+                                                            await window.rtdb.remove(window.rtdb.ref(window.db, 'requests/' + r.id));
+                                                            show(`تم قبول ${r.name} - كود: ${r.code}`);
+                                                        }} className="bg-green-600 px-3 py-1 rounded text-sm">قبول</button>
+                                                        <button onClick={() => window.rtdb.remove(window.rtdb.ref(window.db, 'requests/' + r.id))} className="bg-red-600 px-3 py-1 rounded text-sm">رفض</button>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                        <div className="flex-1">
-                                            <h3 className="font-bold mb-1">{item.title}</h3>
-                                            <p className="text-sm opacity-70">{item.desc}</p>
-                                            <span className="text-xs opacity-50 mt-1 block">
-                                                {item.grade === '1sec' ? 'أول ثانوي' :
-                                                 item.grade === '2sec' ? 'ثاني ثانوي' :
-                                                 item.grade === '3sec' ? 'ثالث ثانوي' : 'جميع الصفوف'}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    {item.available ? (
-                                        <button className="w-full py-2 btn-main rounded-lg">
-                                            مشاهدة مجاناً
-                                        </button>
-                                    ) : (
-                                        <button className="w-full py-2 glass-panel rounded-lg opacity-50 cursor-not-allowed">
-                                            لا توجد محاضرات حالياً
-                                        </button>
                                     )}
+
+                                    <input className="w-full mb-4 bg-black/30 border border-white/10 p-3 rounded-xl" placeholder="بحث..." value={search} onChange={e => setSearch(e.target.value)} />
+
+                                    <div className="space-y-2">
+                                        {data.students.filter(s => s.name?.toLowerCase().includes(search.toLowerCase())).map(s => (
+                                            <div key={s.id} className="bg-white/5 p-4 rounded-xl flex justify-between items-center">
+                                                <div>
+                                                    <p className="font-bold">{s.name}</p>
+                                                    <p className="text-xs text-slate-400">{s.code} | {s.phone}</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => { setSelected({ ...selected, student: s }); setModal({ ...modal, student: true }); }} className="bg-blue-500/20 px-3 py-1 rounded text-sm">إدارة</button>
+                                                    <button onClick={() => update(s.id, { isPaid: !s.isPaid })} className={`px-3 py-1 rounded text-sm ${s.isPaid ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                                                        {s.isPaid ? 'مفعل' : 'غير مفعل'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
+                            )}
 
-                        {filteredContent.length === 0 && (
-                            <div className="glass-panel p-12 text-center">
-                                <SafeIcon name="alert-circle" size={60} className="mx-auto mb-4 opacity-50" />
-                                <p className="text-xl opacity-70">لا توجد محاضرات متاحة لهذا الصف حالياً</p>
-                            </div>
-                        )}
+                            {/* Packages */}
+                            {tab === 'packages' && (
+                                <div>
+                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
+                                        <h3 className="font-bold mb-4">إضافة باقة</h3>
+                                        <div className="space-y-3">
+                                            <input id="pN" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="اسم الباقة *" />
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <input id="pP" type="number" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="السعر *" />
+                                                <input id="pM" type="number" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="عدد الشهور *" />
+                                            </div>
+                                            <textarea id="pF" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg h-24" placeholder="المميزات (كل ميزة في سطر)"></textarea>
+                                            <select id="pT" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg">
+                                                <option value="subscription">اشتراك شهري</option>
+                                                <option value="book">كتاب</option>
+                                                <option value="course">كورس</option>
+                                            </select>
+                                            <button onClick={() => {
+                                                upload('packages', {
+                                                    name: document.getElementById('pN').value,
+                                                    price: document.getElementById('pP').value,
+                                                    months: document.getElementById('pM').value,
+                                                    features: document.getElementById('pF').value,
+                                                    type: document.getElementById('pT').value
+                                                });
+                                                ['pN', 'pP', 'pM', 'pF'].forEach(id => document.getElementById(id).value = '');
+                                            }} className="btn-gold w-full py-2 rounded-lg">إضافة</button>
+                                        </div>
+                                    </div>
 
-                        {/* CTA */}
-                        <div className="glass-panel p-8 mt-8 text-center">
-                            <h3 className="text-2xl font-bold mb-4">هل تريد الوصول لجميع المحتوى؟</h3>
-                            <p className="opacity-70 mb-6">سجل الآن للحصول على وصول كامل لجميع المحاضرات والامتحانات</p>
-                            <button 
-                                onClick={() => setView('login')}
-                                className="btn-main px-8 py-3 rounded-xl"
-                            >
-                                سجل الآن
-                            </button>
+                                    <div className="grid md:grid-cols-3 gap-4">
+                                        {data.packages.map(pkg => (
+                                            <div key={pkg.id} className="bg-white/5 p-4 rounded-lg">
+                                                <h4 className="font-bold mb-2">{pkg.name}</h4>
+                                                <p className="text-2xl font-bold text-amber-400 mb-2">{pkg.price} ج</p>
+                                                <p className="text-sm text-slate-400 mb-2">{pkg.months} شهر | {pkg.type}</p>
+                                                <button onClick={() => window.rtdb.remove(window.rtdb.ref(window.db, 'packages/' + pkg.id))} className="text-red-400 text-sm">حذف</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Exams */}
+                            {tab === 'exams' && (
+                                <div>
+                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
+                                        <h3 className="font-bold mb-4">إضافة امتحان (3 نماذج)</h3>
+                                        <div className="space-y-3">
+                                            <select id="eL" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg">
+                                                <option value="">اختر المحاضرة...</option>
+                                                {data.lectures.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
+                                            </select>
+                                            <div className="bg-white/5 p-4 rounded-lg">
+                                                <p className="text-sm mb-2">نموذج A:</p>
+                                                <textarea id="eA" className="w-full bg-black/30 border border-white/10 p-3 rounded-lg h-24 font-mono text-xs" placeholder='[{"question":"س1","type":"mcq","options":["أ","ب","ج","د"],"correct":0}]'></textarea>
+                                            </div>
+                                            <div className="bg-white/5 p-4 rounded-lg">
+                                                <p className="text-sm mb-2">نموذج B:</p>
+                                                <textarea id="eB" className="w-full bg-black/30 border border-white/10 p-3 rounded-lg h-24 font-mono text-xs" placeholder='[{"question":"س1","type":"text"}]'></textarea>
+                                            </div>
+                                            <div className="bg-white/5 p-4 rounded-lg">
+                                                <p className="text-sm mb-2">نموذج C:</p>
+                                                <textarea id="eC" className="w-full bg-black/30 border border-white/10 p-3 rounded-lg h-24 font-mono text-xs" placeholder='[{"question":"س1","type":"image"}]'></textarea>
+                                            </div>
+                                            <input id="eW" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="رقم واتساب للصور" defaultValue={CONTACT.support} />
+                                            <button onClick={() => {
+                                                try {
+                                                    upload('exams', {
+                                                        lectureId: document.getElementById('eL').value,
+                                                        modelA: JSON.parse(document.getElementById('eA').value || '[]'),
+                                                        modelB: JSON.parse(document.getElementById('eB').value || '[]'),
+                                                        modelC: JSON.parse(document.getElementById('eC').value || '[]'),
+                                                        whatsappNumber: document.getElementById('eW').value
+                                                    });
+                                                    ['eA', 'eB', 'eC'].forEach(id => document.getElementById(id).value = '');
+                                                } catch (e) {
+                                                    show('خطأ في JSON', 'error');
+                                                }
+                                            }} className="btn-gold w-full py-2 rounded-lg">إضافة</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Lectures */}
+                            {tab === 'lectures' && (
+                                <div>
+                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
+                                        <h3 className="font-bold mb-4">إضافة محاضرة</h3>
+                                        <div className="space-y-3">
+                                            <input id="lT" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="عنوان المحاضرة *" />
+                                            <textarea id="lD" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg h-20" placeholder="الوصف"></textarea>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <select id="lG" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg">
+                                                    <option value="all">جميع الصفوف</option>
+                                                    <option value="1sec">أول ثانوي</option>
+                                                    <option value="2sec">ثاني ثانوي</option>
+                                                    <option value="3sec">ثالث ثانوي</option>
+                                                </select>
+                                                <div className="flex items-center gap-2">
+                                                    <input type="checkbox" id="lF" className="w-5 h-5" />
+                                                    <label htmlFor="lF" className="text-sm">محتوى مجاني</label>
+                                                </div>
+                                            </div>
+                                            <input id="lL" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="رابط الفيديو *" />
+                                            <button onClick={() => {
+                                                upload('lectures', {
+                                                    title: document.getElementById('lT').value,
+                                                    description: document.getElementById('lD').value,
+                                                    grade: document.getElementById('lG').value,
+                                                    link: document.getElementById('lL').value,
+                                                    isFree: document.getElementById('lF').checked
+                                                });
+                                                ['lT', 'lD', 'lL'].forEach(id => document.getElementById(id).value = '');
+                                                document.getElementById('lF').checked = false;
+                                            }} className="btn-gold w-full py-2 rounded-lg">نشر</button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {data.lectures.map(l => (
+                                            <div key={l.id} className="bg-white/5 p-3 rounded-lg flex justify-between items-center">
+                                                <span className="font-bold">{l.title}</span>
+                                                <button onClick={() => window.rtdb.remove(window.rtdb.ref(window.db, 'lectures/' + l.id))} className="text-red-400">
+                                                    <Icon name="trash-2" size={18} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Payments */}
+                            {tab === 'payments' && (
+                                <div>
+                                    {data.payments.filter(p => p.status === 'pending').map(p => (
+                                        <div key={p.id} className="bg-white/5 p-4 rounded-lg mb-3 flex justify-between items-center">
+                                            <div>
+                                                <p className="font-bold">{p.studentName}</p>
+                                                <p className="text-xs text-slate-400">باقة: {p.packageName} | {p.price} ج</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={async () => {
+                                                    await activate(p.studentId, p.packageId);
+                                                    await window.rtdb.update(window.rtdb.ref(window.db, 'payments/' + p.id), { status: 'approved' });
+                                                    show('تم التفعيل');
+                                                }} className="bg-green-600 px-3 py-1 rounded text-sm">موافقة</button>
+                                                <button onClick={() => window.rtdb.update(window.rtdb.ref(window.db, 'payments/' + p.id), { status: 'rejected' })} className="bg-red-600 px-3 py-1 rounded text-sm">رفض</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Q&A */}
+                            {tab === 'qa' && (
+                                <div>
+                                    {data.qa.map(q => (
+                                        <div key={q.id} className="bg-white/5 p-4 rounded-lg mb-3">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <p className="font-bold">{q.studentName}</p>
+                                                    <p className="text-xs text-slate-400">{q.studentCode} | {q.category || 'عام'}</p>
+                                                </div>
+                                                <span className={`text-xs px-2 py-1 rounded ${q.reply ? 'bg-green-500/20 text-green-300' : 'bg-orange-500/20 text-orange-300'}`}>
+                                                    {q.reply ? 'تم الرد' : 'بانتظار'}
+                                                </span>
+                                            </div>
+                                            <p className="text-slate-300 mb-3">{q.question}</p>
+                                            {!q.reply && (
+                                                <button onClick={async () => {
+                                                    const r = prompt("الرد:");
+                                                    if (r) {
+                                                        await window.rtdb.update(window.rtdb.ref(window.db, `qa/${q.id}`), {
+                                                            reply: r,
+                                                            replyDate: new Date().toLocaleDateString('ar-EG')
+                                                        });
+                                                        show('تم الرد');
+                                                    }
+                                                }} className="bg-blue-600 px-3 py-1 rounded text-sm">رد</button>
+                                            )}
+                                            {q.reply && <div className="bg-green-500/10 p-3 rounded-lg mt-2 text-sm">{q.reply}</div>}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Announcements */}
+                            {tab === 'announcements' && (
+                                <div>
+                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
+                                        <h3 className="font-bold mb-4">إضافة إعلان</h3>
+                                        <div className="space-y-3">
+                                            <input id="aT" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="العنوان" />
+                                            <textarea id="aC" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg h-24" placeholder="المحتوى"></textarea>
+                                            <button onClick={() => {
+                                                upload('announcements', {
+                                                    title: document.getElementById('aT').value,
+                                                    content: document.getElementById('aC').value
+                                                });
+                                                ['aT', 'aC'].forEach(id => document.getElementById(id).value = '');
+                                            }} className="btn-gold w-full py-2 rounded-lg">نشر</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Student Modal */}
+                            {modal.student && selected.student && (
+                                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setModal({ ...modal, student: false })}>
+                                    <div className="glass p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+                                        <h3 className="text-xl font-bold mb-4">إدارة: {selected.student.name}</h3>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="text-xs text-slate-400 mb-1 block">ملاحظات:</label>
+                                                <textarea className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-white h-20"
+                                                    value={selected.student.notes || ''}
+                                                    onChange={e => setSelected({ ...selected, student: { ...selected.student, notes: e.target.value } })} />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="text-xs text-slate-400 mb-1 block">باقة:</label>
+                                                    <select id="aPkg" className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-white">
+                                                        <option value="">اختر...</option>
+                                                        {data.packages.map(pkg => (
+                                                            <option key={pkg.id} value={pkg.id}>{pkg.name} - {pkg.price} ج</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="flex items-end">
+                                                    <button onClick={() => {
+                                                        const pid = document.getElementById('aPkg').value;
+                                                        if (pid) {
+                                                            activate(selected.student.id, pid);
+                                                            setModal({ ...modal, student: false });
+                                                        }
+                                                    }} className="btn-gold w-full py-2 rounded-lg">تفعيل</button>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 pt-4">
+                                                <button onClick={() => {
+                                                    update(selected.student.id, { notes: selected.student.notes });
+                                                }} className="flex-1 bg-blue-600 py-2 rounded-lg">حفظ</button>
+                                                <button onClick={() => setModal({ ...modal, student: false })} className="px-4 py-2 bg-white/10 rounded-lg">إغلاق</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+                    </div>
+                );
+            }
+
+            // Loading
+            if (view === 'loading') return (
+                <div className="h-screen bg-slate-900 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="loader mx-auto mb-4"></div>
+                        <p className="text-amber-400 font-bold">جاري التحميل...</p>
                     </div>
                 </div>
             );
-        };
-
-        // 🎨 المكون الرئيسي
-        const App = () => {
-            const [view, setView] = useState('home');
-            const [user, setUser] = useState(null);
-            const [darkMode, setDarkMode] = useState(true);
-
-            const toggleDarkMode = () => {
-                setDarkMode(!darkMode);
-                document.body.classList.toggle('dark-mode');
-                document.body.classList.toggle('light-mode');
-            };
-
-            useEffect(() => {
-                window.authMethods.onAuthStateChanged(window.auth, (authUser) => {
-                    if (authUser) {
-                        const userRef = window.rtdb.ref(window.db, `users/${authUser.uid}`);
-                        window.rtdb.get(userRef).then((snapshot) => {
-                            if (snapshot.exists()) {
-                                const userData = snapshot.val();
-                                setUser({ ...userData, uid: authUser.uid, photo: authUser.photoURL });
-                                
-                                if (userData.role === 'admin' || userData.role === 'boss') {
-                                    setView('admin');
-                                } else if (userData.role === 'parent') {
-                                    setView('parent');
-                                } else if (userData.role === 'student') {
-                                    setView('student');
-                                }
-                            }
-                        });
-                    }
-                });
-            }, []);
-
-            const renderView = () => {
-                switch (view) {
-                    case 'home':
-                        return <HomePage setView={setView} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />;
-                    case 'login':
-                        return <LoginPage setView={setView} setUser={setUser} darkMode={darkMode} />;
-                    case 'guest':
-                        return <GuestView setView={setView} darkMode={darkMode} />;
-                    default:
-                        return <HomePage setView={setView} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />;
-                }
-            };
 
             return (
                 <>
-                    {renderView()}
-                    
-                    {/* Floating Theme Toggle */}
-                    {view === 'home' && null}
+                    {notify && (
+                        <div className={`fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl font-bold z-[100] text-white flex items-center gap-2 ${notify.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+                            <Icon name={notify.type === 'error' ? 'alert-circle' : 'check-circle'} />
+                            {notify.msg}
+                        </div>
+                    )}
                 </>
             );
         };
 
-        const RootApp = () => (
-            <ErrorBoundary>
-                <App />
-            </ErrorBoundary>
-        );
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<RootApp />);
+        root.render(<App />);
     </script>
 </body>
+
 </html>
