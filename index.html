@@ -9,8 +9,9 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase Initialization - SINGLE INSTANCE -->
+    <!-- Firebase Initialization -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child, push, update, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -45,7 +46,8 @@
                 extend: {
                     colors: { 
                         brand: {
-                            dark: '#0f172a',
+                            dark: '#0a1628',
+                            'dark-lighter': '#1a2942',
                             card: '#1e293b',
                             primary: '#3b82f6',
                             accent: '#fbbf24',
@@ -54,7 +56,10 @@
                             bronze: '#CD7F32',
                             success: '#10b981',
                             warning: '#f59e0b',
-                            danger: '#ef4444'
+                            danger: '#ef4444',
+                            glass: 'rgba(255, 255, 255, 0.1)',
+                            light: '#e0f2fe',
+                            'light-darker': '#bae6fd'
                         }
                     },
                     fontFamily: { 'cairo': ['Cairo', 'sans-serif'] },
@@ -62,13 +67,29 @@
                         'float': 'float 6s ease-in-out infinite',
                         'slide-up': 'slideUp 0.8s ease-out',
                         'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
-                        'bounce-slow': 'bounceSlow 3s infinite'
+                        'bounce-slow': 'bounceSlow 3s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in',
+                        'slide-in-right': 'slideInRight 0.3s ease-out',
+                        'flip': 'flip 0.6s ease-out',
+                        'glow': 'glow 2s ease-in-out infinite'
                     },
                     keyframes: {
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } },
                         slideUp: { '0%': { transform: 'translateY(30px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
                         pulseGlow: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.7' } },
-                        bounceSlow: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
+                        bounceSlow: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideInRight: { '0%': { transform: 'translateX(20px)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
+                        flip: { '0%': { transform: 'rotateY(0)' }, '50%': { transform: 'rotateY(90deg)' }, '100%': { transform: 'rotateY(0)' } },
+                        glow: { '0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' }, '50%': { boxShadow: '0 0 40px rgba(59, 130, 246, 0.8)' } }
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                        sm: '4px',
+                        DEFAULT: '8px',
+                        md: '12px',
+                        lg: '16px',
+                        xl: '24px'
                     }
                 }
             }
@@ -79,64 +100,169 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
         * { box-sizing: border-box; }
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: white; overflow-x: hidden; margin: 0; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            overflow-x: hidden; 
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+        
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #0a1628 0%, #1a2942 100%);
+            color: white;
+        }
+        
+        /* Light Mode Styles */
+        body.light-mode {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            color: #1e293b;
+        }
         
         .glass-panel { 
-            background: rgba(30, 41, 59, 0.85); 
             backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+        }
+
+        .light-mode .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.1);
+        }
+
+        .glass-icon {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .light-mode .glass-icon {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
         .btn-main {
-            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-            color: #0f172a;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
             font-weight: 800;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(251, 191, 36, 0.5); }
+        .btn-main:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5); 
+        }
+
+        .light-mode .btn-main {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
         
-        .embed-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .embed-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .embed-wrapper { 
+            position: relative; 
+            padding-bottom: 56.25%; 
+            height: 0; 
+            overflow: hidden; 
+            border-radius: 12px; 
+            background: #000; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+        .embed-wrapper iframe { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            border: 0; 
+        }
         
         .math-grid {
             background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 30px 30px;
         }
+
+        .light-mode .math-grid {
+            background-image: linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+        }
         
         .hero-glow {
             background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
         }
 
+        .teacher-image-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .teacher-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid #3b82f6;
+            box-shadow: 0 0 60px rgba(59, 130, 246, 0.6);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .light-mode .teacher-image {
+            border-color: #2563eb;
+            box-shadow: 0 0 60px rgba(37, 99, 235, 0.4);
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
+        .light-mode ::-webkit-scrollbar-track { background: #e0f2fe; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        .light-mode ::-webkit-scrollbar-thumb { background: #3b82f6; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
 
-        .quiz-option {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .quiz-option:hover {
-            transform: translateX(-5px);
-            border-color: #fbbf24;
-        }
-        .quiz-option.selected {
-            background: rgba(251, 191, 36, 0.2);
-            border-color: #fbbf24;
+        .sidebar {
+            position: fixed;
+            right: -300px;
+            top: 0;
+            width: 300px;
+            height: 100vh;
+            transition: right 0.3s ease;
+            z-index: 1000;
         }
 
-        .rank-gold { background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05)); border: 1px solid rgba(255, 215, 0, 0.3); }
-        .rank-silver { background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.05)); border: 1px solid rgba(192, 192, 192, 0.3); }
-        .rank-bronze { background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.05)); border: 1px solid rgba(205, 127, 50, 0.3); }
-        
+        .sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
         .loader {
             border: 4px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            border-top: 4px solid #fbbf24;
+            border-top: 4px solid #3b82f6;
             width: 50px;
             height: 50px;
             animation: spin 1s linear infinite;
@@ -147,26 +273,48 @@
             100% { transform: rotate(360deg); }
         }
 
-        .role-badge {
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
+        .feature-card {
+            transition: all 0.3s ease;
         }
-        .badge-student { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .badge-parent { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-admin { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-boss { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .light-mode .hero-title {
+            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            .teacher-image-container {
+                width: 200px;
+                height: 200px;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="dark-mode">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         
-        // 🔐 SUPER ADMIN EMAIL - HARDCODED
+        // 🔐 SUPER ADMIN EMAIL
         const SUPER_ADMIN_EMAIL = 'marwansami2009@gmail.com';
 
         // 📱 Contact Info
@@ -196,7 +344,8 @@
                 'eye-off': '👁️‍🗨️', 'link': '🔗', 'parent': '👨‍👦', 'student': '👨‍🎓',
                 'admin': '👨‍💼', 'logout': '🚪', 'search': '🔍', 'filter': '⚙️',
                 'download': '⬇️', 'upload': '⬆️', 'edit': '✏️', 'copy': '📋',
-                'crown': '👑', 'user-plus': '➕👤', 'user-minus': '➖👤'
+                'crown': '👑', 'sun': '☀️', 'moon': '🌙', 'list': '📋',
+                'book': '📚', 'chart': '📊', 'award': '🏆'
             };
             
             const emoji = icons[name] || '🔹';
@@ -235,11 +384,11 @@
             render() {
                 if (this.state.hasError) {
                     return (
-                        <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
-                            <div className="glass-panel p-8 text-center">
+                        <div className="min-h-screen flex items-center justify-center p-4">
+                            <div className="glass-panel p-8 text-center max-w-md">
                                 <div className="text-6xl mb-4">⚠️</div>
                                 <h2 className="text-2xl font-bold text-red-400 mb-2">حدث خطأ في التطبيق</h2>
-                                <p className="text-slate-400 mb-4">سيتم إعادة تحميل الصفحة تلقائياً...</p>
+                                <p className="mb-4 opacity-70">سيتم إعادة تحميل الصفحة تلقائياً...</p>
                                 <button 
                                     onClick={() => window.location.reload()}
                                     className="btn-main px-6 py-3 rounded-xl"
@@ -254,1107 +403,634 @@
             }
         }
 
-        const App = () => {
-            // --- State Management ---
-            const [user, setUser] = useState(null); 
-            const [view, setView] = useState('landing'); 
-            const [registrationType, setRegistrationType] = useState(null);
-            const [dataState, setDataState] = useState({ 
-                students: [], 
-                parents: [], 
-                requests: [], 
-                lectures: [], 
-                whiteboards: [], 
-                qa: [], 
-                exams: [], 
-                announcements: [], 
-                payments: [], 
-                subscriptions: {},
-                freeContent: [], 
-                attendance: {}, 
-                performance: {}, 
-                weeklyAssessments: {},
-                parentConnections: {}
-            });
-            
-            // Registration Data
-            const [studentRegData, setStudentRegData] = useState({ 
-                firstName: '', secondName: '', thirdName: '', phone: '', parentPhone: '', 
-                school: '', governorate: '', city: '', center: '', grade: '1sec',
-                address: '', scheduleDays: 'الاثنين والأربعاء'
-            });
-            
-            const [parentRegData, setParentRegData] = useState({
-                name: '', phone: '', email: '', relationship: 'أب',
-                studentsCount: 1, notes: ''
-            });
-            
-            const [studentLoginCode, setStudentLoginCode] = useState('');
-            const [parentLoginCode, setParentLoginCode] = useState('');
-            
-            // UI States
-            const [activeTab, setActiveTab] = useState('home');
+        // 🏠 الصفحة الرئيسية المطورة
+        const HomePage = ({ setView, darkMode, toggleDarkMode }) => {
             const [sidebarOpen, setSidebarOpen] = useState(false);
-            const [notification, setNotification] = useState(null);
-            const [showStudentModal, setShowStudentModal] = useState(false);
-            const [selectedStudent, setSelectedStudent] = useState(null);
-            const [searchQuery, setSearchQuery] = useState('');
-            const [isGuestMode, setIsGuestMode] = useState(false);
-            const [linkedStudents, setLinkedStudents] = useState([]);
-            const [parentView, setParentView] = useState('overview');
-            const [staffSearchQuery, setStaffSearchQuery] = useState('');
 
-            const showNotification = (message, type = 'success') => {
-                setNotification({ message, type });
-                setTimeout(() => setNotification(null), 4000);
-            };
+            return (
+                <div className="min-h-screen math-grid">
+                    {/* Header */}
+                    <header className="glass-panel sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 py-4">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 glass-icon rounded-full flex items-center justify-center">
+                                        <SafeIcon name="calculator" size={24} />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl font-black">منصة العالمي</h1>
+                                        <p className="text-xs opacity-70">أ/ أحمد سعد يونس</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={toggleDarkMode}
+                                        className="w-10 h-10 glass-icon rounded-full flex items-center justify-center"
+                                    >
+                                        <SafeIcon name={darkMode ? 'sun' : 'moon'} />
+                                    </button>
+                                    <button
+                                        onClick={() => setSidebarOpen(true)}
+                                        className="w-10 h-10 glass-icon rounded-full flex items-center justify-center md:hidden"
+                                    >
+                                        <SafeIcon name="menu" />
+                                    </button>
+                                    <button
+                                        onClick={() => setView('login')}
+                                        className="btn-main px-6 py-2 rounded-lg hidden md:block"
+                                    >
+                                        تسجيل الدخول
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
 
-            // --- Helper Functions ---
-            const generateRandomCode = (prefix) => {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                let code = prefix + '-';
-                for (let i = 0; i < 8; i++) {
-                    code += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                return code;
-            };
+                    {/* Hero Section */}
+                    <section className="py-20 px-4 hero-glow">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                                <div className="text-center md:text-right animate-slide-up">
+                                    <h1 className="hero-title mb-6">
+                                        منصة العالمي للرياضيات
+                                    </h1>
+                                    <p className="text-2xl font-bold mb-4">
+                                        أ/ أحمد سعد يونس
+                                    </p>
+                                    <p className="text-xl opacity-80 mb-8">
+                                        منصة تعليمية متكاملة للمرحلة الثانوية
+                                    </p>
+                                    <div className="flex gap-4 justify-center md:justify-start">
+                                        <button 
+                                            onClick={() => setView('login')}
+                                            className="btn-main px-8 py-4 rounded-xl text-lg"
+                                        >
+                                            ابدأ التعلم الآن
+                                        </button>
+                                        <button 
+                                            onClick={() => setView('guest')}
+                                            className="glass-panel px-8 py-4 rounded-xl text-lg hover:bg-white/10"
+                                        >
+                                            تصفح كزائر
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div className="animate-float">
+                                    <div className="teacher-image-container">
+                                        <img 
+                                            src="alalamy.png" 
+                                            alt="أ/ أحمد سعد يونس" 
+                                            className="teacher-image"
+                                            onError={(e) => {
+                                                e.target.src = 'https://via.placeholder.com/300?text=أ/+أحمد+سعد+يونس';
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-            const generateStudentCode = () => generateRandomCode('STU');
-            const generateParentCode = () => generateRandomCode('PAR');
+                    {/* Features Section */}
+                    <section className="py-20 px-4">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-4xl font-black text-center mb-16">
+                                مميزات المنصة
+                            </h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {[
+                                    {
+                                        icon: 'video',
+                                        title: 'محاضرات مباشرة',
+                                        desc: 'محاضرات حية وتسجيلات مرتبة',
+                                        color: 'from-blue-500 to-blue-600'
+                                    },
+                                    {
+                                        icon: 'file-text',
+                                        title: 'امتحانات إلكترونية',
+                                        desc: 'نظام امتحانات متطور ومتنوع',
+                                        color: 'from-green-500 to-green-600'
+                                    },
+                                    {
+                                        icon: 'chart',
+                                        title: 'متابعة الأداء',
+                                        desc: 'تقارير مفصلة لمستوى الطالب',
+                                        color: 'from-purple-500 to-purple-600'
+                                    },
+                                    {
+                                        icon: 'users',
+                                        title: 'تواصل فعال',
+                                        desc: 'تواصل مباشر مع المدرس وأولياء الأمور',
+                                        color: 'from-yellow-500 to-yellow-600'
+                                    }
+                                ].map((feature, index) => (
+                                    <div 
+                                        key={index}
+                                        className="glass-panel p-6 feature-card"
+                                    >
+                                        <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
+                                            <SafeIcon name={feature.icon} size={32} />
+                                        </div>
+                                        <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                                        <p className="opacity-70">{feature.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
 
-            const calculateSubscriptionDays = (subscriptionEnd) => {
-                if (!subscriptionEnd) return 0;
-                const now = new Date();
-                const end = new Date(subscriptionEnd);
-                const diffTime = end - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays > 0 ? diffDays : 0;
-            };
+                    {/* Stats Section */}
+                    <section className="py-20 px-4">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="glass-panel p-12 rounded-3xl">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                    {[
+                                        { number: '500+', label: 'طالب' },
+                                        { number: '150+', label: 'محاضرة' },
+                                        { number: '98%', label: 'نسبة النجاح' },
+                                        { number: '24/7', label: 'دعم متواصل' }
+                                    ].map((stat, index) => (
+                                        <div key={index} className="text-center">
+                                            <div className="text-4xl md:text-5xl font-black mb-2 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+                                                {stat.number}
+                                            </div>
+                                            <p className="opacity-70">{stat.label}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-            // --- 🔐 SUPER ADMIN AUTO-PROMOTION ---
-            const checkAndPromoteSuperAdmin = async (authUser) => {
-                if (authUser.email === SUPER_ADMIN_EMAIL) {
-                    console.log('🔐 Super Admin detected:', SUPER_ADMIN_EMAIL);
+                    {/* CTA Section */}
+                    <section className="py-20 px-4">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <div className="glass-panel p-12 rounded-3xl">
+                                <h2 className="text-4xl font-black mb-6">
+                                    هل أنت مستعد للتفوق؟
+                                </h2>
+                                <p className="text-xl opacity-80 mb-8">
+                                    انضم إلى آلاف الطلاب المتفوقين في منصة العالمي
+                                </p>
+                                <button 
+                                    onClick={() => setView('login')}
+                                    className="btn-main px-12 py-4 rounded-xl text-xl"
+                                >
+                                    سجل الآن مجاناً
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="glass-panel py-8 px-4 mt-20">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                                <div>
+                                    <h3 className="font-bold mb-4">عن المنصة</h3>
+                                    <p className="opacity-70">
+                                        منصة تعليمية متخصصة في الرياضيات للمرحلة الثانوية بإشراف أ/ أحمد سعد يونس
+                                    </p>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold mb-4">روابط سريعة</h3>
+                                    <div className="space-y-2">
+                                        <button onClick={() => setView('login')} className="block opacity-70 hover:opacity-100">تسجيل الدخول</button>
+                                        <button onClick={() => setView('guest')} className="block opacity-70 hover:opacity-100">المحتوى المجاني</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold mb-4">تواصل معنا</h3>
+                                    <div className="flex gap-4">
+                                        <a href={CONTACT_INFO.facebook} target="_blank" className="w-10 h-10 glass-icon rounded-full flex items-center justify-center hover:bg-blue-500/20">
+                                            <SafeIcon name="facebook" />
+                                        </a>
+                                        <a href={CONTACT_INFO.youtube} target="_blank" className="w-10 h-10 glass-icon rounded-full flex items-center justify-center hover:bg-red-500/20">
+                                            <SafeIcon name="youtube" />
+                                        </a>
+                                        <a href={CONTACT_INFO.whatsapp} target="_blank" className="w-10 h-10 glass-icon rounded-full flex items-center justify-center hover:bg-green-500/20">
+                                            <SafeIcon name="phone" />
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="text-center pt-8 border-t border-white/10">
+                                <p className="opacity-70">© 2024 منصة العالمي للرياضيات. جميع الحقوق محفوظة.</p>
+                            </div>
+                        </div>
+                    </footer>
+
+                    {/* Sidebar Overlay */}
+                    <div 
+                        className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`}
+                        onClick={() => setSidebarOpen(false)}
+                    />
+
+                    {/* Sidebar */}
+                    <div className={`sidebar glass-panel ${sidebarOpen ? 'open' : ''}`}>
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-xl font-bold">القائمة</h2>
+                                <button 
+                                    onClick={() => setSidebarOpen(false)}
+                                    className="w-10 h-10 glass-icon rounded-full flex items-center justify-center"
+                                >
+                                    <SafeIcon name="x" />
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <button 
+                                    onClick={() => {
+                                        setView('login');
+                                        setSidebarOpen(false);
+                                    }}
+                                    className="w-full btn-main py-3 rounded-lg"
+                                >
+                                    تسجيل الدخول
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        setView('guest');
+                                        setSidebarOpen(false);
+                                    }}
+                                    className="w-full glass-panel py-3 rounded-lg hover:bg-white/10"
+                                >
+                                    تصفح كزائر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 🔐 صفحة تسجيل الدخول
+        const LoginPage = ({ setView, setUser, darkMode }) => {
+            const [loginType, setLoginType] = useState(null);
+            const [code, setCode] = useState('');
+            const [password, setPassword] = useState('');
+            const [showPassword, setShowPassword] = useState(false);
+
+            const handleGoogleLogin = async () => {
+                try {
+                    const result = await window.authMethods.signInWithPopup(window.auth, window.googleProvider);
+                    const user = result.user;
                     
-                    const userRef = window.rtdb.ref(window.db, `users/${authUser.uid}`);
+                    const userRef = window.rtdb.ref(window.db, `users/${user.uid}`);
                     const snapshot = await window.rtdb.get(userRef);
                     
-                    const userData = {
-                        uid: authUser.uid,
-                        email: authUser.email,
-                        name: authUser.displayName || 'The Boss',
-                        photo: authUser.photoURL,
-                        role: 'boss',
-                        adminLevel: 'البوص الرئيسي',
-                        isNew: false,
-                        promotedAt: new Date().toISOString()
-                    };
-                    
-                    await window.rtdb.set(userRef, userData);
-                    
-                    return userData;
-                }
-                return null;
-            };
-
-            // --- Authentication Handler ---
-            useEffect(() => {
-                window.authMethods.onAuthStateChanged(window.auth, async (authUser) => {
-                    if (authUser) {
-                        console.log('🔑 User authenticated:', authUser.email);
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        setUser({ ...userData, uid: user.uid, photo: user.photoURL });
                         
-                        // Check for Super Admin first
-                        const superAdminData = await checkAndPromoteSuperAdmin(authUser);
-                        
-                        if (superAdminData) {
-                            setUser(superAdminData);
+                        if (['admin', 'boss'].includes(userData.role)) {
                             setView('admin');
-                            showNotification(`مرحباً البوص الرئيسي! 👑`, 'success');
-                            return;
-                        }
-                        
-                        // Check existing user in database
-                        const userRef = window.rtdb.ref(window.db, `users/${authUser.uid}`);
-                        const snapshot = await window.rtdb.get(userRef);
-                        
-                        if (snapshot.exists()) {
-                            const userData = snapshot.val();
-                            setUser({ ...userData, uid: authUser.uid, photo: authUser.photoURL });
-                            
-                            // Route based on role
-                            if (['admin', 'boss'].includes(userData.role)) {
-                                setView('admin');
-                            } else if (userData.role === 'parent') {
-                                setView('parent');
-                                loadLinkedStudents(userData.uid);
-                            } else if (userData.role === 'student') {
-                                if (userData.status === 'pending') {
-                                    setView('pending-approval');
-                                } else {
-                                    setView('student');
-                                }
-                            } else {
-                                setView('choose-role');
-                            }
+                        } else if (userData.role === 'parent') {
+                            setView('parent');
+                        } else if (userData.role === 'student') {
+                            setView('student');
                         } else {
-                            // New user
-                            setUser({ 
-                                uid: authUser.uid, 
-                                name: authUser.displayName, 
-                                email: authUser.email, 
-                                photo: authUser.photoURL, 
-                                isNew: true 
-                            });
                             setView('choose-role');
                         }
                     } else {
-                        setUser(null);
-                        setView('landing');
+                        setUser({ 
+                            uid: user.uid, 
+                            name: user.displayName, 
+                            email: user.email, 
+                            photo: user.photoURL, 
+                            isNew: true 
+                        });
+                        setView('choose-role');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert('حدث خطأ في تسجيل الدخول');
+                }
+            };
+
+            const handleCodeLogin = async () => {
+                if (!loginType || !code) {
+                    alert('يرجى إدخال جميع البيانات');
+                    return;
+                }
+                
+                if (loginType === 'admin') {
+                    if (password === 'admin123') {
+                        setUser({ role: 'admin', name: 'المدير' });
+                        setView('admin');
+                    } else {
+                        alert('كلمة المرور غير صحيحة');
+                    }
+                    return;
+                }
+                
+                const usersRef = window.rtdb.ref(window.db, 'users');
+                const snapshot = await window.rtdb.get(usersRef);
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    const userEntry = Object.entries(users).find(([uid, u]) => 
+                        u.role === loginType && u.code === code
+                    );
+                    
+                    if (userEntry) {
+                        const [uid, userData] = userEntry;
+                        setUser({ ...userData, uid });
+                        setView(loginType);
+                    } else {
+                        alert('الكود غير صحيح');
+                    }
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 math-grid">
+                    <div className="glass-panel p-8 w-full max-w-md animate-slide-up">
+                        <button 
+                            onClick={() => setView('home')}
+                            className="mb-6 flex items-center gap-2 opacity-70 hover:opacity-100"
+                        >
+                            <SafeIcon name="arrow-left" />
+                            العودة للرئيسية
+                        </button>
+                        
+                        <div className="text-center mb-8">
+                            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center glass-icon rounded-full">
+                                <SafeIcon name="calculator" size={50} />
+                            </div>
+                            <h2 className="text-3xl font-black mb-2">تسجيل الدخول</h2>
+                            <p className="opacity-70">اختر نوع المستخدم وأدخل بيانات الدخول</p>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 mb-6">
+                            {[
+                                { type: 'student', icon: 'student', label: 'طالب', color: 'blue' },
+                                { type: 'parent', icon: 'parent', label: 'ولي أمر', color: 'green' },
+                                { type: 'admin', icon: 'admin', label: 'إدارة', color: 'yellow' }
+                            ].map(item => (
+                                <button 
+                                    key={item.type}
+                                    onClick={() => setLoginType(item.type)}
+                                    className={`p-4 rounded-xl flex flex-col items-center justify-center transition ${
+                                        loginType === item.type 
+                                        ? `bg-${item.color}-500/30 border-2 border-${item.color}-500` 
+                                        : 'glass-panel hover:bg-white/10'
+                                    }`}
+                                >
+                                    <SafeIcon name={item.icon} size={30} className="mb-2" />
+                                    <span className="text-sm font-bold">{item.label}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {loginType && (
+                            <div className="space-y-4 animate-fade-in">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">
+                                        {loginType === 'admin' ? 'اسم المستخدم' : 'الكود'}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full p-3 glass-panel rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder={loginType === 'admin' ? 'أدخل اسم المستخدم' : 'أدخل الكود'}
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value)}
+                                    />
+                                </div>
+
+                                {loginType === 'admin' && (
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">كلمة المرور</label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                className="w-full p-3 glass-panel rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                                                placeholder="أدخل كلمة المرور"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                <SafeIcon name={showPassword ? 'eye-off' : 'eye'} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={handleCodeLogin}
+                                    className="btn-main w-full py-3 rounded-lg font-bold"
+                                >
+                                    دخول
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="mt-6 pt-6 border-t border-white/10">
+                            <button
+                                onClick={handleGoogleLogin}
+                                className="w-full glass-panel p-3 rounded-lg flex items-center justify-center gap-2 hover:bg-white/10 transition"
+                            >
+                                <SafeIcon name="log-in" />
+                                تسجيل الدخول بحساب جوجل
+                            </button>
+                        </div>
+
+                        <div className="mt-4 text-center">
+                            <button
+                                onClick={() => setView('guest')}
+                                className="text-blue-400 hover:underline"
+                            >
+                                تصفح كزائر
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 📚 واجهة الزائر المطورة
+        const GuestView = ({ setView, darkMode }) => {
+            const [activeGrade, setActiveGrade] = useState('all');
+
+            const freeContent = [
+                { title: 'مقدمة في التفاضل', type: 'video', desc: 'شرح مبسط للمفاهيم الأساسية', grade: '3sec', available: true },
+                { title: 'تمارين جبر', type: 'pdf', desc: 'مجموعة تمارين مع الحلول', grade: '2sec', available: true },
+                { title: 'اختبار تجريبي', type: 'quiz', desc: 'اختبار مجاني للتدريب', grade: '1sec', available: true },
+                { title: 'مراجعة الهندسة', type: 'video', desc: 'مراجعة شاملة', grade: '2sec', available: false },
+                { title: 'ملخص القوانين', type: 'pdf', desc: 'قوانين أساسية', grade: '1sec', available: true },
+                { title: 'نصائح المذاكرة', type: 'article', desc: 'كيف تذاكر بفعالية', grade: 'all', available: true }
+            ];
+
+            const filteredContent = activeGrade === 'all' 
+                ? freeContent 
+                : freeContent.filter(item => item.grade === activeGrade || item.grade === 'all');
+
+            return (
+                <div className="min-h-screen p-4 math-grid">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="glass-panel p-6 mb-6">
+                            <div className="flex flex-wrap justify-between items-center gap-4">
+                                <div>
+                                    <h2 className="text-2xl font-bold">المحتوى المجاني</h2>
+                                    <p className="opacity-70">تصفح المحتوى التعليمي المتاح</p>
+                                </div>
+                                <button 
+                                    onClick={() => setView('home')}
+                                    className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg"
+                                >
+                                    <SafeIcon name="x" /> خروج
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Grade Filter */}
+                        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                            {[
+                                { id: 'all', label: 'جميع الصفوف' },
+                                { id: '1sec', label: 'أول ثانوي' },
+                                { id: '2sec', label: 'ثاني ثانوي' },
+                                { id: '3sec', label: 'ثالث ثانوي' }
+                            ].map(grade => (
+                                <button 
+                                    key={grade.id}
+                                    onClick={() => setActiveGrade(grade.id)}
+                                    className={`px-6 py-2 rounded-lg whitespace-nowrap transition ${
+                                        activeGrade === grade.id 
+                                        ? 'btn-main' 
+                                        : 'glass-panel hover:bg-white/10'
+                                    }`}
+                                >
+                                    {grade.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Content Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredContent.map((item, index) => (
+                                <div key={index} className="glass-panel p-6">
+                                    <div className="flex items-start gap-3 mb-4">
+                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                                            item.type === 'video' ? 'bg-blue-500/20' :
+                                            item.type === 'pdf' ? 'bg-red-500/20' :
+                                            item.type === 'quiz' ? 'bg-green-500/20' :
+                                            'bg-purple-500/20'
+                                        }`}>
+                                            <SafeIcon 
+                                                name={item.type === 'video' ? 'video' : 
+                                                      item.type === 'pdf' ? 'file-text' : 
+                                                      item.type === 'quiz' ? 'help-circle' : 'book'}
+                                                size={24}
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="font-bold mb-1">{item.title}</h3>
+                                            <p className="text-sm opacity-70">{item.desc}</p>
+                                            <span className="text-xs opacity-50 mt-1 block">
+                                                {item.grade === '1sec' ? 'أول ثانوي' :
+                                                 item.grade === '2sec' ? 'ثاني ثانوي' :
+                                                 item.grade === '3sec' ? 'ثالث ثانوي' : 'جميع الصفوف'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {item.available ? (
+                                        <button className="w-full py-2 btn-main rounded-lg">
+                                            مشاهدة مجاناً
+                                        </button>
+                                    ) : (
+                                        <button className="w-full py-2 glass-panel rounded-lg opacity-50 cursor-not-allowed">
+                                            لا توجد محاضرات حالياً
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {filteredContent.length === 0 && (
+                            <div className="glass-panel p-12 text-center">
+                                <SafeIcon name="alert-circle" size={60} className="mx-auto mb-4 opacity-50" />
+                                <p className="text-xl opacity-70">لا توجد محاضرات متاحة لهذا الصف حالياً</p>
+                            </div>
+                        )}
+
+                        {/* CTA */}
+                        <div className="glass-panel p-8 mt-8 text-center">
+                            <h3 className="text-2xl font-bold mb-4">هل تريد الوصول لجميع المحتوى؟</h3>
+                            <p className="opacity-70 mb-6">سجل الآن للحصول على وصول كامل لجميع المحاضرات والامتحانات</p>
+                            <button 
+                                onClick={() => setView('login')}
+                                className="btn-main px-8 py-3 rounded-xl"
+                            >
+                                سجل الآن
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 🎨 المكون الرئيسي
+        const App = () => {
+            const [view, setView] = useState('home');
+            const [user, setUser] = useState(null);
+            const [darkMode, setDarkMode] = useState(true);
+
+            const toggleDarkMode = () => {
+                setDarkMode(!darkMode);
+                document.body.classList.toggle('dark-mode');
+                document.body.classList.toggle('light-mode');
+            };
+
+            useEffect(() => {
+                window.authMethods.onAuthStateChanged(window.auth, (authUser) => {
+                    if (authUser) {
+                        const userRef = window.rtdb.ref(window.db, `users/${authUser.uid}`);
+                        window.rtdb.get(userRef).then((snapshot) => {
+                            if (snapshot.exists()) {
+                                const userData = snapshot.val();
+                                setUser({ ...userData, uid: authUser.uid, photo: authUser.photoURL });
+                                
+                                if (userData.role === 'admin' || userData.role === 'boss') {
+                                    setView('admin');
+                                } else if (userData.role === 'parent') {
+                                    setView('parent');
+                                } else if (userData.role === 'student') {
+                                    setView('student');
+                                }
+                            }
+                        });
                     }
                 });
             }, []);
 
-            // --- Load Linked Students for Parents ---
-            const loadLinkedStudents = async (parentId) => {
-                try {
-                    const connectionsRef = window.rtdb.ref(window.db, `parentConnections/${parentId}`);
-                    const snapshot = await window.rtdb.get(connectionsRef);
-                    
-                    if (snapshot.exists()) {
-                        const connections = snapshot.val();
-                        const studentIds = Object.keys(connections);
-                        
-                        const studentsPromises = studentIds.map(async (studentId) => {
-                            const studentRef = window.rtdb.ref(window.db, `users/${studentId}`);
-                            const studentSnap = await window.rtdb.get(studentRef);
-                            if (studentSnap.exists()) {
-                                return { id: studentId, ...studentSnap.val() };
-                            }
-                            return null;
-                        });
-                        
-                        const students = (await Promise.all(studentsPromises)).filter(s => s !== null);
-                        setLinkedStudents(students);
-                        
-                        setDataState(prev => ({
-                            ...prev,
-                            parentConnections: {
-                                ...prev.parentConnections,
-                                [parentId]: connections
-                            }
-                        }));
-                    }
-                } catch (error) {
-                    console.error('Error loading linked students:', error);
+            const renderView = () => {
+                switch (view) {
+                    case 'home':
+                        return <HomePage setView={setView} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />;
+                    case 'login':
+                        return <LoginPage setView={setView} setUser={setUser} darkMode={darkMode} />;
+                    case 'guest':
+                        return <GuestView setView={setView} darkMode={darkMode} />;
+                    default:
+                        return <HomePage setView={setView} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />;
                 }
             };
 
-            // --- Link Student to Parent ---
-            const linkStudentToParent = async (parentId, studentId, relationship = 'ابن/ابنة') => {
-                try {
-                    const connectionRef = window.rtdb.ref(window.db, `parentConnections/${parentId}/${studentId}`);
-                    await window.rtdb.set(connectionRef, {
-                        linkedAt: new Date().toISOString(),
-                        relationship: relationship,
-                        canViewDetails: true,
-                        canViewProgress: true,
-                        canViewAttendance: true,
-                        canViewGrades: true
-                    });
-                    
-                    showNotification('تم ربط الطالب بولي الأمر بنجاح');
-                    loadLinkedStudents(parentId);
-                } catch (error) {
-                    console.error('Error linking student:', error);
-                    showNotification('حدث خطأ في الربط', 'error');
-                }
-            };
-
-            // --- Data Sync ---
-            useEffect(() => {
-                if (user || isGuestMode) {
-                    // Sync lectures for all users
-                    window.rtdb.onValue(window.rtdb.ref(window.db, 'lectures'), s => 
-                        setDataState(p => ({ 
-                            ...p, 
-                            lectures: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0)) : [] 
-                        }))
-                    );
-                    
-                    window.rtdb.onValue(window.rtdb.ref(window.db, 'freeContent'), s => 
-                        setDataState(p => ({ 
-                            ...p, 
-                            freeContent: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0)) : [] 
-                        }))
-                    );
-                    
-                    window.rtdb.onValue(window.rtdb.ref(window.db, 'qa'), s => 
-                        setDataState(p => ({ 
-                            ...p, 
-                            qa: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0)) : [] 
-                        }))
-                    );
-                    
-                    window.rtdb.onValue(window.rtdb.ref(window.db, 'announcements'), s => 
-                        setDataState(p => ({ 
-                            ...p, 
-                            announcements: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0)) : [] 
-                        }))
-                    );
-                    
-                    if (user && ['admin', 'boss'].includes(user.role)) {
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'requests'), s => 
-                            setDataState(p => ({ ...p, requests: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
-                        );
-                        
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'users'), s => {
-                            const allUsers = s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [];
-                            setDataState(p => ({ 
-                                ...p, 
-                                students: allUsers.filter(u => u.role === 'student'),
-                                parents: allUsers.filter(u => u.role === 'parent')
-                            }));
-                        });
-                        
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'payments'), s => 
-                            setDataState(p => ({ ...p, payments: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
-                        );
-                        
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'subscriptions'), s => 
-                            setDataState(p => ({ ...p, subscriptions: s.val() || {} }))
-                        );
-                        
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'attendance'), s => 
-                            setDataState(p => ({ ...p, attendance: s.val() || {} }))
-                        );
-                    }
-                }
-            }, [user, isGuestMode]);
-
-            // --- Registration Handlers ---
-            const submitRegistration = async (type) => {
-                let data, collection;
-                
-                if (type === 'student') {
-                    const required = ['firstName', 'secondName', 'phone', 'parentPhone', 'school', 'grade'];
-                    const missing = required.filter(field => !studentRegData[field]);
-                    
-                    if (missing.length > 0) {
-                        return showNotification('من فضلك اكتب كل البيانات المطلوبة (*)', 'error');
-                    }
-                    
-                    const fullName = `${studentRegData.firstName} ${studentRegData.secondName} ${studentRegData.thirdName || ''}`.trim();
-                    const studentCode = generateStudentCode();
-                    
-                    data = { 
-                        ...studentRegData, 
-                        name: fullName,
-                        uid: user.uid, 
-                        email: user.email, 
-                        photo: user.photo, 
-                        code: studentCode,
-                        role: 'student',
-                        status: 'pending',
-                        date: new Date().toLocaleDateString(),
-                        ts: Date.now()
-                    };
-                    
-                    collection = 'requests';
-                } else if (type === 'parent') {
-                    const required = ['name', 'phone'];
-                    const missing = required.filter(field => !parentRegData[field]);
-                    
-                    if (missing.length > 0) {
-                        return showNotification('من فضلك اكتب كل البيانات المطلوبة (*)', 'error');
-                    }
-                    
-                    const parentCode = generateParentCode();
-                    
-                    data = {
-                        ...parentRegData,
-                        uid: user.uid,
-                        email: user.email,
-                        photo: user.photo,
-                        code: parentCode,
-                        role: 'parent',
-                        status: 'pending',
-                        date: new Date().toLocaleDateString(),
-                        ts: Date.now()
-                    };
-                    
-                    collection = 'parentRequests';
-                } else {
-                    return;
-                }
-                
-                await window.rtdb.set(window.rtdb.push(window.rtdb.ref(window.db, collection)), data);
-                showNotification(`تم إرسال طلب ${type === 'student' ? 'تسجيل الطالب' : 'تسجيل ولي الأمر'}!`);
-                
-                setTimeout(() => {
-                    setView('pending-approval');
-                }, 2000);
-            };
-
-            // --- Student Login ---
-            const handleStudentLogin = async () => {
-                if (studentLoginCode.length < 3) {
-                    return showNotification('أدخل الكود الخاص بك', 'error');
-                }
-                
-                const student = dataState.students.find(s => s.code === studentLoginCode);
-                if (student) {
-                    if (student.status === 'pending') {
-                        setView('pending-approval');
-                    } else {
-                        setUser({ ...student, uid: student.id });
-                        setView('student');
-                        showNotification(`مرحباً ${student.firstName} ${student.secondName}!`);
-                    }
-                } else {
-                    showNotification('الكود غير صحيح', 'error');
-                }
-            };
-
-            // --- Parent Login ---
-            const handleParentLogin = async () => {
-                if (parentLoginCode.length < 3) {
-                    return showNotification('أدخل الكود الخاص بك', 'error');
-                }
-                
-                const parent = dataState.parents.find(p => p.code === parentLoginCode);
-                if (parent) {
-                    setUser({ ...parent, uid: parent.id });
-                    setView('parent');
-                    showNotification(`مرحباً ${parent.name}!`);
-                } else {
-                    showNotification('الكود غير صحيح', 'error');
-                }
-            };
-
-            // --- Update Student ---
-            const updateStudent = async (id, data) => {
-                try {
-                    await window.rtdb.update(window.rtdb.ref(window.db, `users/${id}`), data);
-                    showNotification('تم التحديث 👌');
-                    
-                    setDataState(prev => ({
-                        ...prev,
-                        students: prev.students.map(s => 
-                            s.id === id ? { ...s, ...data } : s
-                        )
-                    }));
-                } catch (error) {
-                    console.error('Error updating student:', error);
-                    showNotification('حدث خطأ في التحديث', 'error');
-                }
-            };
-
-            // --- 👑 STAFF MANAGEMENT FUNCTIONS ---
-            const promoteToAdmin = async (studentId) => {
-                try {
-                    const student = dataState.students.find(s => s.id === studentId);
-                    if (!student) return;
-                    
-                    if (!confirm(`هل تريد ترقية ${student.name} إلى مساعد إداري؟`)) return;
-                    
-                    await window.rtdb.update(window.rtdb.ref(window.db, `users/${studentId}`), {
-                        role: 'admin',
-                        promotedAt: new Date().toISOString(),
-                        promotedBy: user.uid
-                    });
-                    
-                    showNotification(`تم ترقية ${student.name} إلى مساعد إداري 👨‍💼`, 'success');
-                } catch (error) {
-                    console.error('Error promoting to admin:', error);
-                    showNotification('حدث خطأ في الترقية', 'error');
-                }
-            };
-
-            const demoteToStudent = async (adminId) => {
-                try {
-                    const admin = dataState.students.find(s => s.id === adminId);
-                    if (!admin) return;
-                    
-                    // Prevent demoting the boss
-                    if (admin.role === 'boss') {
-                        return showNotification('لا يمكن طرد البوص!', 'error');
-                    }
-                    
-                    if (!confirm(`هل تريد طرد ${admin.name} من الإدارة وإعادته طالب عادي؟`)) return;
-                    
-                    await window.rtdb.update(window.rtdb.ref(window.db, `users/${adminId}`), {
-                        role: 'student',
-                        demotedAt: new Date().toISOString(),
-                        demotedBy: user.uid
-                    });
-                    
-                    showNotification(`تم طرد ${admin.name} من الإدارة`, 'success');
-                } catch (error) {
-                    console.error('Error demoting admin:', error);
-                    showNotification('حدث خطأ في الطرد', 'error');
-                }
-            };
-
-            // --- Guest Mode ---
-            const handleGuestMode = () => {
-                setIsGuestMode(true);
-                setView('guest');
-                showNotification('مرحباً بك كزائر! يمكنك تصفح المحتوى المجاني', 'info');
-            };
-
-            // 🎨 Landing Page
-            if (view === 'landing') return (
-                <div className="min-h-screen bg-brand-dark text-white relative overflow-hidden math-grid flex flex-col">
-                    <div className="absolute top-0 left-0 w-full h-full hero-glow z-0"></div>
-                    
-                    <header className="relative z-50 p-6 flex justify-between items-center container mx-auto">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">∑</div>
-                            <h1 className="text-2xl font-black tracking-tighter">العالمي</h1>
-                        </div>
-                        <div className="flex gap-3 flex-wrap">
-                            <button onClick={()=>window.authMethods.signInWithPopup(window.auth, window.googleProvider)} 
-                                    className="bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-2 rounded-full font-bold transition text-sm">
-                                تسجيل دخول
-                            </button>
-                            <button onClick={()=>{
-                                setRegistrationType('student');
-                                setView('registration');
-                            }} 
-                                    className="bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 px-6 py-2 rounded-full font-bold transition text-sm">
-                                تسجيل طالب جديد
-                            </button>
-                            <button onClick={()=>{
-                                setRegistrationType('parent');
-                                setView('registration');
-                            }}
-                                    className="bg-green-600/20 hover:bg-green-600/40 border border-green-500/30 px-6 py-2 rounded-full font-bold transition text-sm">
-                                تسجيل ولي أمر
-                            </button>
-                            <button onClick={handleGuestMode}
-                                    className="bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 px-6 py-2 rounded-full font-bold transition text-sm">
-                                تصفح كزائر
-                            </button>
-                        </div>
-                    </header>
-
-                    <div className="flex-1 container mx-auto px-4 flex flex-col-reverse md:flex-row items-center justify-center gap-10 relative z-20 py-10">
-                        <div className="text-center md:text-right space-y-6 md:w-1/2 animate-slide-up">
-                            <div className="inline-block bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-sm font-bold border border-blue-500/30">
-                                🚀 أقوى منصة رياضيات في مصر
-                            </div>
-                            
-                            <h1 className="text-5xl md:text-7xl font-black leading-tight">
-                                الرياضيات<br/>
-                                <span className="text-brand-accent">لعبتك معانا!</span>
-                            </h1>
-                            
-                            <p className="text-slate-300 text-lg md:text-xl font-medium max-w-lg mx-auto md:mx-0">
-                                مع أ/ أحمد سعد يونس.. التفاضل والتكامل والجبر بقوا أسهل مما تتخيل. 
-                                شرح، حل، متابعة، وامتحانات دورية تضمنلك الدرجة النهائية.
-                            </p>
-                            
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
-                                <button onClick={()=>window.authMethods.signInWithPopup(window.auth, window.googleProvider)} 
-                                        className="btn-main px-8 py-4 rounded-xl text-xl flex items-center justify-center gap-2">
-                                    ابدأ الآن <SafeIcon name="calculator"/>
-                                </button>
-                            </div>
-                            
-                            <div className="pt-6">
-                                <p className="text-slate-400 mb-3">أو سجل دخول مباشر:</p>
-                                <div className="flex gap-3 justify-center md:justify-start">
-                                    <button onClick={()=>setView('student-login')} 
-                                            className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/40 border border-blue-500/30 rounded-lg">
-                                        دخول طالب
-                                    </button>
-                                    <button onClick={()=>setView('parent-login')} 
-                                            className="px-4 py-2 bg-green-500/20 hover:bg-green-500/40 border border-green-500/30 rounded-lg">
-                                        دخول ولي أمر
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="md:w-1/2 relative flex justify-center items-end">
-                            <div className="absolute inset-0 bg-brand-primary/30 blur-[100px] rounded-full"></div>
-                            <img src="./alalamy.png" 
-                                 className="relative z-10 w-full max-w-md object-contain drop-shadow-2xl animate-float hover:scale-105 transition-transform duration-500" 
-                                 alt="أ/ أحمد سعد يونس" 
-                                 onError={(e)=>{e.target.style.display='none'}}/>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            // 📝 Choose Role Page
-            if (view === 'choose-role') return (
-                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
-                    <div className="glass-panel p-8 w-full max-w-2xl animate-slide-up">
-                        <div className="text-center mb-8">
-                            <img src={user.photo} className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-brand-accent"/>
-                            <h2 className="text-3xl font-bold text-white mb-2">أهلاً بك! 👋</h2>
-                            <p className="text-slate-400">اختر نوع الحساب الذي ترغب في إنشائه</p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="bg-blue-500/10 border border-blue-500/30 p-6 rounded-xl text-center hover:border-blue-500/50 transition cursor-pointer" onClick={()=>{
-                                setRegistrationType('student');
-                                setView('registration');
-                            }}>
-                                <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <SafeIcon name="student" size={40} className="text-blue-400"/>
-                                </div>
-                                <h3 className="text-xl font-bold mb-2">حساب طالب</h3>
-                                <p className="text-slate-400 text-sm mb-4">للاستفادة من المحتوى التعليمي والتفاعل مع المنصة</p>
-                            </div>
-
-                            <div className="bg-green-500/10 border border-green-500/30 p-6 rounded-xl text-center hover:border-green-500/50 transition cursor-pointer" onClick={()=>{
-                                setRegistrationType('parent');
-                                setView('registration');
-                            }}>
-                                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <SafeIcon name="parent" size={40} className="text-green-400"/>
-                                </div>
-                                <h3 className="text-xl font-bold mb-2">حساب ولي أمر</h3>
-                                <p className="text-slate-400 text-sm mb-4">لمتابعة الأبناء والتواصل مع الإدارة</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-8 text-center">
-                            <button onClick={()=>window.authMethods.signOut(window.auth)} 
-                                    className="text-slate-400 hover:text-white">
-                                الرجوع وتسجيل خروج
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            // 📝 Registration Page
-            if (view === 'registration') return (
-                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
-                    <div className="glass-panel p-8 w-full max-w-2xl animate-slide-up">
-                        <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-brand-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <SafeIcon name={registrationType === 'student' ? 'student' : 'parent'} size={40} className="text-brand-accent"/>
-                            </div>
-                            <h2 className="text-3xl font-bold text-white mb-2">
-                                {registrationType === 'student' ? 'تسجيل طالب جديد' : 'تسجيل ولي أمر'}
-                            </h2>
-                            <p className="text-slate-400">أكمل البيانات التالية</p>
-                        </div>
-
-                        {registrationType === 'student' ? (
-                            <div className="space-y-4">
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="الاسم الأول *" 
-                                        onChange={e=>setStudentRegData({...studentRegData, firstName: e.target.value})}
-                                    />
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="الاسم الثاني *" 
-                                        onChange={e=>setStudentRegData({...studentRegData, secondName: e.target.value})}
-                                    />
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="الاسم الثالث" 
-                                        onChange={e=>setStudentRegData({...studentRegData, thirdName: e.target.value})}
-                                    />
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="رقم تليفونك 📱 *" 
-                                        onChange={e=>setStudentRegData({...studentRegData, phone: e.target.value})}
-                                    />
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="رقم ولي الأمر 👨‍👩‍👦 *" 
-                                        onChange={e=>setStudentRegData({...studentRegData, parentPhone: e.target.value})}
-                                    />
-                                </div>
-
-                                <input 
-                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                    placeholder="اسم المدرسة 🏫 *" 
-                                    onChange={e=>setStudentRegData({...studentRegData, school: e.target.value})}
-                                />
-
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <select 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        onChange={e=>setStudentRegData({...studentRegData, grade: e.target.value})}
-                                    >
-                                        <option value="">اختر الصف الدراسي *</option>
-                                        <option value="1sec">الصف الأول الثانوي</option>
-                                        <option value="2sec">الصف الثاني الثانوي</option>
-                                        <option value="3sec">الصف الثالث الثانوي</option>
-                                    </select>
-
-                                    <select 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        onChange={e=>setStudentRegData({...studentRegData, scheduleDays: e.target.value})}
-                                    >
-                                        <option value="">أيام الحصص المفضلة *</option>
-                                        <option value="الاثنين والأربعاء">الاثنين والأربعاء</option>
-                                        <option value="الثلاثاء والخميس">الثلاثاء والخميس</option>
-                                        <option value="السبت والأحد">السبت والأحد</option>
-                                    </select>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <input 
-                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                    placeholder="الاسم الكامل *" 
-                                    onChange={e=>setParentRegData({...parentRegData, name: e.target.value})}
-                                />
-
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <input 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        placeholder="رقم الهاتف 📱 *" 
-                                        onChange={e=>setParentRegData({...parentRegData, phone: e.target.value})}
-                                    />
-                                    <select 
-                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" 
-                                        onChange={e=>setParentRegData({...parentRegData, relationship: e.target.value})}
-                                    >
-                                        <option value="أب">أب</option>
-                                        <option value="أم">أم</option>
-                                        <option value="ولي أمر">ولي أمر</option>
-                                    </select>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="flex gap-4 mt-6">
-                            <button 
-                                onClick={()=>submitRegistration(registrationType)} 
-                                className="btn-main flex-1 py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2"
-                            >
-                                <SafeIcon name="send"/> إرسال طلب التسجيل
-                            </button>
-                            <button 
-                                onClick={()=>setView('choose-role')} 
-                                className="px-6 py-4 bg-white/10 hover:bg-white/20 rounded-xl font-bold transition"
-                            >
-                                رجوع
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            // 🔐 Student Login Page
-            if (view === 'student-login') return (
-                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
-                    <div className="glass-panel p-8 w-full max-w-md animate-slide-up">
-                        <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <SafeIcon name="student" size={40} className="text-blue-400"/>
-                            </div>
-                            <h2 className="text-3xl font-bold text-white mb-2">دخول الطالب</h2>
-                            <p className="text-slate-400">أدخل كود الطالب الخاص بك</p>
-                        </div>
-
-                        <div className="space-y-6">
-                            <input 
-                                className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center text-xl tracking-widest font-mono" 
-                                placeholder="أدخل كود الطالب" 
-                                value={studentLoginCode}
-                                onChange={e=>setStudentLoginCode(e.target.value.toUpperCase())}
-                                maxLength="20"
-                            />
-                            
-                            <button 
-                                onClick={handleStudentLogin} 
-                                className="btn-main w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2"
-                            >
-                                <SafeIcon name="log-in"/> دخول
-                            </button>
-                            
-                            <div className="text-center">
-                                <button onClick={()=>setView('landing')} 
-                                        className="text-brand-accent hover:underline">
-                                    العودة للصفحة الرئيسية
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            // 🔐 Parent Login Page
-            if (view === 'parent-login') return (
-                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
-                    <div className="glass-panel p-8 w-full max-w-md animate-slide-up">
-                        <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <SafeIcon name="parent" size={40} className="text-green-400"/>
-                            </div>
-                            <h2 className="text-3xl font-bold text-white mb-2">دخول ولي الأمر</h2>
-                            <p className="text-slate-400">أدخل كود ولي الأمر الخاص بك</p>
-                        </div>
-
-                        <div className="space-y-6">
-                            <input 
-                                className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center text-xl tracking-widest font-mono" 
-                                placeholder="أدخل كود ولي الأمر" 
-                                value={parentLoginCode}
-                                onChange={e=>setParentLoginCode(e.target.value.toUpperCase())}
-                                maxLength="20"
-                            />
-                            
-                            <button 
-                                onClick={handleParentLogin} 
-                                className="btn-main w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2"
-                            >
-                                <SafeIcon name="log-in"/> دخول
-                            </button>
-                            
-                            <div className="text-center">
-                                <button onClick={()=>setView('landing')} 
-                                        className="text-brand-accent hover:underline">
-                                    العودة للصفحة الرئيسية
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            // ⏳ Pending Approval Page
-            if (view === 'pending-approval') return (
-                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
-                    <div className="glass-panel p-8 text-center max-w-md">
-                        <div className="text-6xl mb-4">⏳</div>
-                        <h2 className="text-2xl font-bold mb-4">طلبك قيد المراجعة</h2>
-                        <p className="text-slate-400 mb-6">سيتم مراجعة طلبك من قبل الإدارة وإخطارك بالقبول</p>
-                        <button onClick={()=>window.authMethods.signOut(window.auth)} 
-                                className="bg-red-600 px-6 py-3 rounded-xl font-bold hover:bg-red-700">
-                            تسجيل خروج
-                        </button>
-                    </div>
-                </div>
-            );
-
-            // 👑 Admin View with Staff Management
-            if (view === 'admin') {
-                const filteredStudents = dataState.students.filter(s => 
-                    s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    s.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    s.phone?.includes(searchQuery)
-                );
-
-                const staffFilteredUsers = dataState.students.filter(s => 
-                    s.name?.toLowerCase().includes(staffSearchQuery.toLowerCase()) ||
-                    s.code?.toLowerCase().includes(staffSearchQuery.toLowerCase())
-                );
-
-                return (
-                    <div className="min-h-screen bg-brand-dark p-4 md:p-6">
-                        <div className="max-w-7xl mx-auto glass-panel p-6 md:p-8">
-                            <div className="flex flex-wrap justify-between items-center mb-8 pb-4 border-b border-white/10 gap-4">
-                                <div>
-                                    <h2 className="text-3xl font-black text-brand-accent">لوحة التحكم الشاملة</h2>
-                                    <div className="flex items-center gap-3 mt-2">
-                                        <span className={`role-badge ${user.role === 'boss' ? 'badge-boss' : 'badge-admin'}`}>
-                                            {user.role === 'boss' ? '👑 البوص' : '👨‍💼 أدمن'}
-                                        </span>
-                                        <span className="text-slate-400 text-sm">{user.name}</span>
-                                    </div>
-                                </div>
-                                <button onClick={()=>window.authMethods.signOut(window.auth)} 
-                                        className="px-4 py-2 bg-red-600 rounded-lg font-bold hover:bg-red-700">
-                                    خروج
-                                </button>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                    <div className="text-slate-400 text-xs mb-1">الطلاب</div>
-                                    <div className="text-2xl font-black">{dataState.students.length}</div>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                    <div className="text-slate-400 text-xs mb-1">أولياء الأمور</div>
-                                    <div className="text-2xl font-black text-green-400">{dataState.parents.length}</div>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                    <div className="text-slate-400 text-xs mb-1">طلبات الانتظار</div>
-                                    <div className="text-2xl font-black text-orange-400">{dataState.requests.length}</div>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                    <div className="text-slate-400 text-xs mb-1">المحاضرات</div>
-                                    <div className="text-2xl font-black text-brand-accent">{dataState.lectures.length}</div>
-                                </div>
-                            </div>
-
-                            {/* Tabs */}
-                            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                                {['students', 'parents', user.role === 'boss' ? 'staff' : null, 'settings'].filter(Boolean).map(t => (
-                                    <button key={t} onClick={()=>setActiveTab(t)} 
-                                            className={`px-6 py-2 rounded-lg font-bold whitespace-nowrap transition ${activeTab === t ? 'bg-brand-accent text-brand-dark' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
-                                        {t === 'students' ? '👥 الطلاب' : 
-                                         t === 'parents' ? '👨‍👦 أولياء الأمور' :
-                                         t === 'staff' ? '👑 إدارة المساعدين' :
-                                         t === 'settings' ? '⚙️ الإعدادات' : ''}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Content */}
-                            <div className="bg-brand-dark/50 p-6 rounded-2xl border border-white/5 min-h-[400px]">
-                                
-                                {/* Students Tab */}
-                                {activeTab === 'students' && (
-                                    <div>
-                                        {dataState.requests.length > 0 && (
-                                            <div className="mb-8 bg-orange-500/10 border border-orange-500/30 p-4 rounded-xl">
-                                                <h3 className="font-bold text-orange-400 mb-3">طلبات تسجيل جديدة ({dataState.requests.length})</h3>
-                                                <div className="space-y-2">
-                                                    {dataState.requests.map(r => (
-                                                        <div key={r.id} className="flex justify-between items-center bg-black/20 p-3 rounded-lg">
-                                                            <div>
-                                                                <p className="font-bold">{r.name}</p>
-                                                                <p className="text-xs text-slate-400">{r.phone} | {r.school}</p>
-                                                            </div>
-                                                            <div className="flex gap-2">
-                                                                <button onClick={async()=>{
-                                                                    const studentCode = generateStudentCode();
-                                                                    const studentData = {
-                                                                        ...r,
-                                                                        role: 'student',
-                                                                        code: studentCode,
-                                                                        isPaid: false,
-                                                                        status: 'active'
-                                                                    };
-                                                                    
-                                                                    await window.rtdb.set(window.rtdb.ref(window.db,'users/'+r.uid), studentData);
-                                                                    await window.rtdb.set(window.rtdb.ref(window.db,'requests/'+r.id), null);
-                                                                    
-                                                                    showNotification(`تم قبول الطالب: ${studentCode}`);
-                                                                }} className="bg-green-600 px-3 py-1 rounded text-sm">قبول</button>
-                                                                <button onClick={()=>window.rtdb.set(window.rtdb.ref(window.db,'requests/'+r.id), null)} 
-                                                                        className="bg-red-600 px-3 py-1 rounded text-sm">رفض</button>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="flex gap-2 mb-4">
-                                            <input className="flex-1 bg-black/30 border border-white/10 p-3 rounded-xl outline-none" 
-                                                   placeholder="بحث..." 
-                                                   value={searchQuery} 
-                                                   onChange={e=>setSearchQuery(e.target.value)}/>
-                                        </div>
-
-                                        <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                                            {filteredStudents.map(s => (
-                                                <div key={s.id} className="flex justify-between items-center bg-white/5 p-4 rounded-xl hover:bg-white/10 transition">
-                                                    <div className="flex items-center gap-4">
-                                                        <img src={s.photo} className="w-12 h-12 rounded-full"/>
-                                                        <div>
-                                                            <p className="font-bold">{s.name}</p>
-                                                            <p className="text-xs text-slate-400">{s.code} | {s.phone}</p>
-                                                        </div>
-                                                    </div>
-                                                    <button onClick={()=>{setSelectedStudent(s); setShowStudentModal(true);}} 
-                                                            className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded">
-                                                        إدارة
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Parents Tab */}
-                                {activeTab === 'parents' && (
-                                    <div>
-                                        <h3 className="font-bold mb-4">أولياء الأمور المسجلين</h3>
-                                        <div className="space-y-3">
-                                            {dataState.parents.map(parent => (
-                                                <div key={parent.id} className="bg-white/5 p-4 rounded-xl">
-                                                    <div className="flex items-center gap-3">
-                                                        <img src={parent.photo} className="w-12 h-12 rounded-full"/>
-                                                        <div>
-                                                            <p className="font-bold">{parent.name}</p>
-                                                            <p className="text-xs text-slate-400">{parent.phone} | {parent.code}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* 👑 STAFF MANAGEMENT TAB - BOSS ONLY */}
-                                {activeTab === 'staff' && user.role === 'boss' && (
-                                    <div>
-                                        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl mb-6">
-                                            <h3 className="font-bold text-red-400 mb-2 flex items-center gap-2">
-                                                <SafeIcon name="crown"/> إدارة المساعدين الإداريين
-                                            </h3>
-                                            <p className="text-sm text-slate-400">
-                                                يمكنك ترقية أي طالب إلى مساعد إداري أو طرد المساعدين الحاليين
-                                            </p>
-                                        </div>
-
-                                        {/* Search */}
-                                        <div className="mb-6">
-                                            <input 
-                                                className="w-full bg-black/30 border border-white/10 p-3 rounded-xl outline-none" 
-                                                placeholder="ابحث عن طالب بالاسم أو الكود..." 
-                                                value={staffSearchQuery}
-                                                onChange={e=>setStaffSearchQuery(e.target.value)}
-                                            />
-                                        </div>
-
-                                        {/* Current Admins */}
-                                        <div className="mb-8">
-                                            <h4 className="font-bold text-yellow-400 mb-3">المساعدين الحاليين:</h4>
-                                            <div className="space-y-2">
-                                                {dataState.students.filter(s => s.role === 'admin').map(admin => (
-                                                    <div key={admin.id} className="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-xl">
-                                                        <div className="flex items-center gap-3">
-                                                            <img src={admin.photo} className="w-12 h-12 rounded-full"/>
-                                                            <div>
-                                                                <p className="font-bold">{admin.name}</p>
-                                                                <p className="text-xs text-slate-400">{admin.code} | {admin.email}</p>
-                                                                <span className="badge-admin mt-1 inline-block">مساعد إداري</span>
-                                                            </div>
-                                                        </div>
-                                                        <button 
-                                                            onClick={()=>demoteToStudent(admin.id)}
-                                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-bold flex items-center gap-2"
-                                                        >
-                                                            <SafeIcon name="user-minus" size={16}/> طرد من الإدارة
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                {dataState.students.filter(s => s.role === 'admin').length === 0 && (
-                                                    <p className="text-center text-slate-500 py-4">لا يوجد مساعدين حالياً</p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* All Students - Promote Options */}
-                                        <div>
-                                            <h4 className="font-bold text-blue-400 mb-3">جميع الطلاب المسجلين:</h4>
-                                            <div className="space-y-2 max-h-96 overflow-y-auto">
-                                                {staffFilteredUsers.filter(s => s.role === 'student').map(student => (
-                                                    <div key={student.id} className="flex justify-between items-center bg-white/5 p-4 rounded-xl hover:bg-white/10 transition">
-                                                        <div className="flex items-center gap-3">
-                                                            <img src={student.photo} className="w-12 h-12 rounded-full"/>
-                                                            <div>
-                                                                <p className="font-bold">{student.name}</p>
-                                                                <p className="text-xs text-slate-400">{student.code} | {student.email}</p>
-                                                                <span className="badge-student mt-1 inline-block">طالب</span>
-                                                            </div>
-                                                        </div>
-                                                        <button 
-                                                            onClick={()=>promoteToAdmin(student.id)}
-                                                            className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-bold flex items-center gap-2"
-                                                        >
-                                                            <SafeIcon name="user-plus" size={16}/> ترقية إلى أدمن
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Settings Tab */}
-                                {activeTab === 'settings' && (
-                                    <div>
-                                        <h3 className="font-bold mb-4">إعدادات النظام</h3>
-                                        <div className="glass-panel p-6">
-                                            <h4 className="font-bold mb-4">إحصائيات النظام</h4>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                <div className="bg-white/5 p-3 rounded text-center">
-                                                    <div className="text-lg font-bold">{dataState.students.length}</div>
-                                                    <div className="text-xs text-slate-400">طالب</div>
-                                                </div>
-                                                <div className="bg-white/5 p-3 rounded text-center">
-                                                    <div className="text-lg font-bold">{dataState.parents.length}</div>
-                                                    <div className="text-xs text-slate-400">ولي أمر</div>
-                                                </div>
-                                                <div className="bg-white/5 p-3 rounded text-center">
-                                                    <div className="text-lg font-bold">{dataState.lectures.length}</div>
-                                                    <div className="text-xs text-slate-400">محاضرة</div>
-                                                </div>
-                                                <div className="bg-white/5 p-3 rounded text-center">
-                                                    <div className="text-lg font-bold">{dataState.students.filter(s => s.role === 'admin').length}</div>
-                                                    <div className="text-xs text-slate-400">مساعد إداري</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Student Management Modal */}
-                        {showStudentModal && selectedStudent && (
-                            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4" onClick={()=>setShowStudentModal(false)}>
-                                <div className="bg-brand-card p-6 rounded-2xl w-full max-w-lg border border-white/10 max-h-[90vh] overflow-y-auto" onClick={e=>e.stopPropagation()}>
-                                    <h3 className="text-xl font-bold mb-4 text-brand-accent">إدارة: {selectedStudent.name}</h3>
-                                    
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-4 text-sm">
-                                            <div>
-                                                <p className="text-slate-400 text-xs mb-1">الكود:</p>
-                                                <p className="font-bold">{selectedStudent.code}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-400 text-xs mb-1">الصف:</p>
-                                                <p className="font-bold">{selectedStudent.grade === '1sec' ? 'أول ثانوي' : selectedStudent.grade === '2sec' ? 'ثاني ثانوي' : 'ثالث ثانوي'}</p>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-xs text-slate-400 mb-1 block">ملاحظات:</label>
-                                            <textarea 
-                                                className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-white h-20" 
-                                                value={selectedStudent.notes || ''} 
-                                                onChange={e=>setSelectedStudent({...selectedStudent, notes: e.target.value})}
-                                            />
-                                        </div>
-
-                                        <div className="flex gap-2 pt-4">
-                                            <button onClick={()=>{
-                                                updateStudent(selectedStudent.id, {
-                                                    notes: selectedStudent.notes
-                                                });
-                                                setShowStudentModal(false);
-                                            }} className="flex-1 bg-brand-primary py-2 rounded-lg font-bold">حفظ</button>
-                                            <button onClick={()=>setShowStudentModal(false)} className="px-4 py-2 bg-white/10 rounded-lg font-bold">إغلاق</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-            }
-
-            // Simple fallback for other views
             return (
-                <div className="min-h-screen bg-brand-dark flex items-center justify-center">
-                    <div className="text-center">
-                        <div className="loader mx-auto mb-4"></div>
-                        <p className="text-slate-400">جاري التحميل...</p>
-                    </div>
-                </div>
+                <>
+                    {renderView()}
+                    
+                    {/* Floating Theme Toggle */}
+                    {view === 'home' && null}
+                </>
             );
         };
 
