@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة العالمي للرياضيات | أ/ أحمد سعد يونس</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, child, push, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, child, push, update, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAWvMBrjkjU02jfOe8HKNnDHNx1ZshlDdo",
@@ -31,985 +32,1845 @@
         window.db = getDatabase(app);
         window.auth = getAuth(app);
         window.googleProvider = new GoogleAuthProvider();
-        window.facebookProvider = new FacebookAuthProvider();
-        window.rtdb = { ref, set, get, child, push, update, onValue, remove };
-        window.authMethods = { signInWithPopup, signOut, onAuthStateChanged, signInAnonymously };
+        window.rtdb = { ref, set, get, child, push, update, onValue, remove, serverTimestamp };
+        window.authMethods = { signInWithPopup, signOut, onAuthStateChanged };
     </script>
 
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            primary: '#3b82f6',
+                            accent: '#fbbf24',
+                        }
+                    },
+                    fontFamily: { 'cairo': ['Cairo', 'sans-serif'] },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'flip': 'flip 0.6s ease-in-out',
+                    },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } },
+                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        flip: { '0%': { transform: 'rotateY(0deg)' }, '100%': { transform: 'rotateY(180deg)' } },
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Cairo', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
-        .btn-gold { background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f172a; font-weight: 800; transition: all 0.3s; }
-        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(251, 191, 36, 0.5); }
-        .embed { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; }
-        .embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-        .grid-bg { background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; }
-        .glow { background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%); }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .loader { border: 4px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top: 4px solid #fbbf24; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideUp { 0% { transform: translateY(30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        .slide-up { animation: slideUp 0.8s ease-out; }
-        .float { animation: float 6s ease-in-out infinite; }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --grid-color: rgba(255, 255, 255, 0.03);
+            --glow-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .light-mode {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --grid-color: rgba(100, 116, 139, 0.1);
+            --glow-color: rgba(59, 130, 246, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border-radius: 16px;
+        }
+
+        .light-mode .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.1);
+        }
+
+        /* Glassmorphism Icons */
+        .glass-icon {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-icon:hover {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), inset 0 0 25px rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: #0f172a;
+            font-weight: 800;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.5);
+        }
+
+        .embed-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .embed-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .math-grid {
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .hero-glow {
+            background: radial-gradient(circle at 50% 50%, var(--glow-color) 0%, transparent 50%);
+        }
+
+        .light-mode .hero-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, rgba(255, 255, 255, 0.9) 50%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .theme-toggle button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-toggle button.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Auth Dropdown */
+        .auth-dropdown {
+            position: relative;
+        }
+
+        .auth-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .auth-dropdown:hover .auth-menu,
+        .auth-menu:hover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .auth-menu button {
+            width: 100%;
+            padding: 12px 16px;
+            text-align: right;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-menu button:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        /* Flashcard */
+        .flashcard-container {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front,
+        .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(30, 41, 59, 0.9) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .flashcard-back {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(30, 41, 59, 0.9) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            transform: rotateY(180deg);
+        }
+
+        /* Lock overlay */
+        .locked-content {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .locked-content::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* Rank badges */
+        .rank-novice {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        }
+
+        .rank-advanced {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .rank-legend {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: #0f172a;
+        }
+
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            transform: translateX(-5px);
+            border-color: #fbbf24;
+        }
+
+        .quiz-option.selected {
+            background: rgba(251, 191, 36, 0.2);
+            border-color: #fbbf24;
+        }
     </style>
 </head>
+
 <body>
     <div id="root"></div>
-
     <script type="text/babel">
-        const { useState, useEffect } = React;
-        
-        const ADMIN_CODES = {
-            'BOSS-2025': 'boss',
-            'ADMIN-001': 'admin', 'ADMIN-002': 'admin', 'ADMIN-003': 'admin', 'ADMIN-004': 'admin',
-            'ADMIN-005': 'admin', 'ADMIN-006': 'admin', 'ADMIN-007': 'admin', 'ADMIN-008': 'admin',
-            'ADMIN-009': 'admin', 'ADMIN-010': 'admin'
-        };
+        const { useState, useEffect, useRef } = React;
 
-        const CONTACT = {
+        // 🔐 Security Constants
+        const SUPER_ADMIN_EMAIL = 'marwansami2009@gmail.com';
+        const ADMIN_SECRET_PASSWORD = '123456789';
+        const MANAGER_PASSWORD = '01023456789';
+
+        // 📱 Contact Info
+        const CONTACT_INFO = {
             whatsapp: 'https://wa.me/201000000000',
             facebook: 'https://facebook.com/yourpage',
             youtube: 'https://youtube.com/yourchannel',
             telegram: 'https://t.me/yourchannel',
-            vodafone: '010xxxxxxxx',
-            fawry: '12345',
-            support: 'https://wa.me/201000000000'
+            vodafoneNumber: '010xxxxxxxx',
+            supportWhatsapp: 'https://wa.me/201000000000'
         };
 
+        // 🎨 Icon Component (Outside App for performance)
         const Icon = ({ name, size = 20, className = '' }) => {
             useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
             return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
         };
 
-        const App = () => {
-            const [user, setUser] = useState(null);
-            const [view, setView] = useState('loading');
-            const [data, setData] = useState({
-                students: [], requests: [], lectures: [], whiteboards: [], qa: [],
-                exams: [], announcements: [], payments: [], packages: [], subscriptions: {}
-            });
-            const [form, setForm] = useState({
-                firstName: '', secondName: '', thirdName: '', phone: '', parentPhone: '',
-                school: '', governorate: '', city: '', grade: '1sec', address: ''
-            });
-            const [tab, setTab] = useState('home');
-            const [selected, setSelected] = useState({ lecture: null, student: null, package: null });
-            const [modal, setModal] = useState({ student: false, payment: false });
-            const [search, setSearch] = useState('');
-            const [codes, setCodes] = useState({ student: '', phone: '', admin: '' });
-            const [step, setStep] = useState('video');
-            const [answers, setAnswers] = useState({});
-            const [payment, setPayment] = useState('vodafone');
-            const [notify, setNotify] = useState(null);
-            const [examModel, setExamModel] = useState('A');
+        // 🎨 Glass Icon Component
+        const GlassIcon = ({ name, size = 24, className = '' }) => (
+            <div className={`glass-icon inline-flex items-center justify-center ${className}`}>
+                <Icon name={name} size={size} />
+            </div>
+        );
 
-            const show = (msg, type = 'success') => {
-                setNotify({ msg, type });
-                setTimeout(() => setNotify(null), 4000);
+        // 🌓 Theme Toggle Component
+        const ThemeToggle = ({ isDark, onToggle }) => (
+            <div className="theme-toggle">
+                <button onClick={() => onToggle(false)} className={!isDark ? 'active' : 'text-slate-400'}>
+                    <Icon name="sun" size={16} /> فاتح
+                </button>
+                <button onClick={() => onToggle(true)} className={isDark ? 'active' : 'text-slate-400'}>
+                    <Icon name="moon" size={16} /> داكن
+                </button>
+            </div>
+        );
+
+        // 🔐 Auth Dropdown Component
+        const AuthDropdown = ({ onSelect, onGoogleLogin }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            return (
+                <div className="auth-dropdown" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
+                    <button className="bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-2 rounded-full font-bold transition">
+                        تسجيل / دخول
+                    </button>
+                    <div className={`auth-menu ${isOpen ? 'opacity-100 visible translate-y-0' : ''}`}>
+                        <button onClick={() => { onSelect('student'); onGoogleLogin(); }}>👨‍🎓 طالب</button>
+                        <button onClick={() => { onSelect('parent'); onGoogleLogin(); }}>👨‍👩‍👦 ولي أمر</button>
+                        <button onClick={() => onSelect('admin')}>🔐 أدمن</button>
+                        <button onClick={() => onSelect('guest')}>👁️ زائر (تصفح)</button>
+                    </div>
+                </div>
+            );
+        };
+
+        // 🃏 Flashcard Component
+        const Flashcard = ({ question, answer }) => {
+            const [flipped, setFlipped] = useState(false);
+            return (
+                <div className="flashcard-container">
+                    <div className={`flashcard ${flipped ? 'flipped' : ''}`} onClick={() => setFlipped(!flipped)}>
+                        <div className="flashcard-front">
+                            <div>
+                                <Icon name="help-circle" size={32} className="text-blue-400 mb-3 mx-auto" />
+                                <p className="text-lg font-bold">{question}</p>
+                                <p className="text-xs text-slate-400 mt-2">اضغط للإجابة</p>
+                            </div>
+                        </div>
+                        <div className="flashcard-back">
+                            <div>
+                                <Icon name="lightbulb" size={32} className="text-yellow-400 mb-3 mx-auto" />
+                                <p className="text-lg font-bold">{answer}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 🏆 Rank Badge Component
+        const RankBadge = ({ points }) => {
+            let rank, rankClass;
+            if (points >= 200) { rank = 'أسطوري'; rankClass = 'rank-legend'; }
+            else if (points >= 51) { rank = 'متقدم'; rankClass = 'rank-advanced'; }
+            else { rank = 'مبتدئ'; rankClass = 'rank-novice'; }
+            return (
+                <span className={`${rankClass} px-3 py-1 rounded-full text-xs font-bold`}>
+                    {rank}
+                </span>
+            );
+        };
+
+        // 🔒 Locked Content Overlay
+        const LockedOverlay = ({ message = 'المحتوى مغلق' }) => (
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl">
+                <div className="text-center">
+                    <div className="glass-icon mx-auto mb-2"><Icon name="lock" size={32} /></div>
+                    <p className="font-bold">{message}</p>
+                </div>
+            </div>
+        );
+
+        // 🔐 Admin Password Prompt
+        const AdminPasswordPrompt = ({ onSubmit, onBack }) => {
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState(false);
+            return (
+                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
+                    <div className="glass-panel p-8 w-full max-w-md text-center">
+                        <GlassIcon name="shield" size={48} className="mx-auto mb-4" />
+                        <h2 className="text-2xl font-bold mb-2">منطقة محمية</h2>
+                        <p className="text-slate-400 mb-6">أدخل كلمة السر للوصول لبيانات الطلاب</p>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={e => { setPassword(e.target.value); setError(false); }}
+                            className={`w-full p-4 bg-white/5 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl mb-4 text-center text-2xl tracking-widest`}
+                            placeholder="••••••••"
+                        />
+                        {error && <p className="text-red-400 text-sm mb-4">كلمة السر غلط!</p>}
+                        <div className="flex gap-3">
+                            <button onClick={onBack} className="flex-1 py-3 bg-white/10 rounded-xl font-bold">رجوع</button>
+                            <button onClick={() => {
+                                if (password === ADMIN_SECRET_PASSWORD) onSubmit();
+                                else setError(true);
+                            }} className="flex-1 btn-main py-3 rounded-xl">دخول</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 📅 Attendance Table Component (Outside App for performance)
+        const AttendanceTable = ({ students, attendance, onUpdateAttendance, isSuperAdmin }) => {
+            const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+            const getStatusColor = (status) => {
+                if (status === 'present') return 'bg-green-500';
+                if (status === 'absent') return 'bg-red-500';
+                if (status === 'late') return 'bg-yellow-500';
+                return 'bg-slate-600';
             };
 
-            const code = (p = 'STU') => `${p}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+            return (
+                <div className="glass-panel p-6 animate-slide-up">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold flex items-center gap-2">
+                            <div className="glass-icon"><Icon name="calendar" size={20} /></div>
+                            الحضور والمتابعة
+                        </h3>
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-white"
+                        />
+                    </div>
 
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-white/10">
+                                    <th className="text-right p-3 font-bold">الطالب</th>
+                                    <th className="text-center p-3 font-bold">الحالة</th>
+                                    <th className="text-center p-3 font-bold">الأداء</th>
+                                    <th className="text-center p-3 font-bold">إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {students.filter(s => !['admin', 'boss'].includes(s.role)).map(student => {
+                                    const studentAttendance = attendance[student.id]?.[selectedDate] || {};
+                                    return (
+                                        <tr key={student.id} className="border-b border-white/5 hover:bg-white/5">
+                                            <td className="p-3">
+                                                <div className="flex items-center gap-3">
+                                                    <img src={student.photo} className="w-10 h-10 rounded-full" />
+                                                    <div>
+                                                        <p className="font-bold">{student.name}</p>
+                                                        <p className="text-xs text-slate-400">{student.grade}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-3 text-center">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(studentAttendance.status)}`}>
+                                                    {studentAttendance.status === 'present' ? 'حاضر' :
+                                                        studentAttendance.status === 'absent' ? 'غائب' :
+                                                            studentAttendance.status === 'late' ? 'متأخر' : 'لم يسجل'}
+                                                </span>
+                                            </td>
+                                            <td className="p-3 text-center">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${studentAttendance.performance === 'excellent' ? 'bg-green-500/20 text-green-300' :
+                                                    studentAttendance.performance === 'good' ? 'bg-blue-500/20 text-blue-300' :
+                                                        studentAttendance.performance === 'needsWork' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-slate-500/20 text-slate-300'
+                                                    }`}>
+                                                    {studentAttendance.performance === 'excellent' ? 'ممتاز' :
+                                                        studentAttendance.performance === 'good' ? 'جيد' :
+                                                            studentAttendance.performance === 'needsWork' ? 'يحتاج متابعة' : '-'}
+                                                </span>
+                                            </td>
+                                            <td className="p-3">
+                                                <div className="flex gap-1 justify-center">
+                                                    <button onClick={() => onUpdateAttendance(student.id, selectedDate, 'present', studentAttendance.performance)}
+                                                        className="p-2 rounded-lg bg-green-500/20 hover:bg-green-500/40 text-green-300" title="حاضر">
+                                                        <Icon name="check" size={14} />
+                                                    </button>
+                                                    <button onClick={() => onUpdateAttendance(student.id, selectedDate, 'absent', studentAttendance.performance)}
+                                                        className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300" title="غائب">
+                                                        <Icon name="x" size={14} />
+                                                    </button>
+                                                    <button onClick={() => onUpdateAttendance(student.id, selectedDate, 'late', studentAttendance.performance)}
+                                                        className="p-2 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300" title="متأخر">
+                                                        <Icon name="clock" size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        };
+
+        // 👥 Admin Management Component (Outside App for performance)
+        const AdminManagement = ({ admins, onAddAdmin, onRemoveAdmin, isSuperAdmin, showNotification }) => {
+            const [showAddForm, setShowAddForm] = useState(false);
+            const [newAdminEmail, setNewAdminEmail] = useState('');
+            const [newAdminRole, setNewAdminRole] = useState('admin');
+            const [managerPassword, setManagerPassword] = useState('');
+            const [passwordError, setPasswordError] = useState(false);
+
+            const handleAddAdmin = () => {
+                if (managerPassword !== MANAGER_PASSWORD) {
+                    setPasswordError(true);
+                    return;
+                }
+                if (!newAdminEmail) {
+                    showNotification('أدخل إيميل الأدمن', 'error');
+                    return;
+                }
+                onAddAdmin(newAdminEmail, newAdminRole);
+                setShowAddForm(false);
+                setNewAdminEmail('');
+                setManagerPassword('');
+                setPasswordError(false);
+            };
+
+            if (!isSuperAdmin) {
+                return (
+                    <div className="glass-panel p-8 text-center">
+                        <div className="glass-icon mx-auto mb-4"><Icon name="lock" size={32} /></div>
+                        <h3 className="text-xl font-bold mb-2">صلاحية غير متاحة</h3>
+                        <p className="text-slate-400">هذا القسم متاح للمدير الأعلى فقط</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="space-y-6 animate-slide-up">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold flex items-center gap-2">
+                            <div className="glass-icon"><Icon name="shield" size={24} /></div>
+                            إدارة المديرين
+                        </h2>
+                        <button onClick={() => setShowAddForm(true)} className="btn-main px-6 py-2 rounded-xl font-bold flex items-center gap-2">
+                            <Icon name="user-plus" size={18} /> إضافة مدير
+                        </button>
+                    </div>
+
+                    {/* Current Admins List */}
+                    <div className="glass-panel p-6">
+                        <h3 className="font-bold mb-4 flex items-center gap-2">
+                            <Icon name="users" size={18} /> المديرين الحاليين
+                        </h3>
+                        <div className="space-y-3">
+                            {admins.map(admin => (
+                                <div key={admin.id} className="bg-white/5 p-4 rounded-xl flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <img src={admin.photo} className="w-12 h-12 rounded-full border-2 border-brand-accent" />
+                                        <div>
+                                            <p className="font-bold">{admin.name}</p>
+                                            <p className="text-xs text-slate-400">{admin.email}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${admin.email === SUPER_ADMIN_EMAIL ? 'bg-yellow-500/20 text-yellow-300' : 'bg-blue-500/20 text-blue-300'
+                                            }`}>
+                                            {admin.email === SUPER_ADMIN_EMAIL ? '👑 المدير الأعلى' : admin.role === 'boss' ? 'مدير' : 'مساعد'}
+                                        </span>
+                                        {admin.email !== SUPER_ADMIN_EMAIL && (
+                                            <button onClick={() => onRemoveAdmin(admin.id)}
+                                                className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300">
+                                                <Icon name="trash-2" size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Add Admin Modal */}
+                    {showAddForm && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setShowAddForm(false)}>
+                            <div className="glass-panel p-8 max-w-md w-full" onClick={e => e.stopPropagation()}>
+                                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                    <div className="glass-icon"><Icon name="user-plus" size={24} /></div>
+                                    إضافة مدير جديد
+                                </h3>
+
+                                <div className="space-y-4">
+                                    <input
+                                        type="email"
+                                        placeholder="إيميل المدير الجديد"
+                                        value={newAdminEmail}
+                                        onChange={(e) => setNewAdminEmail(e.target.value)}
+                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none"
+                                    />
+
+                                    <select
+                                        value={newAdminRole}
+                                        onChange={(e) => setNewAdminRole(e.target.value)}
+                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none"
+                                    >
+                                        <option value="admin">مساعد</option>
+                                        <option value="boss">مدير</option>
+                                    </select>
+
+                                    <input
+                                        type="password"
+                                        placeholder="كلمة سر المدير الأعلى"
+                                        value={managerPassword}
+                                        onChange={(e) => { setManagerPassword(e.target.value); setPasswordError(false); }}
+                                        className={`w-full p-4 bg-white/5 border ${passwordError ? 'border-red-500' : 'border-white/10'} rounded-xl outline-none text-center tracking-widest`}
+                                    />
+                                    {passwordError && <p className="text-red-400 text-sm text-center">كلمة السر غلط!</p>}
+
+                                    <div className="flex gap-3">
+                                        <button onClick={() => setShowAddForm(false)} className="flex-1 py-3 bg-white/10 rounded-xl font-bold">إلغاء</button>
+                                        <button onClick={handleAddAdmin} className="flex-1 btn-main py-3 rounded-xl font-bold">إضافة</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            // Theme State
+            const [isDarkMode, setIsDarkMode] = useState(true);
+
+            // Auth State
+            const [user, setUser] = useState(null);
+            const [userType, setUserType] = useState(null); // 'student', 'parent', 'admin', 'guest'
+            const [view, setView] = useState('loading');
+            const [isDataCenterUnlocked, setIsDataCenterUnlocked] = useState(false);
+
+            // Data State
+            const [dataState, setDataState] = useState({
+                students: [], requests: [], lectures: [], whiteboards: [],
+                qa: [], exams: [], announcements: [], payments: [], subscriptions: {},
+                flashcards: [], recordings: [], attendance: {}
+            });
+
+            // Registration Data
+            const [regData, setRegData] = useState({
+                phone: '', parentPhone: '', school: '', governorate: '', city: '',
+                grade: '1sec', accountType: 'student', linkedStudentEmail: ''
+            });
+
+            // UI States
+            const [activeTab, setActiveTab] = useState('home');
+            const [studentYearFilter, setStudentYearFilter] = useState('all');
+            const [selectedLecture, setSelectedLecture] = useState(null);
+            const [currentLectureStep, setCurrentLectureStep] = useState('video');
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [notification, setNotification] = useState(null);
+            const [showStudentModal, setShowStudentModal] = useState(false);
+            const [selectedStudent, setSelectedStudent] = useState(null);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [examBuilderType, setExamBuilderType] = useState(null);
+
+            // Quiz State
+            const [quizAnswers, setQuizAnswers] = useState({});
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
+
+            // 🔐 Super Admin & Preview Mode
+            const [previewAsStudent, setPreviewAsStudent] = useState(false);
+            const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
+
+            // Apply theme to body
+            useEffect(() => {
+                document.body.classList.toggle('light-mode', !isDarkMode);
+            }, [isDarkMode]);
+
+            const showNotification = (message, type = 'success') => {
+                setNotification({ message, type });
+                setTimeout(() => setNotification(null), 4000);
+            };
+
+            // Authentication
             useEffect(() => {
                 window.authMethods.onAuthStateChanged(window.auth, async (u) => {
                     if (u) {
-                        if (u.isAnonymous) {
-                            setUser({ uid: u.uid, isGuest: true, name: 'زائر' });
-                            setView('guest');
-                            return;
-                        }
                         const s = await window.rtdb.get(window.rtdb.child(window.rtdb.ref(window.db), `users/${u.uid}`));
                         if (s.exists()) {
                             const userData = s.val();
                             setUser({ ...userData, uid: u.uid, photo: u.photoURL });
-                            setView(['admin', 'boss'].includes(userData.role) ? 'admin' : userData.status === 'pending' ? 'pending' : 'student');
+                            setUserType(userData.accountType || 'student');
+                            setView(['admin', 'boss'].includes(userData.role) ? 'admin' : 'student');
                         } else {
                             setUser({ uid: u.uid, name: u.displayName, email: u.email, photo: u.photoURL, isNew: true });
-                            setView('register');
+                            setView('complete-profile');
                         }
+                    } else if (userType === 'guest') {
+                        setView('guest');
                     } else {
                         setUser(null);
                         setView('landing');
                     }
                 });
-            }, []);
+            }, [userType]);
 
+            // Data Sync
             useEffect(() => {
-                if (user && !user.isGuest) {
-                    ['lectures', 'whiteboards', 'qa', 'announcements', 'exams', 'packages'].forEach(t =>
-                        window.rtdb.onValue(window.rtdb.ref(window.db, t), s =>
-                            setData(p => ({ ...p, [t]: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0)) : [] }))
-                        )
+                const collections = ['lectures', 'whiteboards', 'qa', 'announcements', 'exams', 'flashcards', 'recordings'];
+                collections.forEach(t =>
+                    window.rtdb.onValue(window.rtdb.ref(window.db, t), s =>
+                        setDataState(p => ({
+                            ...p,
+                            [t]: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0)) : []
+                        }))
+                    )
+                );
+
+                if (user && ['admin', 'boss'].includes(user.role)) {
+                    window.rtdb.onValue(window.rtdb.ref(window.db, 'requests'), s =>
+                        setDataState(p => ({ ...p, requests: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
                     );
-                    if (['admin', 'boss'].includes(user.role)) {
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'requests'), s =>
-                            setData(p => ({ ...p, requests: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
-                        );
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'users'), s =>
-                            setData(p => ({ ...p, students: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })).filter(u => u.role === 'student') : [] }))
-                        );
-                        window.rtdb.onValue(window.rtdb.ref(window.db, 'payments'), s =>
-                            setData(p => ({ ...p, payments: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
-                        );
-                    }
+                    window.rtdb.onValue(window.rtdb.ref(window.db, 'users'), s =>
+                        setDataState(p => ({ ...p, students: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
+                    );
+                    window.rtdb.onValue(window.rtdb.ref(window.db, 'payments'), s =>
+                        setDataState(p => ({ ...p, payments: s.val() ? Object.entries(s.val()).map(([k, v]) => ({ id: k, ...v })) : [] }))
+                    );
+                    window.rtdb.onValue(window.rtdb.ref(window.db, 'subscriptions'), s =>
+                        setDataState(p => ({ ...p, subscriptions: s.val() || {} }))
+                    );
+                    window.rtdb.onValue(window.rtdb.ref(window.db, 'attendance'), s =>
+                        setDataState(p => ({ ...p, attendance: s.val() || {} }))
+                    );
                 }
             }, [user]);
 
-            const render = (link) => {
+            // Helper Functions
+            const renderContent = (link, type = 'video') => {
                 if (!link) return null;
-                if (link.startsWith('<iframe')) return <div className="embed" dangerouslySetInnerHTML={{ __html: link }} />;
+                if (link.trim().startsWith('<iframe') || link.trim().startsWith('<div'))
+                    return <div className="embed-wrapper" dangerouslySetInnerHTML={{ __html: link }} />;
                 if (link.includes('youtu')) {
-                    const id = link.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-                    return id ? <div className="embed"><iframe src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe></div> : null;
+                    const id = link.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/)?.[2];
+                    return id ? <div className="embed-wrapper"><iframe src={`https://www.youtube.com/embed/${id}`} allowFullScreen></iframe></div> : null;
                 }
-                if (link.match(/\.(jpeg|jpg|gif|png)$/) || link.includes('ibb.co'))
-                    return <img src={link} className="w-full rounded-xl shadow-lg" onError={(e) => { e.target.src = 'https://placehold.co/600x400?text=خطأ'; }} />;
-                if (link.includes('drive.google.com'))
-                    return <div className="embed"><iframe src={link.replace('/view', '/preview')} allowFullScreen></iframe></div>;
-                return <a href={link} target="_blank" className="block w-full bg-white/10 text-white text-center py-3 rounded-xl font-bold">🔗 فتح</a>;
+                if (type === 'image' || link.match(/\.(jpeg|jpg|gif|png)$/) || link.includes('ibb.co')) {
+                    return <img src={link} className="w-full rounded-xl shadow-lg border border-white/10" onError={(e) => { e.target.src = 'https://placehold.co/600x400?text=خطأ'; }} />;
+                }
+                if (link.includes('drive.google.com')) {
+                    return <div className="embed-wrapper"><iframe src={link.replace('/view', '/preview').replace('/edit', '/preview')} allowFullScreen></iframe></div>;
+                }
+                return <a href={link} target="_blank" className="block w-full bg-white/10 text-white text-center py-3 rounded-xl font-bold border border-white/10 hover:bg-white/20">🔗 فتح الرابط</a>;
             };
 
-            const login = async () => {
-                const st = data.students.find(s => s.code === codes.student || s.phone === codes.phone);
-                if (st) {
-                    setUser(st);
-                    setView(st.status === 'pending' ? 'pending' : 'student');
-                    show(`مرحباً ${st.firstName}!`);
-                } else show('الكود أو الرقم غير صحيح', 'error');
+            const calculateSubscriptionDays = (subscriptionEnd) => {
+                if (!subscriptionEnd) return 0;
+                const diffDays = Math.ceil((new Date(subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24));
+                return diffDays > 0 ? diffDays : 0;
             };
 
-            const upload = async (col, d) => {
-                await window.rtdb.push(window.rtdb.ref(window.db, col), { ...d, date: new Date().toLocaleDateString('ar-EG'), ts: Date.now() });
-                show('تم النشر ✅');
+            const calculatePoints = (studentId) => {
+                const attendance = dataState.attendance[studentId] || {};
+                const attendancePoints = Object.values(attendance).filter(a => a.present).length * 5;
+                return attendancePoints;
             };
 
-            const update = async (id, d) => {
-                await window.rtdb.update(window.rtdb.ref(window.db, `users/${id}`), d);
-                show('تم التحديث 👌');
+            const handleAdminLogin = async () => {
+                showNotification('صلاحيات الأدمن تُضاف بواسطة المدير الأعلى فقط', 'error');
             };
 
-            const activate = async (sid, pid) => {
-                const pkg = data.packages.find(p => p.id === pid);
-                if (!pkg) return;
-                const now = new Date();
-                const end = new Date(now.setMonth(now.getMonth() + parseInt(pkg.months)));
-                await window.rtdb.update(window.rtdb.ref(window.db, `users/${sid}`), {
-                    isPaid: true,
-                    currentPackage: pkg.name,
-                    subscriptionEnd: end.toISOString()
+            // 📅 Update Attendance Function
+            const updateAttendance = async (studentId, date, status, performance) => {
+                await window.rtdb.update(window.rtdb.ref(window.db, `attendance/${studentId}/${date}`), {
+                    status, performance: performance || 'good', timestamp: Date.now()
                 });
-                await window.rtdb.push(window.rtdb.ref(window.db, `subscriptions/${sid}`), {
-                    packageId: pid,
-                    packageName: pkg.name,
-                    months: pkg.months,
-                    price: pkg.price,
-                    startDate: new Date().toISOString(),
-                    endDate: end.toISOString(),
-                    ts: Date.now()
-                });
-                show(`تم تفعيل ${pkg.name}`);
+                showNotification('تم تحديث الحضور ✅');
             };
 
-            const adminLogin = async () => {
-                if (!user) return show('سجل أولاً', 'error');
-                if (ADMIN_CODES[codes.admin]) {
-                    await window.rtdb.set(window.rtdb.ref(window.db, 'users/' + user.uid), {
-                        ...user,
-                        role: ADMIN_CODES[codes.admin],
-                        isNew: false
+            // 👥 Add New Admin Function (Super Admin Only)
+            const addNewAdmin = async (email, role) => {
+                // Find user by email in the students list
+                const targetUser = dataState.students.find(s => s.email === email);
+                if (targetUser) {
+                    await window.rtdb.update(window.rtdb.ref(window.db, `users/${targetUser.id}`), {
+                        role: role
                     });
-                    window.location.reload();
-                } else show('كود خاطئ', 'error');
+                    showNotification('تم إضافة المدير بنجاح ✅');
+                } else {
+                    // Create a pending admin request
+                    await window.rtdb.push(window.rtdb.ref(window.db, 'pendingAdmins'), {
+                        email, role, addedBy: user?.email, timestamp: Date.now()
+                    });
+                    showNotification('سيتم إضافة صلاحيات الأدمن عند تسجيل المستخدم');
+                }
             };
 
-            // LANDING
+            // 🗑️ Remove Admin Function (Super Admin Only)
+            const removeAdmin = async (adminId) => {
+                await window.rtdb.update(window.rtdb.ref(window.db, `users/${adminId}`), {
+                    role: 'student'
+                });
+                showNotification('تم إزالة صلاحيات الأدمن ✅');
+            };
+
+            const uploadItem = async (collection, data) => {
+                await window.rtdb.push(window.rtdb.ref(window.db, collection), {
+                    ...data, date: new Date().toLocaleDateString('ar-EG'), ts: Date.now()
+                });
+                showNotification('تم النشر بنجاح ✅');
+            };
+
+            const updateStudent = async (id, data) => {
+                await window.rtdb.update(window.rtdb.ref(window.db, `users/${id}`), data);
+                showNotification('تم التحديث 👌');
+            };
+
+            const addSubscription = async (studentId, months) => {
+                const end = new Date();
+                end.setMonth(end.getMonth() + months);
+                await window.rtdb.update(window.rtdb.ref(window.db, `subscriptions/${studentId}`), {
+                    startDate: new Date().toISOString(), endDate: end.toISOString(), months
+                });
+                await updateStudent(studentId, { isPaid: true });
+                showNotification(`تم إضافة اشتراك ${months} شهر`);
+            };
+
+            const generatePaymentCode = () => `ALAMY${Date.now().toString().slice(-8)}`;
+
+            const handleGoogleLogin = () => {
+                window.authMethods.signInWithPopup(window.auth, window.googleProvider);
+            };
+
+
+            // 🎨 LANDING PAGE
             if (view === 'landing') return (
-                <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-white relative overflow-hidden grid-bg">
-                    <div className="absolute inset-0 glow"></div>
+                <div className={`min-h-screen text-white relative overflow-hidden math-grid flex flex-col ${isDarkMode ? 'bg-brand-dark' : 'bg-slate-50 text-slate-900'}`}>
+                    <div className="absolute top-0 left-0 w-full h-full hero-glow z-0"></div>
+
                     <header className="relative z-50 p-6 flex justify-between items-center container mx-auto">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-amber-400 rounded-lg flex items-center justify-center text-slate-900 font-black text-xl">∑</div>
-                            <h1 className="text-2xl font-black">العالمي</h1>
+                            <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">∑</div>
+                            <h1 className="text-2xl font-black tracking-tighter">العالمي</h1>
                         </div>
-                        <div className="flex gap-3 flex-wrap">
-                            <button onClick={() => setView('login')} className="bg-blue-600/20 border border-blue-500/30 px-6 py-2 rounded-full font-bold hover:bg-blue-600/40 transition">دخول الطالب</button>
-                            <button onClick={() => window.authMethods.signInAnonymously(window.auth)} className="bg-white/10 border border-white/20 px-6 py-2 rounded-full font-bold hover:bg-white/20 transition">تصفح كزائر</button>
-                            <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)} className="bg-white/10 border border-white/20 px-6 py-2 rounded-full font-bold hover:bg-white/20 transition">تسجيل جديد</button>
+                        <div className="flex items-center gap-4">
+                            <ThemeToggle isDark={isDarkMode} onToggle={setIsDarkMode} />
+                            <AuthDropdown onSelect={setUserType} onGoogleLogin={handleGoogleLogin} />
                         </div>
                     </header>
 
                     <div className="flex-1 container mx-auto px-4 flex flex-col-reverse md:flex-row items-center justify-center gap-10 relative z-20 py-10">
-                        <div className="text-center md:text-right space-y-6 md:w-1/2 slide-up">
-                            <div className="inline-block bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-sm font-bold border border-blue-500/30">
+                        <div className="text-center md:text-right space-y-6 md:w-1/2 animate-slide-up">
+                            <div className={`inline-block px-4 py-1 rounded-full text-sm font-bold border ${isDarkMode ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-blue-100 text-blue-700 border-blue-300'}`}>
                                 🚀 أقوى منصة رياضيات في مصر
                             </div>
+
                             <h1 className="text-5xl md:text-7xl font-black leading-tight">
-                                الرياضيات<br /><span className="text-amber-400">لعبتك معانا!</span>
+                                الرياضيات<br />
+                                <span className="text-brand-accent">لعبتك معانا!</span>
                             </h1>
-                            <p className="text-slate-300 text-lg md:text-xl font-medium max-w-lg mx-auto md:mx-0">
+
+                            <p className={`text-lg md:text-xl font-medium max-w-lg mx-auto md:mx-0 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
                                 مع أ/ أحمد سعد يونس.. التفاضل والتكامل والجبر بقوا أسهل مما تتخيل.
                             </p>
+
                             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
-                                <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)}
-                                    className="btn-gold px-8 py-4 rounded-xl text-xl flex items-center justify-center gap-2">
-                                    اشترك الآن <Icon name="calculator" />
+                                <button onClick={handleGoogleLogin} className="btn-main px-8 py-4 rounded-xl text-xl flex items-center justify-center gap-2">
+                                    اشترك الآن <GlassIcon name="calculator" size={20} />
                                 </button>
-                                <div className="relative">
-                                    <input placeholder="كود الأدمن" className="bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-center w-full outline-none"
-                                        onChange={e => setCodes({ ...codes, admin: e.target.value })} />
-                                    <button onClick={adminLogin} className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 hover:text-amber-400">دخول</button>
-                                </div>
                             </div>
                         </div>
-                        <div className="md:w-1/2 relative flex justify-center">
-                            <div className="absolute inset-0 bg-blue-600/30 blur-[100px] rounded-full"></div>
-                            <img src="./alalamy.png" className="relative z-10 w-full max-w-md object-contain drop-shadow-2xl float" alt="المدرس" onError={(e) => { e.target.style.display = 'none' }} />
+
+                        <div className={`md:w-1/2 relative flex justify-center items-end ${isDarkMode ? '' : 'bg-gradient-to-b from-white to-blue-50 rounded-3xl p-8'}`}>
+                            <div className="absolute inset-0 bg-brand-primary/30 blur-[100px] rounded-full"></div>
+                            <img src="./alalamy.png" className="relative z-10 w-full max-w-md object-contain drop-shadow-2xl animate-float hover:scale-105 transition-transform duration-500" alt="أ/ أحمد سعد يونس" onError={(e) => { e.target.style.display = 'none' }} />
                         </div>
                     </div>
 
-                    <section className="py-20 relative z-20 bg-black/20">
+                    <section className={`py-20 relative z-20 ${isDarkMode ? 'bg-black/20' : 'bg-white/80'} backdrop-blur-sm`}>
                         <div className="container mx-auto px-4">
-                            <h2 className="text-4xl font-black text-center mb-16">ليه <span className="text-amber-400">العالمي</span>؟</h2>
+                            <h2 className="text-4xl font-black text-center mb-16">ليه <span className="text-brand-accent">العالمي</span> يكتسح؟ 🤔</h2>
                             <div className="grid md:grid-cols-3 gap-8">
                                 {[
-                                    { icon: 'brain', title: 'شرح مبسط', desc: 'بنبسطلك المعلومة ونخليها سهلة' },
-                                    { icon: 'target', title: 'حل شامل', desc: 'حل من كل المصادر والامتحانات' },
-                                    { icon: 'message-circle', title: 'متابعة 24/7', desc: 'الدعم معاك في أي وقت' }
-                                ].map((f, i) => (
-                                    <div key={i} className="glass p-8 text-center hover:-translate-y-2 transition">
-                                        <div className="w-16 h-16 bg-amber-400/20 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400">
-                                            <Icon name={f.icon} size={32} />
-                                        </div>
-                                        <h3 className="text-xl font-bold mb-2">{f.title}</h3>
-                                        <p className="text-slate-400">{f.desc}</p>
+                                    { icon: 'brain', title: 'شرح يدخل المخ', desc: 'بنبسطلك المعلومة المعقدة ونخليها ميه.' },
+                                    { icon: 'target', title: 'حل كتير جداً', desc: 'بنحل معاك من كل المصادر.' },
+                                    { icon: 'message-circle', title: 'متابعة 24 ساعة', desc: 'اسأل في أي وقت هتلاقي اللي يرد.' }
+                                ].map((feature, idx) => (
+                                    <div key={idx} className="glass-panel p-8 text-center hover:-translate-y-2 transition-transform duration-300">
+                                        <GlassIcon name={feature.icon} size={32} className="mx-auto mb-4" />
+                                        <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                                        <p className={isDarkMode ? 'text-slate-400' : 'text-slate-600'}>{feature.desc}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </section>
 
-                    <section className="py-10 bg-slate-800/50">
-                        <div className="container mx-auto px-4">
-                            <h3 className="text-center text-lg font-bold mb-6">تابعنا:</h3>
-                            <div className="flex justify-center gap-6 flex-wrap">
-                                <a href={CONTACT.facebook} target="_blank" className="flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 px-6 py-3 rounded-xl hover:bg-blue-600/40 transition">
-                                    <Icon name="facebook" /> Facebook
-                                </a>
-                                <a href={CONTACT.youtube} target="_blank" className="flex items-center gap-2 bg-red-600/20 border border-red-500/30 px-6 py-3 rounded-xl hover:bg-red-600/40 transition">
-                                    <Icon name="youtube" /> YouTube
-                                </a>
-                                <a href={CONTACT.whatsapp} target="_blank" className="flex items-center gap-2 bg-green-600/20 border border-green-500/30 px-6 py-3 rounded-xl hover:bg-green-600/40 transition">
-                                    <Icon name="message-circle" /> WhatsApp
-                                </a>
-                            </div>
-                        </div>
-                    </section>
-
-                    <div className="py-6 text-center text-slate-500 text-sm">Developed with ❤️ by Marwan</div>
-                </div>
-            );
-
-            // LOGIN
-            if (view === 'login') return (
-                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                    <div className="glass p-8 w-full max-w-md slide-up">
-                        <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-amber-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Icon name="key" size={40} className="text-amber-400" />
-                            </div>
-                            <h2 className="text-3xl font-bold mb-2">دخول الطالب</h2>
-                            <p className="text-slate-400">أدخل الكود أو رقم الهاتف</p>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div>
-                                <label className="text-sm text-slate-400 mb-2 block">الكود:</label>
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center text-2xl tracking-widest font-mono"
-                                    placeholder="STU-XXXXXX"
-                                    value={codes.student}
-                                    onChange={e => setCodes({ ...codes, student: e.target.value.toUpperCase() })} />
-                            </div>
-
-                            <div className="text-center text-slate-500 text-sm">أو</div>
-
-                            <div>
-                                <label className="text-sm text-slate-400 mb-2 block">رقم الهاتف:</label>
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-center"
-                                    placeholder="01xxxxxxxxx"
-                                    value={codes.phone}
-                                    onChange={e => setCodes({ ...codes, phone: e.target.value })} />
-                            </div>
-
-                            <button onClick={login} className="btn-gold w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2">
-                                <Icon name="log-in" /> دخول
-                            </button>
-
-                            <div className="text-center space-y-2">
-                                <p className="text-slate-500 text-sm">ليس لديك حساب؟</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)}
-                                        className="bg-red-600/20 border border-red-500/30 py-2 rounded-lg text-sm hover:bg-red-600/40 transition">
-                                        <Icon name="mail" size={16} className="inline" /> Google
-                                    </button>
-                                    <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.facebookProvider)}
-                                        className="bg-blue-600/20 border border-blue-500/30 py-2 rounded-lg text-sm hover:bg-blue-600/40 transition">
-                                        <Icon name="facebook" size={16} className="inline" /> Facebook
-                                    </button>
-                                </div>
-                            </div>
-
-                            <button onClick={() => setView('landing')} className="w-full text-slate-400 hover:text-white text-sm">← رجوع</button>
-                        </div>
+                    <div className={`py-6 text-center text-sm border-t ${isDarkMode ? 'text-slate-500 border-white/5' : 'text-slate-400 border-slate-200'}`}>
+                        Developed with ❤️ by Marwan | جميع الحقوق محفوظة 2025
                     </div>
                 </div>
             );
 
-            // GUEST
+            // 👁️ GUEST VIEW
             if (view === 'guest') return (
-                <div className="min-h-screen bg-slate-900 p-4">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="glass p-8 text-center mb-6">
-                            <Icon name="eye" size={48} className="mx-auto text-amber-400 mb-4" />
-                            <h2 className="text-2xl font-bold mb-2">وضع الزائر</h2>
-                            <p className="text-slate-400 mb-6">يمكنك مشاهدة المحتوى المجاني. للوصول الكامل سجل حساب.</p>
-                            <div className="flex gap-4 justify-center">
-                                <button onClick={() => window.authMethods.signInWithPopup(window.auth, window.googleProvider)} className="btn-gold px-6 py-3 rounded-xl">تسجيل</button>
-                                <button onClick={() => window.authMethods.signOut(window.auth)} className="px-6 py-3 bg-white/10 rounded-xl hover:bg-white/20">خروج</button>
-                            </div>
+                <div className={`min-h-screen ${isDarkMode ? 'bg-brand-dark text-white' : 'bg-slate-50 text-slate-900'} math-grid`}>
+                    <header className="p-6 flex justify-between items-center container mx-auto border-b border-white/10">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">∑</div>
+                            <h1 className="text-2xl font-black">العالمي</h1>
+                            <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold">وضع الزائر</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <ThemeToggle isDark={isDarkMode} onToggle={setIsDarkMode} />
+                            <button onClick={handleGoogleLogin} className="btn-main px-6 py-2 rounded-xl font-bold">سجل الآن</button>
+                        </div>
+                    </header>
+
+                    <main className="container mx-auto px-4 py-8">
+                        <div className="glass-panel p-6 mb-8 text-center">
+                            <GlassIcon name="eye" size={32} className="mx-auto mb-3" />
+                            <h2 className="text-xl font-bold mb-2">أنت بتتصفح كزائر</h2>
+                            <p className={isDarkMode ? 'text-slate-400' : 'text-slate-600'}>سجل دخولك للوصول لكل المحتوى</p>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {data.lectures.filter(l => l.isFree).map(lec => (
-                                <div key={lec.id} className="glass p-6">
-                                    <h3 className="font-bold text-lg mb-2">{lec.title}</h3>
-                                    <p className="text-sm text-slate-400 mb-4">{lec.description}</p>
-                                    <button onClick={() => { setSelected({ ...selected, lecture: lec }); setStep('video'); }} className="btn-gold w-full py-2 rounded-lg">مشاهدة</button>
+                        <h3 className="text-2xl font-bold mb-6">المحاضرات المتاحة</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {dataState.lectures.map(lec => (
+                                <div key={lec.id} className="glass-panel overflow-hidden relative">
+                                    {!lec.isFree && <LockedOverlay message="سجل للمشاهدة" />}
+                                    <div className="h-44 bg-slate-900 flex items-center justify-center">
+                                        <GlassIcon name={lec.isFree ? 'play-circle' : 'lock'} size={48} />
+                                    </div>
+                                    <div className="p-5">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            {lec.isFree && <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs font-bold">مجاني</span>}
+                                            <h3 className="font-bold text-lg truncate">{lec.title}</h3>
+                                        </div>
+                                        <p className={`text-xs line-clamp-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{lec.description}</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </main>
                 </div>
             );
 
-            // PENDING
-            if (view === 'pending') return (
-                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                    <div className="glass p-8 w-full max-w-lg text-center slide-up">
-                        <div className="w-24 h-24 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Icon name="clock" size={48} className="text-orange-400" />
-                        </div>
-                        <h2 className="text-3xl font-bold mb-4">جاري المراجعة!</h2>
-                        <p className="text-slate-300 mb-6">تم استقبال طلبك. سيتم التواصل معك قريباً.</p>
-                        <button onClick={() => window.authMethods.signOut(window.auth)} className="px-6 py-2 bg-white/10 rounded-lg hover:bg-white/20">رجوع</button>
-                    </div>
-                </div>
-            );
-
-            // REGISTER
-            if (view === 'register') return (
-                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                    <div className="glass p-8 w-full max-w-2xl slide-up">
+            // 📝 COMPLETE PROFILE
+            if (view === 'complete-profile') return (
+                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
+                    <div className="glass-panel p-8 w-full max-w-2xl animate-slide-up">
                         <div className="text-center mb-8">
-                            <img src={user.photo} className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-amber-400" />
-                            <h2 className="text-3xl font-bold mb-2">أهلاً!</h2>
-                            <p className="text-slate-400">كمل بياناتك</p>
+                            <img src={user?.photo} className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-brand-accent" />
+                            <h2 className="text-3xl font-bold text-white mb-2">أهلاً {user?.name}! 👋</h2>
+                            <p className="text-slate-400">كمل بياناتك عشان نبدأ رحلة النجاح</p>
                         </div>
 
                         <div className="space-y-4">
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="الاسم الأول *" onChange={e => setForm({ ...form, firstName: e.target.value })} />
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="الاسم الثاني *" onChange={e => setForm({ ...form, secondName: e.target.value })} />
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="الاسم الثالث" onChange={e => setForm({ ...form, thirdName: e.target.value })} />
+                            {/* Account Type Selection */}
+                            <div className="flex gap-4 mb-6">
+                                <button onClick={() => setRegData({ ...regData, accountType: 'student' })}
+                                    className={`flex-1 p-4 rounded-xl border-2 transition ${regData.accountType === 'student' ? 'border-brand-accent bg-brand-accent/10' : 'border-white/10'}`}>
+                                    <GlassIcon name="user" size={24} className="mx-auto mb-2" />
+                                    <p className="font-bold">طالب</p>
+                                </button>
+                                <button onClick={() => setRegData({ ...regData, accountType: 'parent' })}
+                                    className={`flex-1 p-4 rounded-xl border-2 transition ${regData.accountType === 'parent' ? 'border-brand-accent bg-brand-accent/10' : 'border-white/10'}`}>
+                                    <GlassIcon name="users" size={24} className="mx-auto mb-2" />
+                                    <p className="font-bold">ولي أمر</p>
+                                </button>
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-4">
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="رقم تليفونك *" onChange={e => setForm({ ...form, phone: e.target.value })} />
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="رقم ولي الأمر *" onChange={e => setForm({ ...form, parentPhone: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="رقم تليفونك 📱" onChange={e => setRegData({ ...regData, phone: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="رقم ولي الأمر 👨‍👩‍👦" onChange={e => setRegData({ ...regData, parentPhone: e.target.value })} />
                             </div>
 
-                            <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المدرسة *" onChange={e => setForm({ ...form, school: e.target.value })} />
+                            <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="اسم المدرسة 🏫" onChange={e => setRegData({ ...regData, school: e.target.value })} />
 
                             <div className="grid md:grid-cols-2 gap-4">
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المحافظة *" onChange={e => setForm({ ...form, governorate: e.target.value })} />
-                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المدينة *" onChange={e => setForm({ ...form, city: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المحافظة 🗺️" onChange={e => setRegData({ ...regData, governorate: e.target.value })} />
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="المدينة 📍" onChange={e => setRegData({ ...regData, city: e.target.value })} />
                             </div>
 
-                            <select className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" onChange={e => setForm({ ...form, grade: e.target.value })}>
-                                <option value="">اختر الصف *</option>
-                                <option value="1sec">أول ثانوي</option>
-                                <option value="2sec">ثاني ثانوي</option>
-                                <option value="3sec">ثالث ثانوي</option>
-                            </select>
+                            {regData.accountType === 'student' && (
+                                <select className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" onChange={e => setRegData({ ...regData, grade: e.target.value })}>
+                                    <option value="1sec">الصف الأول الثانوي</option>
+                                    <option value="2sec">الصف الثاني الثانوي</option>
+                                    <option value="3sec">الصف الثالث الثانوي</option>
+                                </select>
+                            )}
+
+                            {regData.accountType === 'parent' && (
+                                <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="إيميل الطالب المرتبط" onChange={e => setRegData({ ...regData, linkedStudentEmail: e.target.value })} />
+                            )}
 
                             <button onClick={async () => {
-                                const req = ['firstName', 'secondName', 'phone', 'parentPhone', 'school', 'governorate', 'city', 'grade'];
-                                if (req.some(f => !form[f])) return show('اكتب كل البيانات', 'error');
-                                const c = code();
-                                await window.rtdb.push(window.rtdb.ref(window.db, 'requests'), {
-                                    ...form,
-                                    name: `${form.firstName} ${form.secondName} ${form.thirdName}`.trim(),
-                                    uid: user.uid,
-                                    email: user.email,
-                                    photo: user.photo,
-                                    code: c,
-                                    status: 'pending',
-                                    date: new Date().toLocaleDateString(),
-                                    ts: Date.now()
+                                if (!regData.phone || !regData.parentPhone || !regData.school || !regData.governorate || !regData.city) {
+                                    return showNotification('من فضلك اكتب كل البيانات', 'error');
+                                }
+                                await window.rtdb.set(window.rtdb.push(window.rtdb.ref(window.db, 'requests')), {
+                                    ...regData, uid: user.uid, name: user.name, email: user.email, photo: user.photo,
+                                    date: new Date().toLocaleDateString(), ts: Date.now(), requestType: regData.accountType
                                 });
-                                show('تم إرسال طلبك!');
-                                setTimeout(() => setView('pending'), 2000);
-                            }} className="btn-gold w-full py-4 rounded-xl text-lg font-bold">
-                                <Icon name="send" /> إرسال
+                                showNotification('تم إرسال طلبك! هيتم المراجعة والموافقة قريباً');
+                                setTimeout(() => window.authMethods.signOut(window.auth), 3000);
+                            }} className="btn-main w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2">
+                                <Icon name="send" /> حفظ البيانات والمتابعة
                             </button>
                         </div>
                     </div>
                 </div>
             );
 
-            // STUDENT
+
+            // 🎓 STUDENT VIEW
             if (view === 'student') {
-                const pkgs = Object.values(data.subscriptions[user.uid] || {});
+                const daysLeft = calculateSubscriptionDays(dataState.subscriptions[user?.uid]?.endDate);
+                const points = calculatePoints(user?.uid);
+
                 return (
-                    <div className="min-h-screen bg-slate-900 p-4">
-                        <div className="max-w-6xl mx-auto">
-                            <div className="glass p-6 mb-6">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <h2 className="text-2xl font-bold">أهلاً {user.firstName}</h2>
-                                        <p className="text-sm text-slate-400">كود: {user.code}</p>
-                                    </div>
-                                    <button onClick={() => window.authMethods.signOut(window.auth)} className="px-4 py-2 bg-red-600/20 rounded-lg hover:bg-red-600/40">خروج</button>
+                    <div className={`min-h-screen flex flex-col md:flex-row ${isDarkMode ? 'bg-brand-dark text-white' : 'bg-slate-50 text-slate-900'}`}>
+                        {/* Sidebar */}
+                        <aside className={`fixed inset-y-0 right-0 z-50 w-64 ${isDarkMode ? 'bg-brand-card' : 'bg-white'} border-l border-white/5 flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} md:translate-x-0 md:static shrink-0`}>
+                            <div className="p-6 text-center border-b border-white/5">
+                                <div className="relative inline-block">
+                                    <img src={user?.photo} className="w-20 h-20 rounded-full border-4 border-brand-dark mx-auto mb-3" />
+                                    <div className={`absolute bottom-2 right-0 w-5 h-5 rounded-full border-2 border-brand-card ${user?.isPaid ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                </div>
+                                <h3 className="font-bold text-lg">{user?.name}</h3>
+                                <p className="text-xs text-slate-400 font-mono mt-1">{user?.code}</p>
+                                <div className="mt-2 flex justify-center gap-2">
+                                    <RankBadge points={points} />
+                                    {user?.isPaid && daysLeft > 0 && (
+                                        <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs">باقي {daysLeft} يوم</span>
+                                    )}
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                                {['home', 'lectures', 'packages', 'qa'].map(t => (
-                                    <button key={t} onClick={() => setTab(t)} className={`px-6 py-2 rounded-lg font-bold whitespace-nowrap ${tab === t ? 'bg-amber-400 text-slate-900' : 'bg-white/5 hover:bg-white/10'}`}>
-                                        {t === 'home' ? 'الرئيسية' : t === 'lectures' ? 'المحاضرات' : t === 'packages' ? 'الباقات' : 'الأسئلة'}
+                            <nav className="p-4 space-y-2 flex-1">
+                                {[
+                                    { id: 'home', l: 'الرئيسية', i: 'home' },
+                                    { id: 'lectures', l: 'المحاضرات', i: 'play-circle' },
+                                    { id: 'flashcards', l: 'البطاقات', i: 'layers' },
+                                    { id: 'subscription', l: 'الاشتراك', i: 'credit-card' },
+                                    { id: 'qa', l: 'أسئلة وأجوبة', i: 'help-circle' }
+                                ].map(item => (
+                                    <button key={item.id} onClick={() => { setActiveTab(item.id); setSelectedLecture(null); setSidebarOpen(false); }}
+                                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition font-bold ${activeTab === item.id ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
+                                        <GlassIcon name={item.i} size={18} /> {item.l}
                                     </button>
                                 ))}
+                            </nav>
+
+                            <div className="p-4 border-t border-white/5 space-y-2">
+                                <ThemeToggle isDark={isDarkMode} onToggle={setIsDarkMode} />
+                                <button onClick={() => window.authMethods.signOut(window.auth)} className="flex items-center justify-center gap-2 text-red-400 w-full p-3 hover:bg-red-500/10 rounded-xl font-bold">
+                                    <Icon name="log-out" size={18} /> خروج
+                                </button>
                             </div>
+                        </aside>
 
-                            {tab === 'home' && (
-                                <div className="space-y-6">
-                                    <div className="glass p-6">
-                                        <h3 className="font-bold mb-4">اشتراكاتي:</h3>
-                                        {pkgs.length === 0 ? <p className="text-slate-500">لا توجد اشتراكات</p> :
-                                            pkgs.map((s, i) => (
-                                                <div key={i} className="bg-white/5 p-4 rounded-lg mb-3">
-                                                    <h4 className="font-bold">{s.packageName}</h4>
-                                                    <p className="text-sm text-slate-400">ينتهي: {new Date(s.endDate).toLocaleDateString('ar-EG')}</p>
+                        {/* Main Content */}
+                        <div className="flex-1 flex flex-col h-screen overflow-y-auto relative">
+                            <div className="absolute inset-0 math-grid opacity-10 pointer-events-none"></div>
+
+                            <header className="p-4 flex justify-between items-center md:hidden sticky top-0 z-40 bg-brand-dark/80 backdrop-blur-md border-b border-white/5">
+                                <h1 className="font-black text-xl text-brand-accent">العالمي</h1>
+                                <button onClick={() => setSidebarOpen(true)}><Icon name="menu" /></button>
+                            </header>
+
+                            <main className="p-4 md:p-8 max-w-6xl mx-auto w-full relative z-10">
+                                {/* Locked State for unpaid */}
+                                {!user?.isPaid && activeTab !== 'home' && activeTab !== 'subscription' ? (
+                                    <div className="glass-panel p-10 text-center mt-10 animate-slide-up">
+                                        <GlassIcon name="lock" size={48} className="mx-auto mb-6" />
+                                        <h2 className="text-3xl font-bold mb-3">المحتوى مغلق 🔒</h2>
+                                        <p className="text-slate-400 mb-8">عشان تشوف المحاضرات لازم تفعل اشتراكك</p>
+                                        <button onClick={() => setActiveTab('subscription')} className="btn-main px-8 py-3 rounded-xl text-lg">اشترك الآن</button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Home Tab */}
+                                        {activeTab === 'home' && (
+                                            <div className="space-y-6 animate-slide-up">
+                                                <div className="bg-gradient-to-r from-brand-primary to-blue-900 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
+                                                    <div className="relative z-10">
+                                                        <h2 className="text-3xl font-black mb-2">أهلاً {user?.name?.split(' ')[0]} 👋</h2>
+                                                        <p className="text-blue-100 mb-4">رتبتك: <RankBadge points={points} /></p>
+                                                        <div className="flex flex-wrap gap-4">
+                                                            <div className="bg-black/30 px-4 py-2 rounded-lg flex items-center gap-2 border border-white/10">
+                                                                <Icon name="video" size={16} className="text-brand-accent" /> {dataState.lectures.length} محاضرة
+                                                            </div>
+                                                            {user?.isPaid && daysLeft > 0 && (
+                                                                <div className="bg-green-500/20 px-4 py-2 rounded-lg flex items-center gap-2 border border-green-500">
+                                                                    <Icon name="calendar" size={16} className="text-green-300" /> باقي {daysLeft} يوم
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            ))
-                                        }
-                                    </div>
 
-                                    <div className="glass p-6">
-                                        <h3 className="font-bold mb-4">الإعلانات:</h3>
-                                        {data.announcements.slice(0, 3).map(a => (
-                                            <div key={a.id} className="bg-white/5 p-4 rounded-lg mb-3">
-                                                <h4 className="font-bold">{a.title}</h4>
-                                                <p className="text-sm text-slate-400">{a.content}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {tab === 'lectures' && !user.isPaid && (
-                                <div className="glass p-10 text-center">
-                                    <Icon name="lock" size={48} className="text-amber-400 mx-auto mb-4" />
-                                    <h3 className="text-2xl font-bold mb-3">المحتوى مغلق</h3>
-                                    <p className="text-slate-400 mb-6">اشترك في إحدى الباقات</p>
-                                    <button onClick={() => setTab('packages')} className="btn-gold px-8 py-3 rounded-xl">عرض الباقات</button>
-                                </div>
-                            )}
-
-                            {tab === 'lectures' && user.isPaid && (
-                                <div className="grid md:grid-cols-3 gap-6">
-                                    {data.lectures.filter(l => !l.grade || l.grade === user.grade || l.grade === 'all').map(lec => (
-                                        <div key={lec.id} onClick={() => { setSelected({ ...selected, lecture: lec }); setStep('video'); }} className="glass overflow-hidden cursor-pointer hover:border-amber-400/50 transition">
-                                            <div className="h-40 bg-slate-800 flex items-center justify-center">
-                                                <Icon name="play-circle" size={56} className="text-white/80" />
-                                            </div>
-                                            <div className="p-5">
-                                                <h3 className="font-bold mb-2">{lec.title}</h3>
-                                                <p className="text-xs text-slate-400 line-clamp-2">{lec.description}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {tab === 'packages' && (
-                                <div className="grid md:grid-cols-3 gap-6">
-                                    {data.packages.map(pkg => (
-                                        <div key={pkg.id} className="glass p-6 hover:border-amber-400/50 transition">
-                                            <div className="text-center mb-4">
-                                                <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
-                                                <p className="text-3xl font-black text-amber-400">{pkg.price} ج</p>
-                                                <p className="text-sm text-slate-400">{pkg.months} شهر</p>
-                                            </div>
-                                            <ul className="space-y-2 mb-6 text-sm">
-                                                {pkg.features?.split('\n').map((f, i) => (
-                                                    <li key={i} className="flex items-center gap-2">
-                                                        <Icon name="check" size={16} className="text-green-400" />
-                                                        {f}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                            <button onClick={() => { setSelected({ ...selected, package: pkg }); setModal({ ...modal, payment: true }); }} className="btn-gold w-full py-3 rounded-xl">اشترك</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {tab === 'qa' && (
-                                <div className="glass p-6">
-                                    <div className="flex gap-2 mb-6">
-                                        <input id="qIn" className="flex-1 bg-white/5 border border-white/10 p-3 rounded-xl outline-none" placeholder="سؤالك..." />
-                                        <button onClick={async () => {
-                                            const q = document.getElementById('qIn').value;
-                                            if (q) {
-                                                await window.rtdb.push(window.rtdb.ref(window.db, 'qa'), {
-                                                    studentName: `${user.firstName} ${user.secondName}`,
-                                                    studentId: user.uid,
-                                                    question: q,
-                                                    studentCode: user.code,
-                                                    category: 'منهج',
-                                                    date: new Date().toLocaleDateString('ar-EG'),
-                                                    ts: Date.now()
-                                                });
-                                                document.getElementById('qIn').value = '';
-                                                show('تم الإرسال');
-                                            }
-                                        }} className="btn-gold px-6 rounded-xl">إرسال</button>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        {data.qa.filter(q => q.studentId === user.uid).map(q => (
-                                            <div key={q.id} className="bg-white/5 p-4 rounded-lg">
-                                                <p className="font-bold mb-2">{q.question}</p>
-                                                {q.reply && (
-                                                    <div className="bg-green-500/10 p-3 rounded-lg mt-2">
-                                                        <p className="text-sm text-green-300">{q.reply}</p>
+                                                {user?.notes && (
+                                                    <div className="glass-panel p-6 border-r-4 border-brand-accent flex gap-4 items-start">
+                                                        <GlassIcon name="lightbulb" size={24} />
+                                                        <div>
+                                                            <h3 className="font-bold text-brand-accent mb-1">ملاحظة من المستر:</h3>
+                                                            <p className="text-slate-300 leading-relaxed">{user.notes}</p>
+                                                        </div>
                                                     </div>
                                                 )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
 
-                            {/* Payment Modal */}
-                            {modal.payment && selected.package && (
-                                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setModal({ ...modal, payment: false })}>
-                                    <div className="glass p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-                                        <h3 className="text-xl font-bold mb-4">اختر طريقة الدفع</h3>
-                                        <div className="space-y-4">
-                                            <div className={`p-4 border-2 rounded-xl cursor-pointer ${payment === 'vodafone' ? 'border-amber-400' : 'border-white/10'}`} onClick={() => setPayment('vodafone')}>
-                                                <div className="flex items-center gap-3">
-                                                    <Icon name="smartphone" className="text-red-500" />
-                                                    <div>
-                                                        <p className="font-bold">فودافون كاش</p>
-                                                        <p className="text-xs text-slate-400">حول على: {CONTACT.vodafone}</p>
+                                                <div className="glass-panel p-6">
+                                                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                                        <GlassIcon name="bell" size={20} /> أحدث التنبيهات
+                                                    </h3>
+                                                    <div className="space-y-3">
+                                                        {dataState.announcements.length === 0 ? (
+                                                            <p className="text-slate-500 text-center py-4">مفيش إعلانات حالياً</p>
+                                                        ) : (
+                                                            dataState.announcements.slice(0, 3).map(ann => (
+                                                                <div key={ann.id} className="bg-white/5 p-4 rounded-xl border-r-4 border-brand-primary">
+                                                                    <h4 className="font-bold">{ann.title}</h4>
+                                                                    <p className="text-slate-400 text-sm mt-1">{ann.content}</p>
+                                                                </div>
+                                                            ))
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
+                                        )}
 
-                                            <div className={`p-4 border-2 rounded-xl cursor-pointer ${payment === 'fawry' ? 'border-amber-400' : 'border-white/10'}`} onClick={() => setPayment('fawry')}>
-                                                <div className="flex items-center gap-3">
-                                                    <Icon name="credit-card" className="text-orange-500" />
-                                                    <div>
-                                                        <p className="font-bold">فوري</p>
-                                                        <p className="text-xs text-slate-400">ادفع من أي ماكينة</p>
+                                        {/* Flashcards Tab */}
+                                        {activeTab === 'flashcards' && (
+                                            <div className="space-y-6 animate-slide-up">
+                                                <h2 className="text-2xl font-bold flex items-center gap-2">
+                                                    <GlassIcon name="layers" size={24} /> بطاقات المراجعة
+                                                </h2>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {dataState.flashcards.length === 0 ? (
+                                                        <div className="col-span-full text-center py-12 glass-panel">
+                                                            <GlassIcon name="layers" size={48} className="mx-auto mb-4" />
+                                                            <p className="text-slate-500">مفيش بطاقات حالياً</p>
+                                                        </div>
+                                                    ) : (
+                                                        dataState.flashcards.map(card => (
+                                                            <Flashcard key={card.id} question={card.question} answer={card.answer} />
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Lectures Tab */}
+                                        {activeTab === 'lectures' && !selectedLecture && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slide-up">
+                                                {dataState.lectures.length === 0 ? (
+                                                    <div className="col-span-full text-center py-12 glass-panel">
+                                                        <GlassIcon name="video-off" size={48} className="mx-auto mb-3" />
+                                                        <p className="text-slate-500 font-bold">مفيش محاضرات حالياً</p>
+                                                    </div>
+                                                ) : (
+                                                    dataState.lectures.map(lec => (
+                                                        <div key={lec.id} onClick={() => { setSelectedLecture(lec); setCurrentLectureStep('video'); setQuizSubmitted(false); setQuizAnswers({}); }}
+                                                            className="glass-panel overflow-hidden cursor-pointer group hover:border-brand-accent/50 transition">
+                                                            <div className="h-44 bg-slate-900 relative flex items-center justify-center">
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                                                <GlassIcon name="play-circle" size={48} className="group-hover:scale-110 transition" />
+                                                            </div>
+                                                            <div className="p-5">
+                                                                <h3 className="font-bold text-lg mb-2 truncate">{lec.title}</h3>
+                                                                <p className="text-xs text-slate-400 line-clamp-2">{lec.description}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Single Lecture View */}
+                                        {selectedLecture && (
+                                            <div className="animate-slide-up">
+                                                <button onClick={() => setSelectedLecture(null)} className="mb-4 flex items-center gap-2 text-slate-400 hover:text-white font-bold">
+                                                    <Icon name="arrow-right" /> رجوع للمحاضرات
+                                                </button>
+                                                <div className="glass-panel overflow-hidden p-0 mb-8">
+                                                    {renderContent(selectedLecture.link, 'video')}
+                                                    <div className="p-6">
+                                                        <h2 className="text-2xl font-bold mb-2">{selectedLecture.title}</h2>
+                                                        <p className="text-slate-300 whitespace-pre-wrap">{selectedLecture.description}</p>
                                                     </div>
                                                 </div>
                                             </div>
+                                        )}
 
-                                            {payment === 'fawry' && (
-                                                <div className="bg-white/5 p-4 rounded-xl">
-                                                    <p className="text-sm mb-2">كود فوري:</p>
-                                                    <div className="bg-black/30 p-3 rounded-lg text-center">
-                                                        <p className="font-mono text-2xl font-bold text-amber-400">{CONTACT.fawry}</p>
+                                        {/* Subscription Tab */}
+                                        {activeTab === 'subscription' && (
+                                            <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
+                                                <div className="glass-panel p-8">
+                                                    <h2 className="text-2xl font-bold text-brand-accent mb-6 flex items-center gap-2">
+                                                        <GlassIcon name="credit-card" size={24} /> الاشتراك وتفعيل الحساب
+                                                    </h2>
+                                                    <div className="bg-red-600/10 border border-red-500/30 p-6 rounded-xl mb-6">
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <GlassIcon name="smartphone" size={24} />
+                                                            <div>
+                                                                <h3 className="font-bold text-lg">فودافون كاش</h3>
+                                                                <p className="text-sm text-slate-400">الطريقة الأسرع للدفع</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-black/30 p-4 rounded-lg mb-4">
+                                                            <p className="text-sm text-slate-400 mb-2">حول على الرقم:</p>
+                                                            <span className="font-mono text-2xl font-bold select-all">{CONTACT_INFO.vodafoneNumber}</span>
+                                                        </div>
+                                                        <div className="bg-brand-accent/10 p-4 rounded-lg">
+                                                            <p className="text-sm mb-2">كود الدفع الخاص بيك:</p>
+                                                            <div className="font-mono text-xl font-bold text-brand-accent select-all">{generatePaymentCode()}</div>
+                                                        </div>
                                                     </div>
+                                                    <a href={`${CONTACT_INFO.whatsapp}?text=تم التحويل - كود الدفع: ${generatePaymentCode()}`} target="_blank"
+                                                        className="flex items-center justify-center gap-3 w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold transition">
+                                                        <Icon name="message-circle" size={24} /> إرسال إثبات الدفع على WhatsApp
+                                                    </a>
                                                 </div>
-                                            )}
+                                            </div>
+                                        )}
 
-                                            <a href={`${CONTACT.support}?text=تم الدفع - ${selected.package.name} - ${user.code} - ${selected.package.price} ج - ${payment === 'fawry' ? 'فوري' : 'فودافون'}%0A%0Aأرفق صورة الدفع`}
-                                                target="_blank" className="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
-                                                <Icon name="message-circle" /> إرسال إثبات
-                                            </a>
-
-                                            <button onClick={() => setModal({ ...modal, payment: false })} className="w-full py-2 bg-white/10 rounded-xl">إلغاء</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                                        {/* Q&A Tab */}
+                                        {activeTab === 'qa' && (
+                                            <div className="max-w-2xl mx-auto space-y-4 animate-slide-up">
+                                                <div className="glass-panel p-4 flex gap-2">
+                                                    <input id="qInput" className="flex-1 bg-transparent outline-none placeholder-slate-500" placeholder="اكتب سؤالك هنا..." />
+                                                    <button onClick={async () => {
+                                                        const q = document.getElementById('qInput').value;
+                                                        if (q) {
+                                                            await window.rtdb.push(window.rtdb.ref(window.db, 'qa'), {
+                                                                studentName: user.name, studentId: user.uid, question: q,
+                                                                date: new Date().toLocaleDateString('ar-EG'), ts: Date.now()
+                                                            });
+                                                            document.getElementById('qInput').value = '';
+                                                            showNotification('تم إرسال السؤال');
+                                                        }
+                                                    }} className="text-brand-accent hover:bg-white/5 p-2 rounded-lg">
+                                                        <Icon name="send" />
+                                                    </button>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    {dataState.qa.filter(q => q.studentId === user?.uid).map(q => (
+                                                        <div key={q.id} className="glass-panel p-5">
+                                                            <p className="text-slate-200 bg-black/20 p-3 rounded-lg mb-3">{q.question}</p>
+                                                            {q.reply && (
+                                                                <div className="flex gap-3 ml-4 bg-brand-primary/10 p-3 rounded-lg border-r-2 border-brand-primary">
+                                                                    <Icon name="corner-down-left" className="text-brand-primary" />
+                                                                    <div>
+                                                                        <p className="text-xs font-bold text-brand-primary mb-1">رد المستر:</p>
+                                                                        <p className="text-sm text-slate-300">{q.reply}</p>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </main>
                         </div>
                     </div>
                 );
             }
 
-            // ADMIN
+
+
+            // 🔐 ADMIN VIEW
             if (view === 'admin') {
+                // Preview as Student Mode - show student view with exit overlay
+                if (previewAsStudent) {
+                    const daysLeft = calculateSubscriptionDays(dataState.subscriptions[user?.uid]?.endDate);
+                    const points = calculatePoints(user?.uid);
+                    return (
+                        <div className="relative">
+                            {/* Exit Preview Button */}
+                            <div className="fixed top-4 left-4 z-[100]">
+                                <button
+                                    onClick={() => setPreviewAsStudent(false)}
+                                    className="btn-main px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-xl animate-pulse"
+                                >
+                                    <Icon name="arrow-left" size={18} /> الخروج من المعاينة
+                                </button>
+                            </div>
+                            {/* Render Student View Here - same as student view */}
+                            <div className={`min-h-screen flex flex-col md:flex-row ${isDarkMode ? 'bg-brand-dark text-white' : 'bg-slate-50 text-slate-900'}`}>
+                                <aside className={`fixed inset-y-0 right-0 z-50 w-64 ${isDarkMode ? 'bg-brand-card' : 'bg-white'} border-l border-white/5 flex flex-col transition-transform duration-300 translate-x-full md:translate-x-0 md:static shrink-0`}>
+                                    <div className="p-6 text-center border-b border-white/5">
+                                        <img src={user?.photo} className="w-20 h-20 rounded-full border-4 border-brand-dark mx-auto mb-3" />
+                                        <h3 className="font-bold text-lg">{user?.name}</h3>
+                                        <p className="text-xs text-yellow-400 font-bold mt-2">👁️ وضع المعاينة</p>
+                                    </div>
+                                    <nav className="p-4 space-y-2 flex-1">
+                                        {[
+                                            { id: 'home', l: 'الرئيسية', i: 'home' },
+                                            { id: 'lectures', l: 'المحاضرات', i: 'play-circle' },
+                                            { id: 'flashcards', l: 'البطاقات', i: 'layers' },
+                                            { id: 'subscription', l: 'الاشتراك', i: 'credit-card' },
+                                            { id: 'qa', l: 'أسئلة وأجوبة', i: 'help-circle' }
+                                        ].map(item => (
+                                            <button key={item.id}
+                                                className="w-full flex items-center gap-3 p-3 rounded-xl transition font-bold text-slate-400 hover:bg-white/5 hover:text-white">
+                                                <GlassIcon name={item.i} size={18} /> {item.l}
+                                            </button>
+                                        ))}
+                                    </nav>
+                                </aside>
+                                <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                                    <div className="glass-panel p-6 text-center">
+                                        <GlassIcon name="eye" size={48} className="mx-auto mb-4" />
+                                        <h2 className="text-2xl font-bold mb-2">أنت في وضع المعاينة كطالب</h2>
+                                        <p className="text-slate-400 mb-4">يمكنك رؤية واجهة الطالب كما يراها المستخدمون</p>
+                                        <button onClick={() => setPreviewAsStudent(false)} className="btn-main px-6 py-3 rounded-xl font-bold">
+                                            العودة للوحة التحكم
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                // Filter students by year
+                const filteredStudents = dataState.students.filter(s => {
+                    if (studentYearFilter === 'all') return !['admin', 'boss'].includes(s.role);
+                    return s.grade === studentYearFilter && !['admin', 'boss'].includes(s.role);
+                }).filter(s =>
+                    !searchQuery ||
+                    s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    s.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    s.phone?.includes(searchQuery)
+                );
+
+                // Separate students and parents
+                const studentsList = filteredStudents.filter(s => s.accountType !== 'parent');
+                const parentsList = filteredStudents.filter(s => s.accountType === 'parent');
+                const adminsList = dataState.students.filter(s => ['admin', 'boss'].includes(s.role));
+
                 return (
-                    <div className="min-h-screen bg-slate-900 p-6">
-                        <div className="max-w-7xl mx-auto glass p-8">
-                            <div className="flex justify-between items-center mb-8">
-                                <h2 className="text-3xl font-black text-amber-400">لوحة التحكم</h2>
-                                <button onClick={() => window.authMethods.signOut(window.auth)} className="px-4 py-2 bg-red-600 rounded-lg">خروج</button>
-                            </div>
-
-                            <div className="grid grid-cols-4 gap-6 mb-8">
-                                <div className="bg-white/5 p-4 rounded-xl">
-                                    <div className="text-slate-400 text-xs">الطلاب</div>
-                                    <div className="text-2xl font-black">{data.students.length}</div>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-xl">
-                                    <div className="text-slate-400 text-xs">الطلبات</div>
-                                    <div className="text-2xl font-black text-orange-400">{data.requests.length}</div>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-xl">
-                                    <div className="text-slate-400 text-xs">المدفوعات</div>
-                                    <div className="text-2xl font-black text-green-400">{data.payments.filter(p => p.status === 'pending').length}</div>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-xl">
-                                    <div className="text-slate-400 text-xs">المحاضرات</div>
-                                    <div className="text-2xl font-black text-amber-400">{data.lectures.length}</div>
+                    <div className="min-h-screen bg-brand-dark text-white flex">
+                        {/* Sidebar */}
+                        <aside className={`fixed inset-y-0 right-0 z-50 w-64 bg-brand-card border-l border-white/5 flex flex-col transition-transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} md:translate-x-0 md:static shrink-0`}>
+                            <div className="p-6 border-b border-white/5">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">∑</div>
+                                    <div>
+                                        <h1 className="font-black">لوحة التحكم</h1>
+                                        <span className="text-xs text-slate-500">{user?.email}</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 mb-6 overflow-x-auto">
-                                {['students', 'lectures', 'packages', 'exams', 'payments', 'qa', 'announcements'].map(t => (
-                                    <button key={t} onClick={() => setTab(t)} className={`px-6 py-2 rounded-lg font-bold whitespace-nowrap ${tab === t ? 'bg-amber-400 text-slate-900' : 'bg-white/5'}`}>
-                                        {t === 'students' ? 'الطلاب' : t === 'lectures' ? 'المحاضرات' : t === 'packages' ? 'الباقات' : t === 'exams' ? 'الامتحانات' : t === 'payments' ? 'المدفوعات' : t === 'qa' ? 'الأسئلة' : 'الإعلانات'}
+                            <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+                                {[
+                                    { id: 'datacenter', l: 'مركز البيانات', i: 'database' },
+                                    { id: 'attendance', l: 'الحضور والمتابعة', i: 'calendar-check' },
+                                    { id: 'lectures', l: 'المحاضرات', i: 'video' },
+                                    { id: 'whiteboards', l: 'السبورات', i: 'file-text' },
+                                    { id: 'recordings', l: 'التسجيلات', i: 'mic' },
+                                    { id: 'exams', l: 'الامتحانات', i: 'clipboard-list' },
+                                    { id: 'flashcards', l: 'البطاقات', i: 'layers' },
+                                    { id: 'qa', l: 'الأسئلة', i: 'help-circle' },
+                                    { id: 'announcements', l: 'الإعلانات', i: 'megaphone' },
+                                    ...(isSuperAdmin ? [{ id: 'managers', l: 'المديرين', i: 'shield' }] : [])
+                                ].map(item => (
+                                    <button key={item.id} onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition font-bold ${activeTab === item.id ? 'bg-brand-primary text-white' : 'text-slate-400 hover:bg-white/5'}`}>
+                                        <GlassIcon name={item.i} size={18} /> {item.l}
                                     </button>
                                 ))}
-                            </div>
+                            </nav>
 
-                            {/* Students */}
-                            {tab === 'students' && (
-                                <div>
-                                    {data.requests.length > 0 && (
-                                        <div className="mb-6 bg-orange-500/10 p-4 rounded-xl">
-                                            <h3 className="font-bold mb-3">طلبات جديدة ({data.requests.length})</h3>
-                                            {data.requests.map(r => (
-                                                <div key={r.id} className="bg-black/20 p-3 rounded-lg mb-2 flex justify-between items-center">
-                                                    <div>
-                                                        <p className="font-bold">{r.name}</p>
-                                                        <p className="text-xs text-slate-400">{r.phone} | {r.grade}</p>
+                            <div className="p-4 border-t border-white/5">
+                                <button onClick={() => window.authMethods.signOut(window.auth)} className="flex items-center justify-center gap-2 text-red-400 w-full p-3 hover:bg-red-500/10 rounded-xl font-bold">
+                                    <Icon name="log-out" size={18} /> خروج
+                                </button>
+                            </div>
+                        </aside>
+
+                        {/* Main Content */}
+                        <div className="flex-1 h-screen overflow-y-auto">
+                            <header className="p-4 flex justify-between items-center sticky top-0 z-40 bg-brand-dark/90 backdrop-blur border-b border-white/5">
+                                <div className="flex items-center gap-3">
+                                    <h1 className="font-black text-xl text-brand-accent hidden md:block">لوحة التحكم</h1>
+                                    <button className="md:hidden" onClick={() => setSidebarOpen(true)}><Icon name="menu" /></button>
+                                    {isSuperAdmin && (
+                                        <span className="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-xs font-bold">👑 المدير الأعلى</span>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    {/* View as Student Toggle */}
+                                    <label className="flex items-center gap-2 cursor-pointer glass-panel px-4 py-2 rounded-xl">
+                                        <input
+                                            type="checkbox"
+                                            checked={previewAsStudent}
+                                            onChange={(e) => setPreviewAsStudent(e.target.checked)}
+                                            className="w-4 h-4 accent-brand-accent"
+                                        />
+                                        <span className="text-sm font-bold">معاينة كطالب</span>
+                                        <Icon name="eye" size={16} />
+                                    </label>
+                                </div>
+                            </header>
+
+                            <main className="p-4 md:p-8">
+                                {/* Stats */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                                    {[
+                                        { l: 'الطلاب', v: dataState.students.filter(s => !['admin', 'boss'].includes(s.role)).length, i: 'users', c: 'blue' },
+                                        { l: 'طلبات الانتظار', v: dataState.requests.length, i: 'user-plus', c: 'yellow' },
+                                        { l: 'المحاضرات', v: dataState.lectures.length, i: 'video', c: 'green' },
+                                        { l: 'الأسئلة', v: dataState.qa.length, i: 'help-circle', c: 'purple' }
+                                    ].map((s, i) => (
+                                        <div key={i} className={`glass-panel p-5 border-r-4 border-${s.c}-500`}>
+                                            <div className="flex items-center gap-3">
+                                                <GlassIcon name={s.i} size={24} />
+                                                <div>
+                                                    <div className="text-3xl font-black">{s.v}</div>
+                                                    <div className="text-xs text-slate-400">{s.l}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Data Center (Password Protected) */}
+                                {activeTab === 'datacenter' && (
+                                    !isDataCenterUnlocked ? (
+                                        <AdminPasswordPrompt onSubmit={() => setIsDataCenterUnlocked(true)} onBack={() => setActiveTab('lectures')} />
+                                    ) : (
+                                        <div className="space-y-6 animate-slide-up">
+                                            <div className="flex items-center justify-between mb-6">
+                                                <h2 className="text-2xl font-bold flex items-center gap-2">
+                                                    <GlassIcon name="database" size={24} /> مركز البيانات
+                                                </h2>
+                                                <input placeholder="بحث..." className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl w-64"
+                                                    value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                                            </div>
+
+                                            {/* Waiting List */}
+                                            {dataState.requests.length > 0 && (
+                                                <div className="glass-panel p-6 mb-6 border-r-4 border-yellow-500">
+                                                    <h3 className="font-bold mb-4 flex items-center gap-2 text-yellow-400">
+                                                        <GlassIcon name="user-plus" size={20} /> قائمة الانتظار ({dataState.requests.length})
+                                                    </h3>
+                                                    <div className="space-y-3">
+                                                        {dataState.requests.map(req => (
+                                                            <div key={req.id} className="bg-white/5 p-4 rounded-xl flex justify-between items-center">
+                                                                <div className="flex items-center gap-3">
+                                                                    <img src={req.photo} className="w-10 h-10 rounded-full" />
+                                                                    <div>
+                                                                        <p className="font-bold">{req.name}</p>
+                                                                        <p className="text-xs text-slate-400">{req.email}</p>
+                                                                        <span className={`text-xs px-2 py-1 rounded ${req.requestType === 'parent' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                                                                            {req.requestType === 'parent' ? 'ولي أمر' : 'طالب'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                {isSuperAdmin ? (
+                                                                    <div className="flex gap-2">
+                                                                        <button onClick={async () => {
+                                                                            const code = `STD${Date.now().toString().slice(-6)}`;
+                                                                            await window.rtdb.set(window.rtdb.ref(window.db, 'users/' + req.uid), {
+                                                                                ...req, role: 'student', isNew: false, isPaid: false, code, accountType: req.requestType
+                                                                            });
+                                                                            await window.rtdb.remove(window.rtdb.ref(window.db, 'requests/' + req.id));
+                                                                            showNotification('تم قبول الطلب ✅');
+                                                                        }} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold">قبول</button>
+                                                                        <button onClick={async () => {
+                                                                            await window.rtdb.remove(window.rtdb.ref(window.db, 'requests/' + req.id));
+                                                                            showNotification('تم رفض الطلب');
+                                                                        }} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold">رفض</button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-slate-400 text-sm px-3 py-2 bg-white/5 rounded-lg">انتظار موافقة المدير الأعلى</span>
+                                                                )}
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                    <div className="flex gap-2">
-                                                        <button onClick={async () => {
-                                                            await window.rtdb.set(window.rtdb.ref(window.db, 'users/' + r.uid), { ...r, role: 'student', status: 'active', isPaid: false });
-                                                            await window.rtdb.remove(window.rtdb.ref(window.db, 'requests/' + r.id));
-                                                            show(`تم قبول ${r.name} - كود: ${r.code}`);
-                                                        }} className="bg-green-600 px-3 py-1 rounded text-sm">قبول</button>
-                                                        <button onClick={() => window.rtdb.remove(window.rtdb.ref(window.db, 'requests/' + r.id))} className="bg-red-600 px-3 py-1 rounded text-sm">رفض</button>
+                                                </div>
+                                            )}
+
+                                            {/* Tabs: Students by Year / Parents / Admins */}
+                                            <div className="flex gap-2 mb-4 flex-wrap">
+                                                {[
+                                                    { id: '1sec', l: 'أولى ثانوي' },
+                                                    { id: '2sec', l: 'تانية ثانوي' },
+                                                    { id: '3sec', l: 'تالتة ثانوي' },
+                                                    { id: 'parents', l: 'أولياء الأمور' },
+                                                    { id: 'admins', l: 'الإدارة' }
+                                                ].map(tab => (
+                                                    <button key={tab.id} onClick={() => setStudentYearFilter(tab.id)}
+                                                        className={`px-4 py-2 rounded-xl font-bold transition ${studentYearFilter === tab.id ? 'bg-brand-primary text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
+                                                        {tab.l}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {/* Student/Parent/Admin List */}
+                                            <div className="grid gap-4">
+                                                {(studentYearFilter === 'parents' ? parentsList :
+                                                    studentYearFilter === 'admins' ? adminsList : studentsList).map(s => (
+                                                        <div key={s.id} className="glass-panel p-4 flex justify-between items-center">
+                                                            <div className="flex items-center gap-4">
+                                                                <img src={s.photo} className="w-12 h-12 rounded-full border-2 border-white/10" />
+                                                                <div>
+                                                                    <p className="font-bold">{s.name}</p>
+                                                                    <p className="text-xs text-slate-400">{s.email}</p>
+                                                                    <div className="flex gap-2 mt-1">
+                                                                        <RankBadge points={calculatePoints(s.id)} />
+                                                                        {s.isPaid && <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs">مفعل</span>}
+                                                                        {!s.isPaid && <span className="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs">غير مفعل</span>}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <button onClick={() => { setSelectedStudent(s); setShowStudentModal(true); }}
+                                                                    className="bg-brand-primary hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-bold">إدارة</button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        </div>
+                                    )
+                                )}
+
+                                {/* Lectures Tab */}
+                                {
+                                    activeTab === 'lectures' && (
+                                        <div className="space-y-6 animate-slide-up">
+                                            <div className="glass-panel p-6">
+                                                <h3 className="font-bold mb-4">إضافة محاضرة جديدة</h3>
+                                                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                                    <input id="lecTitle" placeholder="عنوان المحاضرة" className="bg-white/5 border border-white/10 p-3 rounded-xl" />
+                                                    <input id="lecLink" placeholder="رابط الفيديو (YouTube/Drive)" className="bg-white/5 border border-white/10 p-3 rounded-xl" />
+                                                </div>
+                                                <textarea id="lecDesc" placeholder="وصف المحاضرة" className="w-full bg-white/5 border border-white/10 p-3 rounded-xl h-24 mb-4"></textarea>
+                                                <div className="flex gap-4 items-center mb-4">
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input type="checkbox" id="lecFree" className="w-5 h-5 rounded" />
+                                                        <span>محاضرة مجانية</span>
+                                                    </label>
+                                                </div>
+                                                <button onClick={() => {
+                                                    const title = document.getElementById('lecTitle').value;
+                                                    const link = document.getElementById('lecLink').value;
+                                                    const desc = document.getElementById('lecDesc').value;
+                                                    const isFree = document.getElementById('lecFree').checked;
+                                                    if (title && link) {
+                                                        uploadItem('lectures', { title, link, description: desc, isFree });
+                                                        document.getElementById('lecTitle').value = '';
+                                                        document.getElementById('lecLink').value = '';
+                                                        document.getElementById('lecDesc').value = '';
+                                                    }
+                                                }} className="btn-main px-6 py-3 rounded-xl font-bold">نشر المحاضرة</button>
+                                            </div>
+
+                                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                {dataState.lectures.map(lec => (
+                                                    <div key={lec.id} className="glass-panel p-4">
+                                                        <h4 className="font-bold mb-2">{lec.title}</h4>
+                                                        <p className="text-xs text-slate-400 mb-3 line-clamp-2">{lec.description}</p>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-xs text-slate-500">{lec.date}</span>
+                                                            <button onClick={() => {
+                                                                if (confirm('متأكد تحذف المحاضرة؟'))
+                                                                    window.rtdb.remove(window.rtdb.ref(window.db, 'lectures/' + lec.id));
+                                                            }} className="text-red-400 hover:text-red-300">
+                                                                <Icon name="trash-2" size={16} />
+                                                            </button>
+                                                        </div>
                                                     </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )
+                                }
+
+                                {/* Flashcards Tab */}
+                                {
+                                    activeTab === 'flashcards' && (
+                                        <div className="space-y-6 animate-slide-up">
+                                            <div className="glass-panel p-6">
+                                                <h3 className="font-bold mb-4">إضافة بطاقة جديدة</h3>
+                                                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                                    <input id="cardQ" placeholder="السؤال/القانون" className="bg-white/5 border border-white/10 p-3 rounded-xl" />
+                                                    <input id="cardA" placeholder="الإجابة" className="bg-white/5 border border-white/10 p-3 rounded-xl" />
+                                                </div>
+                                                <button onClick={() => {
+                                                    const q = document.getElementById('cardQ').value;
+                                                    const a = document.getElementById('cardA').value;
+                                                    if (q && a) {
+                                                        uploadItem('flashcards', { question: q, answer: a });
+                                                        document.getElementById('cardQ').value = '';
+                                                        document.getElementById('cardA').value = '';
+                                                    }
+                                                }} className="btn-main px-6 py-3 rounded-xl font-bold">إضافة البطاقة</button>
+                                            </div>
+
+                                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                {dataState.flashcards.map(card => (
+                                                    <div key={card.id} className="glass-panel p-4">
+                                                        <p className="font-bold text-brand-accent mb-2">{card.question}</p>
+                                                        <p className="text-sm text-slate-300">{card.answer}</p>
+                                                        <button onClick={() => window.rtdb.remove(window.rtdb.ref(window.db, 'flashcards/' + card.id))}
+                                                            className="text-red-400 hover:text-red-300 mt-2">
+                                                            <Icon name="trash-2" size={16} />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )
+                                }
+
+                                {/* Q&A Tab */}
+                                {
+                                    activeTab === 'qa' && (
+                                        <div className="space-y-4 animate-slide-up">
+                                            {dataState.qa.map(q => (
+                                                <div key={q.id} className="glass-panel p-5">
+                                                    <div className="flex items-start gap-3 mb-3">
+                                                        <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-bold text-sm">
+                                                            {q.studentName?.charAt(0)}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="font-bold">{q.studentName}</p>
+                                                            <p className="text-slate-300 bg-black/20 p-3 rounded-lg mt-2">{q.question}</p>
+                                                        </div>
+                                                    </div>
+                                                    {q.reply ? (
+                                                        <div className="ml-12 bg-green-500/10 p-3 rounded-lg border-r-2 border-green-500">
+                                                            <p className="text-sm text-green-300">{q.reply}</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="ml-12 flex gap-2">
+                                                            <input id={`reply-${q.id}`} placeholder="اكتب الرد..." className="flex-1 bg-white/5 border border-white/10 p-2 rounded-lg text-sm" />
+                                                            <button onClick={async () => {
+                                                                const reply = document.getElementById(`reply-${q.id}`).value;
+                                                                if (reply) {
+                                                                    await window.rtdb.update(window.rtdb.ref(window.db, `qa/${q.id}`), { reply });
+                                                                    showNotification('تم إرسال الرد');
+                                                                }
+                                                            }} className="bg-brand-primary px-4 py-2 rounded-lg text-sm font-bold">رد</button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
-                                    )}
+                                    )
+                                }
 
-                                    <input className="w-full mb-4 bg-black/30 border border-white/10 p-3 rounded-xl" placeholder="بحث..." value={search} onChange={e => setSearch(e.target.value)} />
-
-                                    <div className="space-y-2">
-                                        {data.students.filter(s => s.name?.toLowerCase().includes(search.toLowerCase())).map(s => (
-                                            <div key={s.id} className="bg-white/5 p-4 rounded-xl flex justify-between items-center">
-                                                <div>
-                                                    <p className="font-bold">{s.name}</p>
-                                                    <p className="text-xs text-slate-400">{s.code} | {s.phone}</p>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button onClick={() => { setSelected({ ...selected, student: s }); setModal({ ...modal, student: true }); }} className="bg-blue-500/20 px-3 py-1 rounded text-sm">إدارة</button>
-                                                    <button onClick={() => update(s.id, { isPaid: !s.isPaid })} className={`px-3 py-1 rounded text-sm ${s.isPaid ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-                                                        {s.isPaid ? 'مفعل' : 'غير مفعل'}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Packages */}
-                            {tab === 'packages' && (
-                                <div>
-                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
-                                        <h3 className="font-bold mb-4">إضافة باقة</h3>
-                                        <div className="space-y-3">
-                                            <input id="pN" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="اسم الباقة *" />
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <input id="pP" type="number" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="السعر *" />
-                                                <input id="pM" type="number" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="عدد الشهور *" />
-                                            </div>
-                                            <textarea id="pF" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg h-24" placeholder="المميزات (كل ميزة في سطر)"></textarea>
-                                            <select id="pT" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg">
-                                                <option value="subscription">اشتراك شهري</option>
-                                                <option value="book">كتاب</option>
-                                                <option value="course">كورس</option>
-                                            </select>
-                                            <button onClick={() => {
-                                                upload('packages', {
-                                                    name: document.getElementById('pN').value,
-                                                    price: document.getElementById('pP').value,
-                                                    months: document.getElementById('pM').value,
-                                                    features: document.getElementById('pF').value,
-                                                    type: document.getElementById('pT').value
-                                                });
-                                                ['pN', 'pP', 'pM', 'pF'].forEach(id => document.getElementById(id).value = '');
-                                            }} className="btn-gold w-full py-2 rounded-lg">إضافة</button>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid md:grid-cols-3 gap-4">
-                                        {data.packages.map(pkg => (
-                                            <div key={pkg.id} className="bg-white/5 p-4 rounded-lg">
-                                                <h4 className="font-bold mb-2">{pkg.name}</h4>
-                                                <p className="text-2xl font-bold text-amber-400 mb-2">{pkg.price} ج</p>
-                                                <p className="text-sm text-slate-400 mb-2">{pkg.months} شهر | {pkg.type}</p>
-                                                <button onClick={() => window.rtdb.remove(window.rtdb.ref(window.db, 'packages/' + pkg.id))} className="text-red-400 text-sm">حذف</button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Exams */}
-                            {tab === 'exams' && (
-                                <div>
-                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
-                                        <h3 className="font-bold mb-4">إضافة امتحان (3 نماذج)</h3>
-                                        <div className="space-y-3">
-                                            <select id="eL" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg">
-                                                <option value="">اختر المحاضرة...</option>
-                                                {data.lectures.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
-                                            </select>
-                                            <div className="bg-white/5 p-4 rounded-lg">
-                                                <p className="text-sm mb-2">نموذج A:</p>
-                                                <textarea id="eA" className="w-full bg-black/30 border border-white/10 p-3 rounded-lg h-24 font-mono text-xs" placeholder='[{"question":"س1","type":"mcq","options":["أ","ب","ج","د"],"correct":0}]'></textarea>
-                                            </div>
-                                            <div className="bg-white/5 p-4 rounded-lg">
-                                                <p className="text-sm mb-2">نموذج B:</p>
-                                                <textarea id="eB" className="w-full bg-black/30 border border-white/10 p-3 rounded-lg h-24 font-mono text-xs" placeholder='[{"question":"س1","type":"text"}]'></textarea>
-                                            </div>
-                                            <div className="bg-white/5 p-4 rounded-lg">
-                                                <p className="text-sm mb-2">نموذج C:</p>
-                                                <textarea id="eC" className="w-full bg-black/30 border border-white/10 p-3 rounded-lg h-24 font-mono text-xs" placeholder='[{"question":"س1","type":"image"}]'></textarea>
-                                            </div>
-                                            <input id="eW" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="رقم واتساب للصور" defaultValue={CONTACT.support} />
-                                            <button onClick={() => {
-                                                try {
-                                                    upload('exams', {
-                                                        lectureId: document.getElementById('eL').value,
-                                                        modelA: JSON.parse(document.getElementById('eA').value || '[]'),
-                                                        modelB: JSON.parse(document.getElementById('eB').value || '[]'),
-                                                        modelC: JSON.parse(document.getElementById('eC').value || '[]'),
-                                                        whatsappNumber: document.getElementById('eW').value
-                                                    });
-                                                    ['eA', 'eB', 'eC'].forEach(id => document.getElementById(id).value = '');
-                                                } catch (e) {
-                                                    show('خطأ في JSON', 'error');
-                                                }
-                                            }} className="btn-gold w-full py-2 rounded-lg">إضافة</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Lectures */}
-                            {tab === 'lectures' && (
-                                <div>
-                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
-                                        <h3 className="font-bold mb-4">إضافة محاضرة</h3>
-                                        <div className="space-y-3">
-                                            <input id="lT" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="عنوان المحاضرة *" />
-                                            <textarea id="lD" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg h-20" placeholder="الوصف"></textarea>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <select id="lG" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg">
-                                                    <option value="all">جميع الصفوف</option>
-                                                    <option value="1sec">أول ثانوي</option>
-                                                    <option value="2sec">ثاني ثانوي</option>
-                                                    <option value="3sec">ثالث ثانوي</option>
-                                                </select>
-                                                <div className="flex items-center gap-2">
-                                                    <input type="checkbox" id="lF" className="w-5 h-5" />
-                                                    <label htmlFor="lF" className="text-sm">محتوى مجاني</label>
-                                                </div>
-                                            </div>
-                                            <input id="lL" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="رابط الفيديو *" />
-                                            <button onClick={() => {
-                                                upload('lectures', {
-                                                    title: document.getElementById('lT').value,
-                                                    description: document.getElementById('lD').value,
-                                                    grade: document.getElementById('lG').value,
-                                                    link: document.getElementById('lL').value,
-                                                    isFree: document.getElementById('lF').checked
-                                                });
-                                                ['lT', 'lD', 'lL'].forEach(id => document.getElementById(id).value = '');
-                                                document.getElementById('lF').checked = false;
-                                            }} className="btn-gold w-full py-2 rounded-lg">نشر</button>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        {data.lectures.map(l => (
-                                            <div key={l.id} className="bg-white/5 p-3 rounded-lg flex justify-between items-center">
-                                                <span className="font-bold">{l.title}</span>
-                                                <button onClick={() => window.rtdb.remove(window.rtdb.ref(window.db, 'lectures/' + l.id))} className="text-red-400">
-                                                    <Icon name="trash-2" size={18} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Payments */}
-                            {tab === 'payments' && (
-                                <div>
-                                    {data.payments.filter(p => p.status === 'pending').map(p => (
-                                        <div key={p.id} className="bg-white/5 p-4 rounded-lg mb-3 flex justify-between items-center">
-                                            <div>
-                                                <p className="font-bold">{p.studentName}</p>
-                                                <p className="text-xs text-slate-400">باقة: {p.packageName} | {p.price} ج</p>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button onClick={async () => {
-                                                    await activate(p.studentId, p.packageId);
-                                                    await window.rtdb.update(window.rtdb.ref(window.db, 'payments/' + p.id), { status: 'approved' });
-                                                    show('تم التفعيل');
-                                                }} className="bg-green-600 px-3 py-1 rounded text-sm">موافقة</button>
-                                                <button onClick={() => window.rtdb.update(window.rtdb.ref(window.db, 'payments/' + p.id), { status: 'rejected' })} className="bg-red-600 px-3 py-1 rounded text-sm">رفض</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Q&A */}
-                            {tab === 'qa' && (
-                                <div>
-                                    {data.qa.map(q => (
-                                        <div key={q.id} className="bg-white/5 p-4 rounded-lg mb-3">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <p className="font-bold">{q.studentName}</p>
-                                                    <p className="text-xs text-slate-400">{q.studentCode} | {q.category || 'عام'}</p>
-                                                </div>
-                                                <span className={`text-xs px-2 py-1 rounded ${q.reply ? 'bg-green-500/20 text-green-300' : 'bg-orange-500/20 text-orange-300'}`}>
-                                                    {q.reply ? 'تم الرد' : 'بانتظار'}
-                                                </span>
-                                            </div>
-                                            <p className="text-slate-300 mb-3">{q.question}</p>
-                                            {!q.reply && (
-                                                <button onClick={async () => {
-                                                    const r = prompt("الرد:");
-                                                    if (r) {
-                                                        await window.rtdb.update(window.rtdb.ref(window.db, `qa/${q.id}`), {
-                                                            reply: r,
-                                                            replyDate: new Date().toLocaleDateString('ar-EG')
-                                                        });
-                                                        show('تم الرد');
-                                                    }
-                                                }} className="bg-blue-600 px-3 py-1 rounded text-sm">رد</button>
-                                            )}
-                                            {q.reply && <div className="bg-green-500/10 p-3 rounded-lg mt-2 text-sm">{q.reply}</div>}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Announcements */}
-                            {tab === 'announcements' && (
-                                <div>
-                                    <div className="bg-black/20 p-6 rounded-xl mb-6">
-                                        <h3 className="font-bold mb-4">إضافة إعلان</h3>
-                                        <div className="space-y-3">
-                                            <input id="aT" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg" placeholder="العنوان" />
-                                            <textarea id="aC" className="w-full bg-white/5 border border-white/10 p-3 rounded-lg h-24" placeholder="المحتوى"></textarea>
-                                            <button onClick={() => {
-                                                upload('announcements', {
-                                                    title: document.getElementById('aT').value,
-                                                    content: document.getElementById('aC').value
-                                                });
-                                                ['aT', 'aC'].forEach(id => document.getElementById(id).value = '');
-                                            }} className="btn-gold w-full py-2 rounded-lg">نشر</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Student Modal */}
-                            {modal.student && selected.student && (
-                                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setModal({ ...modal, student: false })}>
-                                    <div className="glass p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
-                                        <h3 className="text-xl font-bold mb-4">إدارة: {selected.student.name}</h3>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="text-xs text-slate-400 mb-1 block">ملاحظات:</label>
-                                                <textarea className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-white h-20"
-                                                    value={selected.student.notes || ''}
-                                                    onChange={e => setSelected({ ...selected, student: { ...selected.student, notes: e.target.value } })} />
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="text-xs text-slate-400 mb-1 block">باقة:</label>
-                                                    <select id="aPkg" className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-white">
-                                                        <option value="">اختر...</option>
-                                                        {data.packages.map(pkg => (
-                                                            <option key={pkg.id} value={pkg.id}>{pkg.name} - {pkg.price} ج</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                                <div className="flex items-end">
-                                                    <button onClick={() => {
-                                                        const pid = document.getElementById('aPkg').value;
-                                                        if (pid) {
-                                                            activate(selected.student.id, pid);
-                                                            setModal({ ...modal, student: false });
-                                                        }
-                                                    }} className="btn-gold w-full py-2 rounded-lg">تفعيل</button>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2 pt-4">
+                                {/* Announcements Tab */}
+                                {
+                                    activeTab === 'announcements' && (
+                                        <div className="space-y-6 animate-slide-up">
+                                            <div className="glass-panel p-6">
+                                                <h3 className="font-bold mb-4">إعلان جديد</h3>
+                                                <input id="annTitle" placeholder="عنوان الإعلان" className="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4" />
+                                                <textarea id="annContent" placeholder="محتوى الإعلان" className="w-full bg-white/5 border border-white/10 p-3 rounded-xl h-24 mb-4"></textarea>
                                                 <button onClick={() => {
-                                                    update(selected.student.id, { notes: selected.student.notes });
-                                                }} className="flex-1 bg-blue-600 py-2 rounded-lg">حفظ</button>
-                                                <button onClick={() => setModal({ ...modal, student: false })} className="px-4 py-2 bg-white/10 rounded-lg">إغلاق</button>
+                                                    const title = document.getElementById('annTitle').value;
+                                                    const content = document.getElementById('annContent').value;
+                                                    if (title && content) {
+                                                        uploadItem('announcements', { title, content });
+                                                        document.getElementById('annTitle').value = '';
+                                                        document.getElementById('annContent').value = '';
+                                                    }
+                                                }} className="btn-main px-6 py-3 rounded-xl font-bold">نشر الإعلان</button>
                                             </div>
                                         </div>
+                                    )
+                                }
+
+                                {/* Attendance Tab */}
+                                {activeTab === 'attendance' && (
+                                    <AttendanceTable
+                                        students={dataState.students}
+                                        attendance={dataState.attendance}
+                                        onUpdateAttendance={updateAttendance}
+                                        isSuperAdmin={isSuperAdmin}
+                                    />
+                                )}
+
+                                {/* Managers Tab (Super Admin Only) */}
+                                {activeTab === 'managers' && (
+                                    <AdminManagement
+                                        admins={adminsList}
+                                        onAddAdmin={addNewAdmin}
+                                        onRemoveAdmin={removeAdmin}
+                                        isSuperAdmin={isSuperAdmin}
+                                        showNotification={showNotification}
+                                    />
+                                )}
+                            </main >
+                        </div >
+
+                        {/* Student Management Modal */}
+                        {
+                            showStudentModal && selectedStudent && (
+                                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setShowStudentModal(false)}>
+                                    <div className="glass-panel p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                                        <div className="flex items-center gap-4 mb-6">
+                                            <img src={selectedStudent.photo} className="w-16 h-16 rounded-full border-4 border-brand-accent" />
+                                            <div>
+                                                <h3 className="text-xl font-bold">{selectedStudent.name}</h3>
+                                                <p className="text-sm text-slate-400">{selectedStudent.email}</p>
+                                                <RankBadge points={calculatePoints(selectedStudent.id)} />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {/* Subscription Management */}
+                                            <div className="bg-white/5 p-4 rounded-xl">
+                                                <h4 className="font-bold mb-3">إدارة الاشتراك</h4>
+                                                <div className="flex gap-2 flex-wrap">
+                                                    <button onClick={() => addSubscription(selectedStudent.id, 1)}
+                                                        className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm font-bold">+1 شهر</button>
+                                                    <button onClick={() => addSubscription(selectedStudent.id, 3)}
+                                                        className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm font-bold">+3 شهور</button>
+                                                    <button onClick={() => updateStudent(selectedStudent.id, { isPaid: false })}
+                                                        className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-bold">إلغاء التفعيل</button>
+                                                </div>
+                                            </div>
+
+                                            {/* Personal Notes */}
+                                            <div className="bg-white/5 p-4 rounded-xl">
+                                                <h4 className="font-bold mb-3">ملاحظة للطالب</h4>
+                                                <textarea id="studentNotes" defaultValue={selectedStudent.notes || ''}
+                                                    placeholder="اكتب ملاحظة تظهر للطالب فقط..."
+                                                    className="w-full bg-black/20 border border-white/10 p-3 rounded-lg h-20 mb-2"></textarea>
+                                                <button onClick={() => {
+                                                    const notes = document.getElementById('studentNotes').value;
+                                                    updateStudent(selectedStudent.id, { notes });
+                                                }} className="bg-brand-primary px-4 py-2 rounded-lg text-sm font-bold">حفظ الملاحظة</button>
+                                            </div>
+
+                                            {/* Student Info */}
+                                            <div className="bg-white/5 p-4 rounded-xl">
+                                                <h4 className="font-bold mb-3">بيانات الطالب</h4>
+                                                <div className="text-sm space-y-2 text-slate-300">
+                                                    <p>📱 {selectedStudent.phone}</p>
+                                                    <p>👨‍👩‍👦 {selectedStudent.parentPhone}</p>
+                                                    <p>🏫 {selectedStudent.school}</p>
+                                                    <p>📍 {selectedStudent.governorate} - {selectedStudent.city}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button onClick={() => setShowStudentModal(false)} className="mt-6 w-full py-3 bg-white/10 rounded-xl font-bold">إغلاق</button>
                                     </div>
                                 </div>
-                            )}
-                        </div>
-                    </div>
+                            )
+                        }
+                    </div >
                 );
             }
 
-            // Loading
+            // Loading state
             if (view === 'loading') return (
-                <div className="h-screen bg-slate-900 flex items-center justify-center">
+                <div className="h-screen bg-brand-dark flex items-center justify-center text-brand-accent font-bold text-xl animate-pulse">
                     <div className="text-center">
-                        <div className="loader mx-auto mb-4"></div>
-                        <p className="text-amber-400 font-bold">جاري التحميل...</p>
+                        <GlassIcon name="loader" size={48} className="mx-auto mb-4 animate-spin" />
+                        <p>جاري التحميل...</p>
                     </div>
                 </div>
             );
 
+            // Default/Notification render
             return (
                 <>
-                    {notify && (
-                        <div className={`fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl font-bold z-[100] text-white flex items-center gap-2 ${notify.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
-                            <Icon name={notify.type === 'error' ? 'alert-circle' : 'check-circle'} />
-                            {notify.msg}
+                    {notification && (
+                        <div className={`fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl font-bold z-[100] text-white flex items-center gap-2 ${notification.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+                            <Icon name={notification.type === 'error' ? 'alert-circle' : 'check-circle'} />
+                            {notification.message}
                         </div>
                     )}
                 </>
