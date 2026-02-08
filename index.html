@@ -1046,6 +1046,7 @@
         const SubscriptionManager = ({ students, onConfirmPayment, onDeactivate, isSuperAdmin }) => {
             const [searchTerm, setSearchTerm] = React.useState('');
             const [filterStatus, setFilterStatus] = React.useState('all'); // all, active, expired
+            const [activatingId, setActivatingId] = React.useState(null); // Track which student is being activated
 
             // Bulk Activation Logic
             const activateAll = async () => {
@@ -1159,10 +1160,16 @@
                                                 <td className="p-4">
                                                     {isSuperAdmin ? (
                                                         <div className="flex gap-2">
-                                                            <button onClick={() => onConfirmPayment(student.id, 30)} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+30</button>
-                                                            <button onClick={() => onConfirmPayment(student.id, 60)} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+60</button>
-                                                            <button onClick={() => onConfirmPayment(student.id, 90)} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+90</button>
-                                                            <button onClick={() => onDeactivate(student.id)} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">إلغاء</button>
+                                                            {activatingId === student.id ? (
+                                                                <span className="bg-yellow-500/20 text-yellow-400 px-4 py-1 rounded-lg text-xs font-bold animate-pulse">جاري التفعيل...</span>
+                                                            ) : (
+                                                                <>
+                                                                    <button onClick={async () => { setActivatingId(student.id); await onConfirmPayment(student.id, 30); setActivatingId(null); }} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+30</button>
+                                                                    <button onClick={async () => { setActivatingId(student.id); await onConfirmPayment(student.id, 60); setActivatingId(null); }} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+60</button>
+                                                                    <button onClick={async () => { setActivatingId(student.id); await onConfirmPayment(student.id, 90); setActivatingId(null); }} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+90</button>
+                                                                    <button onClick={() => onDeactivate(student.id)} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">إلغاء</button>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     ) : <span className="text-slate-500 italic">للمدير الأعلى فقط</span>}
                                                 </td>
@@ -1858,7 +1865,9 @@
                                                         dataState.lectures
                                                             .filter(lec => lectureGradeFilter === 'all' || lec.grade === lectureGradeFilter)
                                                             .map(lec => {
-                                                                const isLocked = !lec.isFree && (!user?.isPaid || new Date(user.subscriptionEnd) <= new Date());
+                                                                // Robust lock logic with fallback: if isPaid is true but subscriptionEnd is missing, treat as active
+                                                                const isSubscriptionActive = user?.isPaid && (!user.subscriptionEnd || new Date(user.subscriptionEnd) > new Date());
+                                                                const isLocked = !lec.isFree && !isSubscriptionActive;
                                                                 return (
                                                                     <div key={lec.id}
                                                                         onClick={() => {
