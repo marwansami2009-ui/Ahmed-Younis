@@ -366,7 +366,7 @@
 
         // 🔐 Security Constants
         const SUPER_ADMIN_EMAIL = 'marwansami2009@gmail.com';
-        const SUPER_ADMIN_UID = 'I47KrLsm84csLbGOJhIHo8mcW0W2'; // CRITICAL: New Super Admin UID (bypasses all checks)
+        const SUPER_ADMIN_UID = 'wGe8us2pLKRrZPx86yUn4ZYaU4h2'; // CRITICAL: New Super Admin UID (bypasses all checks)
         const ADMIN_SECRET_PASSWORD = '123456789';
         const MANAGER_PASSWORD = '01023456789';
 
@@ -1342,7 +1342,7 @@
                 const unsubscribeAuth = window.authMethods.onAuthStateChanged(window.auth, (u) => {
                     if (u) {
                         // 🔐 CRITICAL: Super Admin UID Bypass - Immediate boss access
-                        if (u.uid === SUPER_ADMIN_UID) {
+                        if (u.uid === SUPER_ADMIN_UID || u.email === SUPER_ADMIN_EMAIL) {
                             setUser({
                                 uid: u.uid,
                                 name: u.displayName || TEACHER_NAME,
@@ -1377,9 +1377,17 @@
                                 setUserType(userData.accountType || 'student');
                                 setView(['admin', 'boss'].includes(userData.role) ? 'admin' : 'student');
                             } else {
-                                // New user, wait for profile completion
-                                setUser({ uid: u.uid, name: u.displayName, email: u.email, photo: u.photoURL, isNew: true });
-                                setView('complete-profile');
+                                // Check if user is in requests (Waiting for Approval)
+                                window.rtdb.get(window.rtdb.ref(window.db, `requests/${u.uid}`)).then(reqSnap => {
+                                    if (reqSnap.exists()) {
+                                        setUser({ uid: u.uid, name: u.displayName, email: u.email, photo: u.photoURL });
+                                        setView('waiting-approval');
+                                    } else {
+                                        // New user, wait for profile completion
+                                        setUser({ uid: u.uid, name: u.displayName, email: u.email, photo: u.photoURL, isNew: true });
+                                        setView('complete-profile');
+                                    }
+                                });
                             }
                         });
 
@@ -1597,7 +1605,7 @@
 
                     <section className={`py-20 relative z-20 ${isDarkMode ? 'bg-black/20' : 'bg-white/80'} backdrop-blur-sm`}>
                         <div className="container mx-auto px-4">
-                            <h2 className="text-4xl font-black text-center mb-16">ليه <span className="text-brand-accent">س</span> يكتسح؟ 🤔</h2>
+                            <h2 className="text-4xl font-black text-center mb-16">ليه <span className="text-brand-accent">سبيل التفوق </span> يكتسح؟ 🤔</h2>
                             <div className="grid md:grid-cols-3 gap-8">
                                 {[
                                     { icon: 'brain', title: 'شرح يدخل المخ', desc: 'بنبسطلك المعلومة المعقدة ونخليها ميه.' },
@@ -1715,6 +1723,32 @@
                             ))}
                         </div>
                     </main>
+                </div>
+            );
+
+            // ⏳ WAITING APPROVAL VIEW
+            if (view === 'waiting-approval') return (
+                <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
+                    <div className="glass-panel p-10 max-w-lg w-full text-center animate-slide-up border-t-4 border-yellow-500">
+                        <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <Icon name="clock" size={40} className="text-yellow-500" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-white mb-4">الحساب قيد المراجعة</h2>
+                        <div className="space-y-4">
+                            <p className="text-slate-300 leading-relaxed text-lg">
+                                تم استلام بياناتك بنجاح. يرجى الانتظار لحين مراجعة الحساب وتفعيله من قبل الإدارة (خلال ساعات قليلة).
+                            </p>
+                            <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                                <p className="text-sm text-slate-400">سيتم تفعيل حسابك تلقائياً دون الحاجة لإعادة التسجيل.</p>
+                            </div>
+                            <button onClick={() => window.location.reload()} className="text-brand-accent hover:underline text-sm font-bold">
+                                اضغط هنا للتحديث
+                            </button>
+                            <button onClick={() => window.authMethods.signOut(window.auth)} className="block w-full text-red-400 hover:bg-red-500/10 p-3 rounded-xl transition mt-4">
+                                تسجيل خروج
+                            </button>
+                        </div>
+                    </div>
                 </div>
             );
 
@@ -1896,7 +1930,7 @@
                                     <div className="glass-panel p-10 text-center mt-10 animate-slide-up">
                                         <GlassIcon name="lock" size={48} className="mx-auto mb-6" />
                                         <h2 className="text-3xl font-bold mb-3">المحتوى مغلق 🔒</h2>
-                                        <p className="text-slate-400 mb-8">عشان تشوف المحاضرات لازم تفعل اشتراكك</p>
+                                        <p className="text-slate-400 mb-8">الحساب مفعل.. يرجى الاشتراك لفتح المحتوى التعليمي</p>
                                         <button onClick={() => setActiveTab('subscription')} className="btn-main px-8 py-3 rounded-xl text-lg">اشترك الآن</button>
                                     </div>
                                 ) : (
@@ -2543,7 +2577,7 @@
                                                                         // CRITICAL: Robust Approval
                                                                         try {
                                                                             // Security Check
-                                                                            if (user.uid !== 'I47KrLsm84csLbGOJhIHo8mcW0W2') {
+                                                                            if (user.uid !== SUPER_ADMIN_UID && user.email !== SUPER_ADMIN_EMAIL) {
                                                                                 return showNotification('غير مصرح لك بهذا الإجراء. فقط المدير الأعلى.', 'error');
                                                                             }
 
@@ -2554,18 +2588,17 @@
                                                                                 displayName: req.displayName || req.name,
                                                                                 email: req.email,
                                                                                 photo: req.photo,
-                                                                                phone: req.phone,
-                                                                                parentPhone: req.parentPhone,
-                                                                                school: req.school,
-                                                                                governorate: req.governorate,
-                                                                                city: req.city,
-                                                                                grade: req.grade,
-                                                                                firstName: req.firstName,
-                                                                                fatherName: req.fatherName,
-                                                                                grandfatherName: req.grandfatherName,
+                                                                                phone: req.phone || '',
+                                                                                parentPhone: req.parentPhone || '',
+                                                                                school: req.school || '',
+                                                                                governorate: req.governorate || '',
+                                                                                city: req.city || '',
+                                                                                grade: req.grade || '',
+                                                                                firstName: req.firstName || '',
+                                                                                fatherName: req.fatherName || '',
+                                                                                grandfatherName: req.grandfatherName || '',
                                                                                 bio: req.bio || '',
-                                                                                role: 'طالب',
-                                                                                level: 'جديد',
+                                                                                role: 'student',
                                                                                 isPaid: false,
                                                                                 isNew: false,
                                                                                 code: code,
@@ -2573,18 +2606,18 @@
                                                                                 registrationDate: new Date().toISOString()
                                                                             };
 
-                                                                            // 1. Set User Data first - strictly await
+                                                                            // 1. Set User Data (Sequential)
                                                                             await window.rtdb.set(window.rtdb.ref(window.db, `users/${req.uid}`), userData);
 
-                                                                            // 2. Remove Request only after success
+                                                                            // 2. Delete Request (Only after successful set)
                                                                             await window.rtdb.remove(window.rtdb.ref(window.db, `requests/${req.id}`));
 
-                                                                            showNotification('تم قبول الطلب وإضافته للطلاب ✅');
+                                                                            showNotification('تم قبول الطلب ✅');
                                                                         } catch (error) {
-                                                                            console.error('Approval error:', error);
-                                                                            showNotification('حدث خطأ أثناء الموافقة', 'error');
+                                                                            console.error("Approval Error:", error);
+                                                                            showNotification('حدث خطأ أثناء الموافقة. حاول مرة أخرى.', 'error');
                                                                         }
-                                                                    }} className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl font-bold flex items-center gap-2 transition">
+                                                                    }} className="bg-green-500/20 text-green-300 hover:bg-green-500 hover:text-white px-4 py-2 rounded-xl font-bold transition flex items-center gap-2">
                                                                         <Icon name="check" size={18} /> قبول
                                                                     </button>
                                                                     <button onClick={async () => {
