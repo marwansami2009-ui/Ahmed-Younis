@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة العالمي للرياضيات | أ/ أحمد سعد يونس</title>
+    <title>منصة سبيل التفوق | أستاذ محمد حامد</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -43,10 +43,10 @@
                 extend: {
                     colors: {
                         brand: {
-                            dark: '#0f172a',
-                            card: '#1e293b',
-                            primary: '#3b82f6',
-                            accent: '#fbbf24',
+                            dark: '#0a0a0a',
+                            card: '#171717',
+                            primary: '#a1a1aa',
+                            accent: '#e4e4e7',
                         }
                     },
                     fontFamily: { 'cairo': ['Cairo', 'sans-serif'] },
@@ -68,21 +68,21 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --grid-color: rgba(255, 255, 255, 0.03);
-            --glow-color: rgba(59, 130, 246, 0.15);
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #171717;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --grid-color: rgba(255, 255, 255, 0.04);
+            --glow-color: rgba(228, 228, 231, 0.12);
         }
 
         .light-mode {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --grid-color: rgba(100, 116, 139, 0.1);
-            --glow-color: rgba(59, 130, 246, 0.1);
+            --bg-primary: #fafafa;
+            --bg-secondary: #f4f4f5;
+            --text-primary: #0a0a0a;
+            --text-secondary: #52525b;
+            --grid-color: rgba(0, 0, 0, 0.06);
+            --glow-color: rgba(161, 161, 170, 0.15);
         }
 
         * {
@@ -99,46 +99,46 @@
         }
 
         .glass-panel {
-            background: rgba(30, 41, 59, 0.75);
+            background: rgba(23, 23, 23, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             border-radius: 16px;
         }
 
         .light-mode .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
         }
 
-        /* Glassmorphism Icons */
+        /* Glassmorphism Icons - Steel/Silver Chess Theme */
         .glass-icon {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(161, 161, 170, 0.25) 0%, rgba(82, 82, 91, 0.15) 100%);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(59, 130, 246, 0.4);
+            border: 1px solid rgba(228, 228, 231, 0.3);
             border-radius: 12px;
             padding: 10px;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 20px rgba(161, 161, 170, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.03);
             transition: all 0.3s ease;
         }
 
         .glass-icon:hover {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), inset 0 0 25px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(228, 228, 231, 0.35), inset 0 0 25px rgba(255, 255, 255, 0.08);
             transform: translateY(-2px);
         }
 
         .btn-main {
-            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-            color: #0f172a;
+            background: linear-gradient(135deg, #e4e4e7 0%, #a1a1aa 100%);
+            color: #0a0a0a;
             font-weight: 800;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+            box-shadow: 0 4px 15px rgba(228, 228, 231, 0.25);
         }
 
         .btn-main:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.5);
+            box-shadow: 0 8px 25px rgba(228, 228, 231, 0.4);
         }
 
         .embed-wrapper {
@@ -171,7 +171,7 @@
         }
 
         .light-mode .hero-glow {
-            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, rgba(255, 255, 255, 0.9) 50%);
+            background: radial-gradient(circle at 50% 50%, rgba(161, 161, 170, 0.1) 0%, rgba(250, 250, 250, 0.95) 50%);
         }
 
         ::-webkit-scrollbar {
@@ -366,6 +366,7 @@
 
         // 🔐 Security Constants
         const SUPER_ADMIN_EMAIL = 'marwansami2009@gmail.com';
+        const SUPER_ADMIN_UID = 'I47KrLsm84csLbGOJhIHo8mcW0W2'; // CRITICAL: New Super Admin UID (bypasses all checks)
         const ADMIN_SECRET_PASSWORD = '123456789';
         const MANAGER_PASSWORD = '01023456789';
 
@@ -378,6 +379,12 @@
             vodafoneNumber: '010xxxxxxxx',
             supportWhatsapp: 'https://wa.me/201000000000'
         };
+
+        // 🏷️ Platform Branding
+        const PLATFORM_NAME = 'منصة سبيل التفوق';
+        const PLATFORM_SHORT = 'سبيل التفوق';
+        const TEACHER_NAME = 'أستاذ محمد حامد';
+        const SUBJECT_NAME = 'اللغة العربية';
 
         // 🎨 Icon Component (Outside App for performance)
         const Icon = ({ name, size = 20, className = '' }) => {
@@ -392,14 +399,14 @@
             </div>
         );
 
-        // 🌓 Theme Toggle Component
+        // 🌓 Theme Toggle Component - Chess Theme
         const ThemeToggle = ({ isDark, onToggle }) => (
             <div className="theme-toggle">
                 <button onClick={() => onToggle(false)} className={!isDark ? 'active' : 'text-slate-400'}>
-                    <Icon name="sun" size={16} /> فاتح
+                    <Icon name="sun" size={16} /> رقعة كلاسيك
                 </button>
                 <button onClick={() => onToggle(true)} className={isDark ? 'active' : 'text-slate-400'}>
-                    <Icon name="moon" size={16} /> داكن
+                    <Icon name="moon" size={16} /> ليل الشطرنج
                 </button>
             </div>
         );
@@ -449,11 +456,11 @@
             return (
                 <div className="glass-panel p-6 animate-slide-up">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="glass-icon bg-gradient-to-r from-yellow-500/30 to-yellow-600/20 border-yellow-500">
-                            <Icon name="trophy" size={24} className="text-yellow-400" />
+                        <div className="glass-icon bg-gradient-to-r from-zinc-400/30 to-zinc-500/20 border-zinc-400">
+                            <Icon name="award" size={24} className="text-zinc-300" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold">🏆 لوحة الشرف</h2>
+                            <h2 className="text-xl font-bold">♞ فرسان التفوق</h2>
                             <p className="text-xs text-slate-400">أفضل 10 طلاب بالمنصة</p>
                         </div>
                     </div>
@@ -1309,6 +1316,33 @@
             useEffect(() => {
                 const unsubscribeAuth = window.authMethods.onAuthStateChanged(window.auth, (u) => {
                     if (u) {
+                        // 🔐 CRITICAL: Super Admin UID Bypass - Immediate boss access
+                        if (u.uid === SUPER_ADMIN_UID) {
+                            setUser({
+                                uid: u.uid,
+                                name: u.displayName || TEACHER_NAME,
+                                email: u.email,
+                                photo: u.photoURL,
+                                role: 'boss',
+                                accountType: 'admin',
+                                isPaid: true
+                            });
+                            setUserType('admin');
+                            setView('admin');
+                            // Also update Firebase to persist boss role
+                            window.rtdb.update(window.rtdb.ref(window.db, `users/${u.uid}`), {
+                                uid: u.uid,
+                                name: u.displayName || TEACHER_NAME,
+                                email: u.email,
+                                photo: u.photoURL,
+                                role: 'boss',
+                                accountType: 'admin',
+                                isPaid: true,
+                                isSuperAdmin: true
+                            });
+                            return; // Skip normal flow
+                        }
+
                         // Real-time listener for user data
                         const userRef = window.rtdb.ref(window.db, `users/${u.uid}`);
                         const unsubscribeUser = window.rtdb.onValue(userRef, (snapshot) => {
@@ -1485,7 +1519,7 @@
                 showNotification(`تم إضافة اشتراك ${months} شهر`);
             };
 
-            const generatePaymentCode = () => `ALAMY${Date.now().toString().slice(-8)}`;
+            const generatePaymentCode = () => `SABEEL${Date.now().toString().slice(-8)}`;
 
             const handleGoogleLogin = () => {
                 window.authMethods.signInWithPopup(window.auth, window.googleProvider);
@@ -1499,8 +1533,8 @@
 
                     <header className="relative z-50 p-6 flex justify-between items-center container mx-auto">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">∑</div>
-                            <h1 className="text-2xl font-black tracking-tighter">العالمي</h1>
+                            <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">♞</div>
+                            <h1 className="text-2xl font-black tracking-tighter">{PLATFORM_SHORT}</h1>
                         </div>
                         <div className="flex items-center gap-4">
                             <ThemeToggle isDark={isDarkMode} onToggle={setIsDarkMode} />
@@ -1510,29 +1544,29 @@
 
                     <div className="flex-1 container mx-auto px-4 flex flex-col-reverse md:flex-row items-center justify-center gap-10 relative z-20 py-10">
                         <div className="text-center md:text-right space-y-6 md:w-1/2 animate-slide-up">
-                            <div className={`inline-block px-4 py-1 rounded-full text-sm font-bold border ${isDarkMode ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-blue-100 text-blue-700 border-blue-300'}`}>
-                                🚀 أقوى منصة رياضيات في مصر
+                            <div className={`inline-block px-4 py-1 rounded-full text-sm font-bold border ${isDarkMode ? 'bg-zinc-500/20 text-zinc-300 border-zinc-500/30' : 'bg-zinc-100 text-zinc-700 border-zinc-300'}`}>
+                                📚 أقوى منصة لغة عربية في مصر
                             </div>
 
                             <h1 className="text-5xl md:text-7xl font-black leading-tight">
-                                الرياضيات<br />
-                                <span className="text-brand-accent">لعبتك معانا!</span>
+                                اللغة العربية<br />
+                                <span className="text-brand-accent">سبيل التفوق!</span>
                             </h1>
 
                             <p className={`text-lg md:text-xl font-medium max-w-lg mx-auto md:mx-0 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                                مع أ/ أحمد سعد يونس.. التفاضل والتكامل والجبر بقوا أسهل مما تتخيل.
+                                مع {TEACHER_NAME}.. النحو والبلاغة والأدب بقوا أسهل مما تتخيل.
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
                                 <button onClick={handleGoogleLogin} className="btn-main px-8 py-4 rounded-xl text-xl flex items-center justify-center gap-2">
-                                    اشترك الآن <GlassIcon name="calculator" size={20} />
+                                    اشترك الآن <GlassIcon name="book-open" size={20} />
                                 </button>
                             </div>
                         </div>
 
-                        <div className={`md:w-1/2 relative flex justify-center items-end ${isDarkMode ? '' : 'bg-gradient-to-b from-white to-blue-50 rounded-3xl p-8'}`}>
+                        <div className={`md:w-1/2 relative flex justify-center items-end ${isDarkMode ? '' : 'bg-gradient-to-b from-white to-zinc-50 rounded-3xl p-8'}`}>
                             <div className="absolute inset-0 bg-brand-primary/30 blur-[100px] rounded-full"></div>
-                            <img src="./alalamy.png" className="relative z-10 w-full max-w-md object-contain drop-shadow-2xl animate-float hover:scale-105 transition-transform duration-500" alt="أ/ أحمد سعد يونس" onError={(e) => { e.target.style.display = 'none' }} />
+                            <img src="./teacher.png" className="relative z-10 w-full max-w-md object-contain drop-shadow-2xl animate-float hover:scale-105 transition-transform duration-500" alt={TEACHER_NAME} onError={(e) => { e.target.style.display = 'none' }} />
                         </div>
                     </div>
 
@@ -1739,7 +1773,7 @@
                             <div className="absolute inset-0 math-grid opacity-10 pointer-events-none"></div>
 
                             <header className="p-4 flex justify-between items-center md:hidden sticky top-0 z-40 bg-brand-dark/80 backdrop-blur-md border-b border-white/5">
-                                <h1 className="font-black text-xl text-brand-accent">العالمي</h1>
+                                <h1 className="font-black text-xl text-brand-accent">{PLATFORM_SHORT}</h1>
                                 <button onClick={() => setSidebarOpen(true)}><Icon name="menu" /></button>
                             </header>
 
