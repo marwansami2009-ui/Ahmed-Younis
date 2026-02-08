@@ -1679,7 +1679,7 @@
                 <div className={`min-h-screen ${isDarkMode ? 'bg-brand-dark text-white' : 'bg-slate-50 text-slate-900'} math-grid`}>
                     <header className="p-6 flex justify-between items-center container mx-auto border-b border-white/10">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">∑</div>
+                            <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center text-brand-dark font-black text-xl">♞</div>
                             <h1 className="text-2xl font-black">العالمي</h1>
                             <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold">وضع الزائر</span>
                         </div>
@@ -1779,10 +1779,26 @@
                                 <input className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white" placeholder="إيميل الطالب المرتبط" onChange={e => setRegData({ ...regData, linkedStudentEmail: e.target.value })} />
                             )}
 
+                            {/* Mandatory Bio Field - Added per Requirement 1 */}
+                            <div className="glass-panel p-4 border border-blue-500/20">
+                                <h4 className="text-sm font-bold text-blue-400 mb-3 flex items-center gap-2">
+                                    <Icon name="edit-3" size={16} /> ♞ وصف لنفسي (إجباري)
+                                </h4>
+                                <textarea
+                                    placeholder="اكتب نبذة عن نفسك... من أنت؟ ما طموحاتك؟"
+                                    className="w-full p-4 bg-white/5 border border-blue-500/20 rounded-xl outline-none text-white h-24 resize-none placeholder-slate-500"
+                                    onChange={e => setRegData({ ...regData, bio: e.target.value })}
+                                />
+                            </div>
+
                             <button onClick={async () => {
                                 // Validate triple-name
                                 if (!regData.firstName || !regData.fatherName || !regData.grandfatherName) {
                                     return showNotification('من فضلك اكتب الاسم الثلاثي كاملاً', 'error');
+                                }
+                                // Validate Bio
+                                if (!regData.bio || regData.bio.length < 10) {
+                                    return showNotification('من فضلك اكتب وصف مختصر عن نفسك (على الأقل 10 حروف)', 'error');
                                 }
                                 if (!regData.phone || !regData.parentPhone || !regData.school || !regData.governorate || !regData.city) {
                                     return showNotification('من فضلك اكتب كل البيانات', 'error');
@@ -2524,7 +2540,13 @@
                                                             {isSuperAdmin ? (
                                                                 <div className="flex gap-2 self-start">
                                                                     <button onClick={async () => {
+                                                                        // CRITICAL: Robust Approval
                                                                         try {
+                                                                            // Security Check
+                                                                            if (user.uid !== 'I47KrLsm84csLbGOJhIHo8mcW0W2') {
+                                                                                return showNotification('غير مصرح لك بهذا الإجراء. فقط المدير الأعلى.', 'error');
+                                                                            }
+
                                                                             const code = `STD${Date.now().toString().slice(-6)}`;
                                                                             const userData = {
                                                                                 uid: req.uid,
@@ -2550,8 +2572,13 @@
                                                                                 accountType: req.requestType || 'student',
                                                                                 registrationDate: new Date().toISOString()
                                                                             };
+
+                                                                            // 1. Set User Data first - strictly await
                                                                             await window.rtdb.set(window.rtdb.ref(window.db, `users/${req.uid}`), userData);
+
+                                                                            // 2. Remove Request only after success
                                                                             await window.rtdb.remove(window.rtdb.ref(window.db, `requests/${req.id}`));
+
                                                                             showNotification('تم قبول الطلب وإضافته للطلاب ✅');
                                                                         } catch (error) {
                                                                             console.error('Approval error:', error);
@@ -2665,12 +2692,12 @@
                                                                 {/* Reset Account Button */}
                                                                 {isSuperAdmin && (
                                                                     <button onClick={async () => {
-                                                                        if (confirm(`⚠️ تحذير: هل تريد إعادة ضبط حساب "${s.name}"؟\n\nهذا سيحذف بيانات الطالب بالكامل وسيحتاج لإعادة التسجيل.`)) {
+                                                                        if (confirm(`⚠️ تحذير: هل تريد طرد "${s.name}" وإجباره على إعادة التسجيل؟\n\nهذا سيحذف الحساب تماماً.`)) {
                                                                             await window.rtdb.remove(window.rtdb.ref(window.db, `users/${s.id}`));
-                                                                            showNotification('تم إعادة ضبط الحساب - سيحتاج الطالب لإعادة التسجيل');
+                                                                            showNotification('تم طرد المستخدم - سيحتاج لإعادة التسجيل');
                                                                         }
                                                                     }} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 transition border border-red-500/30">
-                                                                        <Icon name="refresh-cw" size={16} /> إعادة ضبط
+                                                                        <Icon name="trash-2" size={16} /> طرد وإعادة تسجيل
                                                                     </button>
                                                                 )}
                                                             </div>
