@@ -990,77 +990,84 @@
             );
         };
 
-        const SubscriptionsTab = ({ students, onConfirmPayment, onCancel, isSuperAdmin }) => {
+        const SubscriptionManager = ({ students, onConfirmPayment, onDeactivate, isSuperAdmin }) => {
             const [searchTerm, setSearchTerm] = React.useState('');
             const filteredStudents = students.filter(s => s.name?.toLowerCase().includes(searchTerm.toLowerCase()));
 
-            return (
-                <div className="space-y-6 animate-slide-up">
-                    <div className="glass-panel p-6 flex flex-wrap justify-between items-center gap-4">
-                        <h2 className="text-2xl font-bold flex items-center gap-2">
-                            <GlassIcon name="credit-card" size={24} /> إدارة الاشتراكات
-                        </h2>
-                        <input
-                            placeholder="بحث عن طالب..."
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            className="bg-white/5 border border-white/10 p-3 rounded-xl w-64"
-                        />
-                    </div>
+            <div className="space-y-6 animate-slide-up">
+                <div className="glass-panel p-6 flex flex-wrap justify-between items-center gap-4">
+                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                        <GlassIcon name="credit-card" size={24} /> إدارة الاشتراكات
+                    </h2>
+                    <input
+                        placeholder="بحث عن طالب..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="bg-white/5 border border-white/10 p-3 rounded-xl w-64"
+                    />
+                </div>
 
-                    <div className="glass-panel overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-right min-w-[800px]">
-                                <thead className="bg-white/5 text-slate-300">
-                                    <tr>
-                                        <th className="p-4">الطالب</th>
-                                        <th className="p-4">الحالة</th>
-                                        <th className="p-4">المدة المتبقية</th>
-                                        <th className="p-4">إجراءات المدير</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredStudents.map(student => {
-                                        const daysLeft = student.subscriptionEnd ? Math.ceil((new Date(student.subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24)) : 0;
-                                        return (
-                                            <tr key={student.id} className="border-b border-white/5 hover:bg-white/5 transition">
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-slate-700 overflow-hidden">
-                                                            <img src={student.photo} className="w-full h-full object-cover" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-bold">{student.name}</p>
-                                                            <p className="text-xs text-slate-400">{student.email}</p>
+                <div className="glass-panel overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-right min-w-[900px]">
+                            <thead className="bg-white/5 text-slate-300">
+                                <tr>
+                                    <th className="p-4">الطالب</th>
+                                    <th className="p-4">الصف الدراسي</th>
+                                    <th className="p-4">تاريخ الانتهاء</th>
+                                    <th className="p-4">إجراءات المدير</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredStudents.map(student => {
+                                    const daysLeft = student.subscriptionEnd ? Math.ceil((new Date(student.subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24)) : 0;
+
+                                    return (
+                                        <tr key={student.id} className="border-b border-white/5 hover:bg-white/5 transition">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-slate-700 overflow-hidden">
+                                                        <img src={student.photo} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold">{student.name}</p>
+                                                        <p className="text-xs text-slate-400">{student.email}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className="bg-brand-accent/10 text-brand-accent px-2 py-1 rounded text-xs font-bold">
+                                                    {student.grade === '1sec' ? 'أولى ثانوي' : student.grade === '2sec' ? 'تانية ثانوي' : 'تالتة ثانوي'}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 font-mono text-sm">
+                                                {student.isPaid && student.subscriptionEnd ? (
+                                                    <div className={daysLeft > 0 ? "text-green-400" : "text-red-400"}>
+                                                        {new Date(student.subscriptionEnd).toLocaleDateString('ar-EG')}
+                                                        <div className="text-xs opacity-70">
+                                                            {daysLeft > 0 ? `باقي ${daysLeft} يوم` : 'منتهي'}
                                                         </div>
                                                     </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    {student.isPaid && daysLeft > 0 ?
-                                                        <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">مشترك نشط</span> :
-                                                        <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-500/30">غير مشترك</span>
-                                                    }
-                                                </td>
-                                                <td className="p-4 font-mono text-sm">
-                                                    {daysLeft > 0 ? `${daysLeft} يوم` : '-'}
-                                                </td>
-                                                <td className="p-4">
-                                                    {isSuperAdmin ? (
-                                                        <div className="flex gap-2">
-                                                            <button onClick={() => onConfirmPayment(student.id, 30)} className="bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">30 يوم</button>
-                                                            <button onClick={() => onConfirmPayment(student.id, 60)} className="bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">60 يوم</button>
-                                                            <button onClick={() => onCancel(student.id)} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">إلغاء</button>
-                                                        </div>
-                                                    ) : <span className="text-xs text-slate-500 italic">للمدير الأعلى فقط</span>}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                                                ) : <span className="text-slate-500 font-bold">--</span>}
+                                            </td>
+                                            <td className="p-4">
+                                                {isSuperAdmin ? (
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => onConfirmPayment(student.id, 30)} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+30 يوم</button>
+                                                        <button onClick={() => onConfirmPayment(student.id, 60)} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+60 يوم</button>
+                                                        <button onClick={() => onConfirmPayment(student.id, 90)} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+90 يوم</button>
+                                                        <button onClick={() => onDeactivate(student.id)} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">إلغاء</button>
+                                                    </div>
+                                                ) : <span className="text-slate-500 italic">للمدير الأعلى فقط</span>}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
             );
         };
 
@@ -1987,7 +1994,7 @@
                                     { id: 'flashcards', l: 'البطاقات', i: 'layers' },
                                     { id: 'qa', l: 'الأسئلة', i: 'help-circle' },
                                     { id: 'announcements', l: 'الإعلانات', i: 'megaphone' },
-                                    { id: 'subscriptions', l: 'إدارة الاشتراكات', i: 'credit-card' },
+                                    { id: 'subscriptions_manager', l: 'إدارة الاشتراكات', i: 'credit-card' },
                                     ...(isSuperAdmin ? [{ id: 'managers', l: 'المديرين', i: 'shield' }] : [])
                                 ].map(item => (
                                     <button key={item.id} onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
@@ -2152,11 +2159,11 @@
                                 )}
 
                                 {/* Subscriptions Management Tab */}
-                                {activeTab === 'subscriptions' && (
-                                    <SubscriptionsTab
+                                {activeTab === 'subscriptions_manager' && (
+                                    <SubscriptionManager
                                         students={dataState.students}
                                         onConfirmPayment={confirmPayment}
-                                        onCancel={(id) => updateStudent(id, { isPaid: false, subscriptionEnd: null })}
+                                        onDeactivate={(id) => updateStudent(id, { isPaid: false, subscriptionEnd: null })}
                                         isSuperAdmin={isSuperAdmin}
                                     />
                                 )}
@@ -2506,22 +2513,6 @@
                                         </div>
 
                                         <div className="space-y-4">
-                                            {/* Subscription Management */}
-                                            {isSuperAdmin && (
-                                                <div className="bg-white/5 p-4 rounded-xl">
-                                                    <h4 className="font-bold mb-3">إدارة الاشتراك (المدير الأعلى فقط)</h4>
-                                                    <div className="flex gap-2 flex-wrap">
-                                                        <button onClick={() => confirmPayment(selectedStudent.id, 30)}
-                                                            className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm font-bold">30 يوم</button>
-                                                        <button onClick={() => confirmPayment(selectedStudent.id, 60)}
-                                                            className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm font-bold">60 يوم</button>
-                                                        <button onClick={() => confirmPayment(selectedStudent.id, 90)}
-                                                            className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm font-bold">90 يوم</button>
-                                                        <button onClick={() => updateStudent(selectedStudent.id, { isPaid: false })}
-                                                            className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-bold">إلغاء التفعيل</button>
-                                                    </div>
-                                                </div>
-                                            )}
 
                                             {/* Personal Notes */}
                                             <div className="bg-white/5 p-4 rounded-xl">
