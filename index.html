@@ -1338,26 +1338,15 @@
 
             // Authentication
             // Authentication & Real-time User Sync
+            // Authentication & Real-time User Sync
             useEffect(() => {
                 const unsubscribeAuth = window.authMethods.onAuthStateChanged(window.auth, (u) => {
                     if (u) {
-                        // 🔐 CRITICAL: Super Admin UID Bypass - Immediate boss access
-                        if (u.uid === SUPER_ADMIN_UID || u.email === SUPER_ADMIN_EMAIL) {
+                        // 🔐 CRITICAL: Super Admin God-Mode
+                        if (u.uid === 'wGe8us2pLKRrZPx86yUn4ZYaU4h2') {
                             setUser({
                                 uid: u.uid,
-                                name: u.displayName || TEACHER_NAME,
-                                email: u.email,
-                                photo: u.photoURL,
-                                role: 'boss',
-                                accountType: 'admin',
-                                isPaid: true
-                            });
-                            setUserType('admin');
-                            setView('admin');
-                            // Also update Firebase to persist boss role
-                            window.rtdb.update(window.rtdb.ref(window.db, `users/${u.uid}`), {
-                                uid: u.uid,
-                                name: u.displayName || TEACHER_NAME,
+                                name: 'مروان سامي',
                                 email: u.email,
                                 photo: u.photoURL,
                                 role: 'boss',
@@ -1365,7 +1354,9 @@
                                 isPaid: true,
                                 isSuperAdmin: true
                             });
-                            return; // Skip normal flow
+                            setUserType('admin');
+                            setView('admin');
+                            return;
                         }
 
                         // Real-time listener for user data
@@ -1736,7 +1727,7 @@
                         <h2 className="text-3xl font-bold text-white mb-4">الحساب قيد المراجعة</h2>
                         <div className="space-y-4">
                             <p className="text-slate-300 leading-relaxed text-lg">
-                                تم استلام بياناتك بنجاح. يرجى الانتظار لحين مراجعة الحساب وتفعيله من قبل الإدارة (خلال ساعات قليلة).
+                                ♞ تم استلام بياناتك بنجاح! حسابك الآن قيد المراجعة من قبل الإدارة. سيتم تفعيل حسابك خلال ساعات قليلة، يرجى المحاولة لاحقاً.
                             </p>
                             <div className="bg-white/5 p-4 rounded-xl border border-white/10">
                                 <p className="text-sm text-slate-400">سيتم تفعيل حسابك تلقائياً دون الحاجة لإعادة التسجيل.</p>
@@ -1837,21 +1828,30 @@
                                 if (!regData.phone || !regData.parentPhone || !regData.school || !regData.governorate || !regData.city) {
                                     return showNotification('من فضلك اكتب كل البيانات', 'error');
                                 }
-                                // Join names into displayName
-                                const displayName = `${regData.firstName} ${regData.fatherName} ${regData.grandfatherName}`.trim();
-                                await window.rtdb.set(window.rtdb.push(window.rtdb.ref(window.db, 'requests')), {
-                                    ...regData,
-                                    uid: user.uid,
-                                    name: displayName, // Use joined triple-name
-                                    displayName: displayName,
-                                    email: user.email,
-                                    photo: user.photo,
-                                    date: new Date().toLocaleDateString(),
-                                    ts: Date.now(),
-                                    requestType: regData.accountType
-                                });
-                                showNotification('تم إرسال طلبك! هيتم المراجعة والموافقة قريباً');
-                                setTimeout(() => window.authMethods.signOut(window.auth), 3000);
+                                
+                                try {
+                                    // Join names into displayName
+                                    const displayName = `${regData.firstName} ${regData.fatherName} ${regData.grandfatherName}`.trim();
+                                    
+                                    await window.rtdb.set(window.rtdb.push(window.rtdb.ref(window.db, 'requests')), {
+                                        ...regData,
+                                        uid: user.uid,
+                                        name: displayName,
+                                        displayName: displayName,
+                                        email: user.email,
+                                        photo: user.photo,
+                                        date: new Date().toLocaleDateString(),
+                                        ts: Date.now(),
+                                        requestType: regData.accountType
+                                    });
+
+                                    // CRITICAL: Immediate View Switch
+                                    setView('waiting-approval');
+                                    showNotification('تم إرسال طلبك بنجاح! ♞');
+                                } catch (error) {
+                                    console.error("Registration Error:", error);
+                                    showNotification('حدث خطأ أثناء إرسال الطلب', 'error');
+                                }
                             }} className="btn-main w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2">
                                 <Icon name="send" /> حفظ البيانات والمتابعة
                             </button>
