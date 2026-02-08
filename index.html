@@ -1171,9 +1171,16 @@
                                                                 <span className="bg-yellow-500/20 text-yellow-400 px-4 py-1 rounded-lg text-xs font-bold animate-pulse">جاري التفعيل...</span>
                                                             ) : (
                                                                 <>
-                                                                    <button onClick={async () => { setActivatingId(student.id); await onConfirmPayment(student.id, 30); setActivatingId(null); }} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+30</button>
-                                                                    <button onClick={async () => { setActivatingId(student.id); await onConfirmPayment(student.id, 60); setActivatingId(null); }} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+60</button>
-                                                                    <button onClick={async () => { setActivatingId(student.id); await onConfirmPayment(student.id, 90); setActivatingId(null); }} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">+90</button>
+                                                                    <button onClick={async () => {
+                                                                        const days = prompt('أدخل عدد الأيام للاشتراك:', '30');
+                                                                        if (days && !isNaN(parseInt(days)) && parseInt(days) > 0) {
+                                                                            setActivatingId(student.id);
+                                                                            await onConfirmPayment(student.id, parseInt(days));
+                                                                            setActivatingId(null);
+                                                                        }
+                                                                    }} className="bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                                                        <Icon name="plus" size={14} /> تفعيل
+                                                                    </button>
                                                                     <button onClick={() => onDeactivate(student.id)} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition">إلغاء</button>
                                                                 </>
                                                             )}
@@ -2395,7 +2402,9 @@
 
                             <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
                                 {[
+                                    { id: 'requests', l: 'طلبات الالتحاق', i: 'user-plus', badge: dataState.requests.length },
                                     { id: 'datacenter', l: 'مركز البيانات', i: 'database' },
+                                    { id: 'subscriptions_manager', l: 'إدارة الاشتراكات', i: 'credit-card' },
                                     { id: 'attendance', l: 'الحضور والمتابعة', i: 'calendar-check' },
                                     { id: 'lectures', l: 'المحاضرات', i: 'video' },
                                     { id: 'whiteboards', l: 'السبورات', i: 'file-text' },
@@ -2404,12 +2413,14 @@
                                     { id: 'flashcards', l: 'البطاقات', i: 'layers' },
                                     { id: 'qa', l: 'الأسئلة', i: 'help-circle' },
                                     { id: 'announcements', l: 'الإعلانات', i: 'megaphone' },
-                                    { id: 'subscriptions_manager', l: 'إدارة الاشتراكات', i: 'credit-card' },
                                     ...(isSuperAdmin ? [{ id: 'managers', l: 'المديرين', i: 'shield' }] : [])
                                 ].map(item => (
                                     <button key={item.id} onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
                                         className={`w-full flex items-center gap-3 p-3 rounded-xl transition font-bold ${activeTab === item.id ? 'bg-brand-primary text-white' : 'text-slate-400 hover:bg-white/5'}`}>
                                         <GlassIcon name={item.i} size={18} /> {item.l}
+                                        {item.badge > 0 && (
+                                            <span className="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-black mr-auto">{item.badge}</span>
+                                        )}
                                     </button>
                                 ))}
                             </nav>
@@ -2467,6 +2478,110 @@
                                     ))}
                                 </div>
 
+                                {/* ✅ Requests Tab - طلبات الالتحاق */}
+                                {activeTab === 'requests' && (
+                                    <div className="space-y-6 animate-slide-up">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h2 className="text-2xl font-bold flex items-center gap-2">
+                                                <GlassIcon name="user-plus" size={24} /> ♞ طلبات الالتحاق
+                                            </h2>
+                                            <span className="bg-yellow-500/20 text-yellow-300 px-4 py-2 rounded-xl font-bold">
+                                                {dataState.requests.length} طلب معلق
+                                            </span>
+                                        </div>
+
+                                        {dataState.requests.length === 0 ? (
+                                            <div className="glass-panel p-12 text-center">
+                                                <GlassIcon name="inbox" size={48} className="mx-auto mb-4" />
+                                                <h3 className="text-xl font-bold text-slate-400">لا توجد طلبات جديدة</h3>
+                                                <p className="text-slate-500 mt-2">سيظهر هنا أي طلب التحاق جديد</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                {dataState.requests.map(req => (
+                                                    <div key={req.id} className="glass-panel p-6 border-r-4 border-yellow-500">
+                                                        <div className="flex flex-col md:flex-row justify-between gap-4">
+                                                            <div className="flex items-start gap-4">
+                                                                <img src={req.photo} className="w-14 h-14 rounded-full border-2 border-yellow-500/30" />
+                                                                <div className="flex-1">
+                                                                    <p className="font-bold text-lg">{req.name || req.displayName}</p>
+                                                                    <p className="text-sm text-slate-400">{req.email}</p>
+                                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                                        <span className={`text-xs px-2 py-1 rounded ${req.requestType === 'parent' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                                                                            {req.requestType === 'parent' ? 'ولي أمر' : 'طالب'}
+                                                                        </span>
+                                                                        {req.grade && <span className="text-xs bg-white/10 px-2 py-1 rounded">{req.grade}</span>}
+                                                                        {req.school && <span className="text-xs bg-white/10 px-2 py-1 rounded">{req.school}</span>}
+                                                                    </div>
+                                                                    {req.bio && (
+                                                                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-3 text-sm text-slate-300">
+                                                                            <span className="text-blue-400 font-bold text-xs">وصف:</span> {req.bio}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            {isSuperAdmin ? (
+                                                                <div className="flex gap-2 self-start">
+                                                                    <button onClick={async () => {
+                                                                        try {
+                                                                            const code = `STD${Date.now().toString().slice(-6)}`;
+                                                                            const userData = {
+                                                                                uid: req.uid,
+                                                                                name: req.name || req.displayName,
+                                                                                displayName: req.displayName || req.name,
+                                                                                email: req.email,
+                                                                                photo: req.photo,
+                                                                                phone: req.phone,
+                                                                                parentPhone: req.parentPhone,
+                                                                                school: req.school,
+                                                                                governorate: req.governorate,
+                                                                                city: req.city,
+                                                                                grade: req.grade,
+                                                                                firstName: req.firstName,
+                                                                                fatherName: req.fatherName,
+                                                                                grandfatherName: req.grandfatherName,
+                                                                                bio: req.bio || '',
+                                                                                role: 'طالب',
+                                                                                level: 'جديد',
+                                                                                isPaid: false,
+                                                                                isNew: false,
+                                                                                code: code,
+                                                                                accountType: req.requestType || 'student',
+                                                                                registrationDate: new Date().toISOString()
+                                                                            };
+                                                                            await window.rtdb.set(window.rtdb.ref(window.db, `users/${req.uid}`), userData);
+                                                                            await window.rtdb.remove(window.rtdb.ref(window.db, `requests/${req.id}`));
+                                                                            showNotification('تم قبول الطلب وإضافته للطلاب ✅');
+                                                                        } catch (error) {
+                                                                            console.error('Approval error:', error);
+                                                                            showNotification('حدث خطأ أثناء الموافقة', 'error');
+                                                                        }
+                                                                    }} className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl font-bold flex items-center gap-2 transition">
+                                                                        <Icon name="check" size={18} /> قبول
+                                                                    </button>
+                                                                    <button onClick={async () => {
+                                                                        if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
+                                                                            await window.rtdb.remove(window.rtdb.ref(window.db, `requests/${req.id}`));
+                                                                            showNotification('تم رفض الطلب');
+                                                                        }
+                                                                    }} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-5 py-2 rounded-xl font-bold flex items-center gap-2 transition border border-red-500/30">
+                                                                        <Icon name="x" size={18} /> رفض
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-slate-400 text-sm px-4 py-2 bg-white/5 rounded-xl self-start">
+                                                                    ⏳ انتظار موافقة المدير الأعلى
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Data Center (Password Protected) */}
                                 {activeTab === 'datacenter' && (
                                     !isDataCenterUnlocked ? (
@@ -2481,77 +2596,14 @@
                                                     value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                                             </div>
 
-                                            {/* Waiting List */}
+                                            {/* Hint to Requests Tab */}
                                             {dataState.requests.length > 0 && (
-                                                <div className="glass-panel p-6 mb-6 border-r-4 border-yellow-500">
-                                                    <h3 className="font-bold mb-4 flex items-center gap-2 text-yellow-400">
-                                                        <GlassIcon name="user-plus" size={20} /> قائمة الانتظار ({dataState.requests.length})
-                                                    </h3>
-                                                    <div className="space-y-3">
-                                                        {dataState.requests.map(req => (
-                                                            <div key={req.id} className="bg-white/5 p-4 rounded-xl flex justify-between items-center">
-                                                                <div className="flex items-center gap-3">
-                                                                    <img src={req.photo} className="w-10 h-10 rounded-full" />
-                                                                    <div>
-                                                                        <p className="font-bold">{req.name}</p>
-                                                                        <p className="text-xs text-slate-400">{req.email}</p>
-                                                                        <span className={`text-xs px-2 py-1 rounded ${req.requestType === 'parent' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>
-                                                                            {req.requestType === 'parent' ? 'ولي أمر' : 'طالب'}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                {isSuperAdmin ? (
-                                                                    <div className="flex gap-2">
-                                                                        <button onClick={async () => {
-                                                                            try {
-                                                                                const code = `STD${Date.now().toString().slice(-6)}`;
-                                                                                // Copy ALL data from request to users, add role and isPaid
-                                                                                const userData = {
-                                                                                    uid: req.uid,
-                                                                                    name: req.name || req.displayName,
-                                                                                    displayName: req.displayName || req.name,
-                                                                                    email: req.email,
-                                                                                    photo: req.photo,
-                                                                                    phone: req.phone,
-                                                                                    parentPhone: req.parentPhone,
-                                                                                    school: req.school,
-                                                                                    governorate: req.governorate,
-                                                                                    city: req.city,
-                                                                                    grade: req.grade,
-                                                                                    firstName: req.firstName,
-                                                                                    fatherName: req.fatherName,
-                                                                                    grandfatherName: req.grandfatherName,
-                                                                                    bio: req.bio || '',
-                                                                                    role: 'طالب',
-                                                                                    isPaid: false,
-                                                                                    isNew: false,
-                                                                                    code: code,
-                                                                                    accountType: req.requestType || 'student',
-                                                                                    registrationDate: new Date().toISOString()
-                                                                                };
-                                                                                // First: Set user data in users collection
-                                                                                await window.rtdb.set(window.rtdb.ref(window.db, `users/${req.uid}`), userData);
-                                                                                // Then: Delete from requests collection
-                                                                                await window.rtdb.remove(window.rtdb.ref(window.db, `requests/${req.id}`));
-                                                                                showNotification('تم قبول الطلب ✅');
-                                                                            } catch (error) {
-                                                                                console.error('Approval error:', error);
-                                                                                showNotification('حدث خطأ أثناء الموافقة', 'error');
-                                                                            }
-                                                                        }} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1">
-                                                                            <Icon name="check" size={16} /> قبول
-                                                                        </button>
-                                                                        <button onClick={async () => {
-                                                                            await window.rtdb.remove(window.rtdb.ref(window.db, 'requests/' + req.id));
-                                                                            showNotification('تم رفض الطلب');
-                                                                        }} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold">رفض</button>
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-slate-400 text-sm px-3 py-2 bg-white/5 rounded-lg">انتظار موافقة المدير الأعلى</span>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                    </div>
+                                                <div className="glass-panel p-4 mb-4 bg-yellow-500/10 border border-yellow-500/20 flex items-center gap-3">
+                                                    <Icon name="alert-circle" size={20} className="text-yellow-400" />
+                                                    <span className="text-yellow-200 text-sm">لديك {dataState.requests.length} طلب التحاق معلق.</span>
+                                                    <button onClick={() => setActiveTab('requests')} className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-1 rounded-lg text-sm font-bold mr-auto">
+                                                        عرض الطلبات
+                                                    </button>
                                                 </div>
                                             )}
 
@@ -2575,22 +2627,52 @@
                                             <div className="grid gap-4">
                                                 {(studentYearFilter === 'parents' ? parentsList :
                                                     studentYearFilter === 'admins' ? adminsList : studentsList).map(s => (
-                                                        <div key={s.id} className="glass-panel p-4 flex justify-between items-center">
+                                                        <div key={s.id} className="glass-panel p-5 flex flex-col md:flex-row justify-between gap-4">
                                                             <div className="flex items-center gap-4">
-                                                                <img src={s.photo} className="w-12 h-12 rounded-full border-2 border-white/10" />
+                                                                <img src={s.photo} className="w-14 h-14 rounded-full border-2 border-white/20" />
                                                                 <div>
-                                                                    <p className="font-bold">{s.name}</p>
+                                                                    <p className="font-bold text-lg">{s.name}</p>
                                                                     <p className="text-xs text-slate-400">{s.email}</p>
-                                                                    <div className="flex gap-2 mt-1">
+                                                                    <div className="flex flex-wrap gap-2 mt-2">
                                                                         <RankBadge points={calculatePoints(s.id)} />
                                                                         {s.isPaid && <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs">مفعل</span>}
                                                                         {!s.isPaid && <span className="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs">غير مفعل</span>}
+                                                                        {s.level && <span className={`px-2 py-1 rounded text-xs ${s.level === 'ممتاز' ? 'bg-green-500/20 text-green-300' : s.level === 'جيد' ? 'bg-blue-500/20 text-blue-300' : s.level === 'ضعيف' ? 'bg-red-500/20 text-red-300' : 'bg-white/10'}`}>{s.level}</span>}
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex gap-2">
+                                                            <div className="flex flex-wrap gap-2 items-center self-start md:self-center">
+                                                                {/* Level Evaluation Dropdown */}
+                                                                <select
+                                                                    value={s.level || 'جديد'}
+                                                                    onChange={async (e) => {
+                                                                        await window.rtdb.update(window.rtdb.ref(window.db, `users/${s.id}`), { level: e.target.value });
+                                                                        showNotification('تم تحديث المستوى ✅');
+                                                                    }}
+                                                                    className="bg-white/5 border border-white/20 text-white px-3 py-2 rounded-xl text-sm font-bold cursor-pointer"
+                                                                >
+                                                                    <option value="جديد">📊 تقييم المستوى</option>
+                                                                    <option value="ممتاز">⭐ ممتاز</option>
+                                                                    <option value="جيد">👍 جيد</option>
+                                                                    <option value="ضعيف">⚠️ ضعيف</option>
+                                                                </select>
+
                                                                 <button onClick={() => { setSelectedStudent(s); setShowStudentModal(true); }}
-                                                                    className="bg-brand-primary hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-bold">إدارة</button>
+                                                                    className="bg-brand-primary hover:bg-blue-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 transition">
+                                                                    <Icon name="settings" size={16} /> إدارة
+                                                                </button>
+
+                                                                {/* Reset Account Button */}
+                                                                {isSuperAdmin && (
+                                                                    <button onClick={async () => {
+                                                                        if (confirm(`⚠️ تحذير: هل تريد إعادة ضبط حساب "${s.name}"؟\n\nهذا سيحذف بيانات الطالب بالكامل وسيحتاج لإعادة التسجيل.`)) {
+                                                                            await window.rtdb.remove(window.rtdb.ref(window.db, `users/${s.id}`));
+                                                                            showNotification('تم إعادة ضبط الحساب - سيحتاج الطالب لإعادة التسجيل');
+                                                                        }
+                                                                    }} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 transition border border-red-500/30">
+                                                                        <Icon name="refresh-cw" size={16} /> إعادة ضبط
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     ))}
