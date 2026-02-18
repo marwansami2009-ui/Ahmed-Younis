@@ -1026,16 +1026,21 @@
                                     <>
                                         <p>النوع: يوتيوب</p>
                                         <p>Video ID: {result.videoId}</p>
+                                        <p className="text-xs text-gold/50">الرابط الذي سيعرض: {result.embedUrl}</p>
                                     </>
                                 )}
                                 {result.type === 'archive' && (
                                     <>
                                         <p>النوع: أرشيف دوت أورج</p>
                                         <p>Video ID: {result.videoId}</p>
+                                        <p className="text-xs text-gold/50">الرابط الذي سيعرض: {result.downloadUrl || result.embedUrl}</p>
                                     </>
                                 )}
                                 {result.type === 'direct' && (
-                                    <p>النوع: فيديو مباشر</p>
+                                    <>
+                                        <p>النوع: فيديو مباشر</p>
+                                        <p className="text-xs text-gold/50 break-all">{result.fileUrl}</p>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -3099,12 +3104,14 @@
                                 <h3 className="text-2xl font-bold mb-6">إضافة محاضرة جديدة</h3>
                                 
                                 <AdminVideoLinkParser onParsed={(parsed) => {
-                                    if (parsed.type === 'youtube') {
-                                        setNewLecture(prev => ({ ...prev, link: parsed.embedUrl }));
-                                    } else if (parsed.type === 'archive') {
-                                        setNewLecture(prev => ({ ...prev, link: parsed.embedUrl }));
-                                    } else if (parsed.type === 'direct') {
-                                        setNewLecture(prev => ({ ...prev, link: parsed.fileUrl }));
+                                    if (parsed.success) {
+                                        if (parsed.type === 'youtube') {
+                                            setNewLecture(prev => ({ ...prev, link: parsed.embedUrl }));
+                                        } else if (parsed.type === 'archive') {
+                                            setNewLecture(prev => ({ ...prev, link: parsed.downloadUrl || parsed.embedUrl }));
+                                        } else if (parsed.type === 'direct') {
+                                            setNewLecture(prev => ({ ...prev, link: parsed.fileUrl }));
+                                        }
                                     }
                                 }} />
                                 
