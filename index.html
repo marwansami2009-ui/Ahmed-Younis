@@ -92,12 +92,16 @@
             --grid-color: rgba(255, 255, 255, 0.04);
             --glow-color: rgba(228, 228, 231, 0.12);
             
-            /* Plyr custom colors */
+            /* Plyr custom colors - Updated to match platform colors */
             --plyr-color-main: #8b0000;
             --plyr-control-toggle-checked-background: #d4af37;
-            --plyr-video-control-background-hover: rgba(212, 175, 55, 0.3);
+            --plyr-video-control-background-hover: rgba(139, 0, 0, 0.3);
             --plyr-range-fill-background: #d4af37;
             --plyr-range-track-height: 5px;
+            --plyr-control-radius: 8px;
+            --plyr-menu-background: rgba(26, 26, 26, 0.9);
+            --plyr-menu-color: #fff;
+            --plyr-menu-border-shadow-color: rgba(212, 175, 55, 0.3);
         }
 
         .light-mode {
@@ -107,6 +111,11 @@
             --text-secondary: #52525b;
             --grid-color: rgba(0, 0, 0, 0.06);
             --glow-color: rgba(161, 161, 170, 0.15);
+            
+            /* Plyr custom colors for light mode */
+            --plyr-color-main: #8b0000;
+            --plyr-control-toggle-checked-background: #d4af37;
+            --plyr-video-control-background-hover: rgba(212, 175, 55, 0.2);
         }
 
         * {
@@ -164,25 +173,30 @@
             box-shadow: 0 8px 25px rgba(228, 228, 231, 0.4);
         }
 
-        /* Plyr custom styles */
+        /* Plyr custom styles - Enhanced with platform colors */
         .plyr--video {
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid #8b0000;
         }
         
         .plyr__controls {
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+            background: linear-gradient(to top, rgba(26, 26, 26, 0.95) 0%, rgba(26, 26, 26, 0.7) 100%);
             direction: ltr;
+            border-top: 1px solid #d4af37;
         }
         
         .plyr__control--overlaid {
             background: #8b0000;
-            border: 2px solid #d4af37;
+            border: 3px solid #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
         
         .plyr__control--overlaid:hover {
             background: #a00000;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.8);
         }
         
         .plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
@@ -190,13 +204,60 @@
         }
         
         .plyr__progress__buffer {
-            background: rgba(212, 175, 55, 0.3);
+            background: rgba(139, 0, 0, 0.3);
+        }
+        
+        .plyr__progress__buffer::-webkit-progress-value {
+            background: #d4af37;
+        }
+        
+        .plyr__tooltip {
+            background: #8b0000;
+            color: #fff;
+            border: 1px solid #d4af37;
+        }
+        
+        .plyr__tooltip:before {
+            border-top-color: #8b0000;
+        }
+        
+        .plyr__control--pressed {
+            background: #d4af37 !important;
+            color: #1a1a1a !important;
         }
         
         .video-container {
             position: relative;
             width: 100%;
             margin: 0 auto;
+        }
+
+        /* Custom peerTube player container */
+        .peertube-player {
+            position: relative;
+            width: 100%;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .peertube-player video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .peertube-player .plyr {
+            border-radius: 12px;
+        }
+        
+        /* Hide any potential external links */
+        .peertube-player .plyr__captions {
+            display: block;
+        }
+        
+        .peertube-player .plyr__control--external {
+            display: none;
         }
 
         .math-grid {
@@ -222,7 +283,7 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #8b0000;
             border-radius: 4px;
         }
 
@@ -241,9 +302,9 @@
         }
 
         .theme-toggle button.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
         }
 
         .auth-dropdown {
@@ -286,7 +347,7 @@
         }
 
         .auth-menu button:hover {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(212, 175, 55, 0.2);
         }
 
         .flashcard-container {
@@ -321,13 +382,13 @@
         }
 
         .flashcard-front {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(30, 41, 59, 0.9) 100%);
-            border: 1px solid rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(26, 26, 26, 0.9) 100%);
+            border: 1px solid #8b0000;
         }
 
         .flashcard-back {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(30, 41, 59, 0.9) 100%);
-            border: 1px solid rgba(251, 191, 36, 0.4);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(26, 26, 26, 0.9) 100%);
+            border: 1px solid #d4af37;
             transform: rotateY(180deg);
         }
 
@@ -360,7 +421,7 @@
         }
 
         .rank-advanced {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
         }
 
         .rank-legend {
@@ -404,7 +465,7 @@
         
         .attendance-btn:hover:not(:disabled) {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(46, 125, 50, 0.5);
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
         }
         
         .attendance-btn:disabled {
@@ -417,9 +478,9 @@
         }
         
         .attendance-day.present {
-            background-color: rgba(46, 125, 50, 0.2);
-            border-color: #2e7d32;
-            color: #2e7d32;
+            background-color: rgba(139, 0, 0, 0.2);
+            border-color: #8b0000;
+            color: #d4af37;
         }
         
         .attendance-day.absent {
@@ -510,8 +571,8 @@
         }
         
         .correct-answer {
-            background: rgba(46, 125, 50, 0.2);
-            border-color: #2e7d32;
+            background: rgba(139, 0, 0, 0.2);
+            border-color: #8b0000;
         }
         
         .wrong-answer {
@@ -560,6 +621,24 @@
         .achievement-badge:hover::before {
             opacity: 1;
         }
+
+        /* Custom scrollbar for admin panels */
+        .admin-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .admin-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .admin-scroll::-webkit-scrollbar-thumb {
+            background: #8b0000;
+            border-radius: 3px;
+        }
+        
+        .admin-scroll::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
     </style>
 </head>
 
@@ -591,7 +670,7 @@
             supportWhatsapp: 'https://wa.me/201000000000'
         };
 
-        // 🏷️ Platform Branding - تم التعديل هنا
+        // 🏷️ Platform Branding
         const PLATFORM_NAME = 'المنصة العالمية';
         const PLATFORM_SHORT = 'العالمية';
         const TEACHER_NAME = 'أستاذ أحمد سعد يونس';
@@ -611,7 +690,7 @@
             </div>
         );
 
-        // 🎖️ Achievement Badge Component - تطوير جذري جديد
+        // 🎖️ Achievement Badge Component
         const AchievementBadge = ({ title, description, icon, earned = false }) => {
             return (
                 <div className={`glass-panel p-4 achievement-badge ${earned ? 'border-2 border-gold' : 'opacity-50'}`}>
@@ -629,7 +708,7 @@
             );
         };
 
-        // 📚 Digital Library Component - تطوير جذري جديد
+        // 📚 Digital Library Component
         const DigitalLibrary = ({ items = [], userGrade, onAddItem }) => {
             const [filter, setFilter] = useState('all');
             
@@ -646,7 +725,7 @@
                             <Icon name="library" size={24} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold">♞ المكتبة الرقمية</h2>
+                            <h2 className="text-xl font-bold">🌍 المكتبة الرقمية</h2>
                             <p className="text-xs text-slate-400">كتب، مذكرات، وملفات تفاعلية</p>
                         </div>
                     </div>
@@ -694,76 +773,184 @@
             );
         };
 
-        // ✅ New Plyr Video Player Component
+        // ✅ Advanced PeerTube Parser Function - NEW FEATURE
+        const parsePeerTubeUrl = async (url) => {
+            try {
+                // Extract video ID from PeerTube URL
+                let videoId = '';
+                const urlObj = new URL(url);
+                
+                if (url.includes('/w/')) {
+                    // Format: https://peertube.tv/w/xyz
+                    videoId = url.split('/w/')[1].split('?')[0];
+                } else if (url.includes('/videos/watch/')) {
+                    // Format: https://peertube.tv/videos/watch/xyz
+                    videoId = url.split('/videos/watch/')[1].split('?')[0];
+                } else if (url.includes('/videos/embed/')) {
+                    // Format: https://peertube.tv/videos/embed/xyz
+                    videoId = url.split('/videos/embed/')[1].split('?')[0];
+                } else if (url.includes('v=')) {
+                    // Format: https://peertube.tv?v=xyz
+                    videoId = urlObj.searchParams.get('v');
+                }
+                
+                if (!videoId) {
+                    throw new Error('Could not extract PeerTube video ID');
+                }
+                
+                // Clean video ID (remove any trailing slashes or parameters)
+                videoId = videoId.split('/')[0].split('?')[0];
+                
+                // Construct API endpoint
+                const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+                const apiUrl = `${baseUrl}/api/v1/videos/${videoId}`;
+                
+                // Fetch video info from PeerTube API
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch video info from PeerTube');
+                }
+                
+                const data = await response.json();
+                
+                // Extract video files with different qualities
+                const files = data.files || [];
+                
+                // Sort files by resolution (prefer 720p or higher)
+                const sortedFiles = files.sort((a, b) => {
+                    const resA = a.resolution?.id || 0;
+                    const resB = b.resolution?.id || 0;
+                    return resB - resA;
+                });
+                
+                // Choose best quality (720p or highest available)
+                const preferredFile = sortedFiles.find(f => f.resolution?.id === 720) || sortedFiles[0];
+                
+                if (!preferredFile) {
+                    throw new Error('No video files found');
+                }
+                
+                return {
+                    success: true,
+                    videoId,
+                    title: data.name,
+                    description: data.description,
+                    duration: data.duration,
+                    fileUrl: preferredFile.fileUrl || preferredFile.url,
+                    thumbnail: data.thumbnailPath,
+                    quality: preferredFile.resolution?.label || 'Auto',
+                    files: sortedFiles.map(f => ({
+                        url: f.fileUrl || f.url,
+                        quality: f.resolution?.label,
+                        height: f.resolution?.height
+                    }))
+                };
+            } catch (error) {
+                console.error('PeerTube parse error:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        };
+
+        // ✅ New Plyr Video Player Component with PeerTube support
         const PlyrVideoPlayer = ({ src, title = "فيديو" }) => {
             const videoRef = useRef(null);
             const playerRef = useRef(null);
             const containerRef = useRef(null);
+            const [videoSrc, setVideoSrc] = useState(src);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
             
             useEffect(() => {
-                if (!videoRef.current) return;
-                
-                // تنظيف المشغل القديم
-                if (playerRef.current) {
-                    playerRef.current.destroy();
-                }
-                
-                // تحويل الرابط إذا كان YouTube
-                let videoSrc = src;
-                let isYouTube = false;
-                let videoId = '';
-                
-                if (src.includes('youtube.com/watch') || src.includes('youtu.be') || src.includes('youtube.com/embed')) {
-                    // استخراج YouTube ID
-                    if (src.includes('youtube.com/watch')) {
-                        const urlParams = new URLSearchParams(new URL(src).search);
-                        videoId = urlParams.get('v');
-                    } else if (src.includes('youtu.be')) {
-                        videoId = src.split('/').pop().split('?')[0];
-                    } else if (src.includes('youtube.com/embed')) {
-                        videoId = src.split('/').pop().split('?')[0];
-                    }
+                const initPlayer = async () => {
+                    if (!videoRef.current) return;
                     
-                    if (videoId) {
-                        videoSrc = `https://www.youtube.com/watch?v=${videoId}`;
-                        isYouTube = true;
+                    setLoading(true);
+                    setError(null);
+                    
+                    try {
+                        // تنظيف المشغل القديم
+                        if (playerRef.current) {
+                            playerRef.current.destroy();
+                        }
+                        
+                        let finalVideoSrc = src;
+                        
+                        // تحقق إذا كان الرابط من PeerTube
+                        if (src.includes('peertube') || src.includes('/w/') || src.includes('/videos/')) {
+                            const result = await parsePeerTubeUrl(src);
+                            if (result.success && result.fileUrl) {
+                                finalVideoSrc = result.fileUrl;
+                                console.log('PeerTube video loaded:', result.title);
+                            } else {
+                                setError('فشل تحميل فيديو PeerTube');
+                            }
+                        }
+                        
+                        // تحويل الرابط إذا كان YouTube
+                        else if (src.includes('youtube.com/watch') || src.includes('youtu.be') || src.includes('youtube.com/embed')) {
+                            let videoId = '';
+                            if (src.includes('youtube.com/watch')) {
+                                const urlParams = new URLSearchParams(new URL(src).search);
+                                videoId = urlParams.get('v');
+                            } else if (src.includes('youtu.be')) {
+                                videoId = src.split('/').pop().split('?')[0];
+                            } else if (src.includes('youtube.com/embed')) {
+                                videoId = src.split('/').pop().split('?')[0];
+                            }
+                            
+                            if (videoId) {
+                                finalVideoSrc = `https://www.youtube.com/watch?v=${videoId}`;
+                            }
+                        }
+                        
+                        setVideoSrc(finalVideoSrc);
+                        
+                        // إنشاء مشغل Plyr
+                        const player = new Plyr(videoRef.current, {
+                            controls: [
+                                'play-large',
+                                'play',
+                                'rewind',
+                                'fast-forward',
+                                'progress',
+                                'current-time',
+                                'duration',
+                                'mute',
+                                'volume',
+                                'captions',
+                                'settings',
+                                'fullscreen'
+                            ],
+                            settings: ['captions', 'quality', 'speed'],
+                            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+                            quality: { default: 720, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] },
+                            i18n: {
+                                rewind: 'رجوع ١٠ ثواني',
+                                fastForward: 'تقديم ١٠ ثواني',
+                                play: 'تشغيل',
+                                pause: 'إيقاف',
+                                volume: 'مستوى الصوت',
+                                mute: 'كتم الصوت',
+                                unmute: 'إلغاء كتم الصوت',
+                                enterFullscreen: 'ملء الشاشة',
+                                exitFullscreen: 'خروج من ملء الشاشة',
+                                settings: 'الإعدادات',
+                            }
+                        });
+                        
+                        playerRef.current = player;
+                    } catch (err) {
+                        console.error('Player initialization error:', err);
+                        setError('حدث خطأ في تحميل المشغل');
+                    } finally {
+                        setLoading(false);
                     }
-                }
+                };
                 
-                // إنشاء مشغل Plyr
-                const player = new Plyr(videoRef.current, {
-                    controls: [
-                        'play-large',
-                        'play',
-                        'rewind', // ترجيع 10 ثواني
-                        'fast-forward', // تقديم 10 ثواني
-                        'progress',
-                        'current-time',
-                        'duration',
-                        'mute',
-                        'volume',
-                        'captions',
-                        'settings',
-                        'fullscreen'
-                    ],
-                    settings: ['captions', 'quality', 'speed'],
-                    speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
-                    quality: { default: 720, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] },
-                    i18n: {
-                        rewind: 'رجوع ١٠ ثواني',
-                        fastForward: 'تقديم ١٠ ثواني',
-                        play: 'تشغيل',
-                        pause: 'إيقاف',
-                        volume: 'مستوى الصوت',
-                        mute: 'كتم الصوت',
-                        unmute: 'إلغاء كتم الصوت',
-                        enterFullscreen: 'ملء الشاشة',
-                        exitFullscreen: 'خروج من ملء الشاشة',
-                        settings: 'الإعدادات',
-                    }
-                });
-                
-                playerRef.current = player;
+                initPlayer();
                 
                 return () => {
                     if (playerRef.current) {
@@ -788,19 +975,39 @@
                 }
             };
             
+            if (loading) {
+                return (
+                    <div className="glass-panel p-8 text-center">
+                        <Icon name="loader" size={32} className="animate-spin mx-auto mb-2" />
+                        <p>جاري تحميل الفيديو...</p>
+                    </div>
+                );
+            }
+            
+            if (error) {
+                return (
+                    <div className="glass-panel p-8 text-center border-red-500 border">
+                        <Icon name="alert-circle" size={32} className="mx-auto mb-2 text-red-500" />
+                        <p className="text-red-500">{error}</p>
+                    </div>
+                );
+            }
+            
             return (
                 <div className="plyr-container" ref={containerRef}>
-                    <video
-                        ref={videoRef}
-                        className="plyr"
-                        playsInline
-                        controls
-                        crossOrigin="anonymous"
-                    >
-                        <source src={src} type="video/mp4" />
-                        <source src={src.replace('.mp4', '.webm')} type="video/webm" />
-                        <a href={src} download>تحميل الفيديو</a>
-                    </video>
+                    <div className="peertube-player">
+                        <video
+                            ref={videoRef}
+                            className="plyr"
+                            playsInline
+                            controls
+                            crossOrigin="anonymous"
+                        >
+                            <source src={videoSrc} type="video/mp4" />
+                            <source src={videoSrc.replace('.mp4', '.webm')} type="video/webm" />
+                            <a href={videoSrc} download>تحميل الفيديو</a>
+                        </video>
+                    </div>
                     
                     {/* أزرار التحكم المخصصة - 5 ثواني */}
                     <div className="custom-video-controls">
@@ -811,6 +1018,149 @@
                             +٥ ثواني <Icon name="rotate-cw" size={16} />
                         </button>
                     </div>
+                </div>
+            );
+        };
+
+        // ✅ Admin Video Link Parser Component - NEW FEATURE
+        const AdminVideoLinkParser = ({ onParsed }) => {
+            const [url, setUrl] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [result, setResult] = useState(null);
+            const [error, setError] = useState(null);
+            
+            const handleParse = async () => {
+                setLoading(true);
+                setError(null);
+                
+                try {
+                    // Check if it's a PeerTube URL
+                    if (url.includes('peertube') || url.includes('/w/') || url.includes('/videos/')) {
+                        const parsed = await parsePeerTubeUrl(url);
+                        if (parsed.success) {
+                            setResult(parsed);
+                            if (onParsed) {
+                                onParsed({
+                                    type: 'peertube',
+                                    originalUrl: url,
+                                    fileUrl: parsed.fileUrl,
+                                    quality: parsed.quality,
+                                    files: parsed.files
+                                });
+                            }
+                        } else {
+                            setError(parsed.error);
+                        }
+                    } 
+                    // Check if it's a YouTube URL
+                    else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        let videoId = '';
+                        if (url.includes('youtube.com/watch')) {
+                            const urlParams = new URLSearchParams(new URL(url).search);
+                            videoId = urlParams.get('v');
+                        } else if (url.includes('youtu.be')) {
+                            videoId = url.split('/').pop().split('?')[0];
+                        }
+                        
+                        if (videoId) {
+                            setResult({
+                                success: true,
+                                videoId,
+                                type: 'youtube',
+                                embedUrl: `https://www.youtube.com/embed/${videoId}`
+                            });
+                            if (onParsed) {
+                                onParsed({
+                                    type: 'youtube',
+                                    originalUrl: url,
+                                    videoId,
+                                    embedUrl: `https://www.youtube.com/embed/${videoId}`
+                                });
+                            }
+                        } else {
+                            setError('رابط YouTube غير صالح');
+                        }
+                    }
+                    // Direct MP4 link
+                    else if (url.match(/\.(mp4|webm|ogg)$/i)) {
+                        setResult({
+                            success: true,
+                            type: 'direct',
+                            fileUrl: url
+                        });
+                        if (onParsed) {
+                            onParsed({
+                                type: 'direct',
+                                originalUrl: url,
+                                fileUrl: url
+                            });
+                        }
+                    }
+                    // Unknown format
+                    else {
+                        setError('الرابط غير مدعوم. استخدم روابط YouTube, PeerTube, أو MP4 مباشر');
+                    }
+                } catch (err) {
+                    setError('حدث خطأ في معالجة الرابط');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            
+            return (
+                <div className="glass-panel p-6">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                        <Icon name="link" size={20} />
+                        محلل روابط الفيديو المتقدم
+                    </h3>
+                    
+                    <div className="flex gap-2 mb-4">
+                        <input
+                            type="url"
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
+                            placeholder="أدخل رابط YouTube, PeerTube, أو MP4..."
+                            className="flex-1 p-3 bg-white/5 border border-white/10 rounded-xl"
+                        />
+                        <button
+                            onClick={handleParse}
+                            disabled={loading || !url}
+                            className="btn-main px-6 py-3 rounded-xl font-bold disabled:opacity-50"
+                        >
+                            {loading ? <Icon name="loader" className="animate-spin" /> : 'تحليل الرابط'}
+                        </button>
+                    </div>
+                    
+                    {error && (
+                        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400">
+                            {error}
+                        </div>
+                    )}
+                    
+                    {result && result.success && (
+                        <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-xl mt-4">
+                            <p className="font-bold text-green-400 mb-2">✓ تم التحليل بنجاح</p>
+                            <div className="space-y-2 text-sm">
+                                {result.type === 'peertube' && (
+                                    <>
+                                        <p>النوع: PeerTube</p>
+                                        <p>العنوان: {result.title}</p>
+                                        <p>الجودة: {result.quality}</p>
+                                        <p className="truncate">الرابط المباشر: {result.fileUrl}</p>
+                                    </>
+                                )}
+                                {result.type === 'youtube' && (
+                                    <>
+                                        <p>النوع: YouTube</p>
+                                        <p>Video ID: {result.videoId}</p>
+                                    </>
+                                )}
+                                {result.type === 'direct' && (
+                                    <p>النوع: MP4 مباشر</p>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
@@ -971,7 +1321,7 @@
             );
         };
 
-        // 🏆 Honor Board Component - Updated with new colors
+        // 🏆 Honor Board Component
         const HonorBoard = ({ students, isDarkMode }) => {
             const topStudents = students
                 .filter(s => !['admin', 'boss'].includes(s.role))
@@ -1047,13 +1397,13 @@
             );
         };
 
-        // ✅ Adaptive Learning Suggestions Component - تطوير جذري جديد
+        // ✅ Adaptive Learning Suggestions Component
         const AdaptiveSuggestions = ({ studentId, courses, lectures, examResults }) => {
             const [suggestions, setSuggestions] = useState([]);
             
             useEffect(() => {
                 // تحليل أداء الطالب واقتراح محتوى مناسب
-                const studentResults = examResults.filter(r => r.studentId === studentId);
+                const studentResults = examResults ? examResults.filter(r => r.studentId === studentId) : [];
                 
                 if (studentResults.length > 0) {
                     // العثور على المواد الضعيفة بناءً على نتائج الامتحانات
@@ -1066,7 +1416,7 @@
                     
                     // اقتراح محاضرات للمواد الضعيفة
                     const suggestedLectures = lectures
-                        .filter(l => weakAreas.some(wa => wa.examId === l.courseId)) // افتراض أن الامتحان مرتبط بالكورس
+                        .filter(l => weakAreas.some(wa => wa.examId === l.courseId))
                         .slice(0, 3)
                         .map(l => ({
                             type: 'lecture',
@@ -2757,7 +3107,17 @@
                             <div className="glass-panel p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                                 <h3 className="text-2xl font-bold mb-6">إضافة محاضرة جديدة</h3>
                                 
-                                <div className="space-y-4">
+                                <AdminVideoLinkParser onParsed={(parsed) => {
+                                    if (parsed.type === 'peertube' && parsed.fileUrl) {
+                                        setNewLecture(prev => ({ ...prev, link: parsed.fileUrl }));
+                                    } else if (parsed.type === 'youtube') {
+                                        setNewLecture(prev => ({ ...prev, link: parsed.embedUrl }));
+                                    } else if (parsed.type === 'direct') {
+                                        setNewLecture(prev => ({ ...prev, link: parsed.fileUrl }));
+                                    }
+                                }} />
+                                
+                                <div className="space-y-4 mt-4">
                                     <div>
                                         <label className="block text-sm font-bold mb-2">عنوان المحاضرة</label>
                                         <input
@@ -2776,9 +3136,9 @@
                                             value={newLecture.link}
                                             onChange={handleInputChange}
                                             className="w-full p-3 bg-white/5 border border-white/10 rounded-xl"
-                                            placeholder="رابط YouTube أو MP4 مباشر"
+                                            placeholder="رابط YouTube, PeerTube, أو MP4 مباشر"
                                         />
-                                        <p className="text-xs text-slate-400 mt-1">يدعم: YouTube, youtu.be, MP4 مباشر</p>
+                                        <p className="text-xs text-slate-400 mt-1">يدعم: YouTube, PeerTube, youtu.be, MP4 مباشر</p>
                                     </div>
                                     
                                     <div>
@@ -3217,7 +3577,7 @@
             const [dataState, setDataState] = useState({
                 students: [], requests: [], lectures: [], whiteboards: [],
                 qa: [], exams: [], announcements: [], payments: [], subscriptions: {},
-                flashcards: [], recordings: [], attendance: {}, courses: [], library: [], achievements: []
+                flashcards: [], recordings: [], attendance: {}, courses: [], library: [], achievements: [], examResults: []
             });
 
             const [regData, setRegData] = useState({
@@ -4112,13 +4472,13 @@
                                     <>
                                         {activeTab === 'home' && (
                                             <div className="space-y-6 animate-slide-up">
-                                                <div className="bg-gradient-to-r from-brand-primary to-blue-900 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
+                                                <div className="bg-gradient-to-r from-brand-red to-brand-red/80 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
                                                     <div className="relative z-10">
                                                         <h2 className="text-3xl font-black mb-2">أهلاً {user?.name?.split(' ')[0]} 👋</h2>
-                                                        <p className="text-blue-100 mb-4">رتبتك: <RankBadge points={points} /></p>
+                                                        <p className="text-gold mb-4">رتبتك: <RankBadge points={points} /></p>
                                                         <div className="flex flex-wrap gap-4">
                                                             <div className="bg-black/30 px-4 py-2 rounded-lg flex items-center gap-2 border border-white/10">
-                                                                <Icon name="video" size={16} className="text-brand-accent" /> {filteredLectures.length} محاضرة
+                                                                <Icon name="video" size={16} className="text-gold" /> {filteredLectures.length} محاضرة
                                                             </div>
                                                             {user?.isPaid && daysLeft > 0 && (
                                                                 <div className="bg-green-500/20 px-4 py-2 rounded-lg flex items-center gap-2 border border-green-500">
